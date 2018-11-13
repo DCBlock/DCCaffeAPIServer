@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://10.1.203.12:5432/DcBlock
+    username: dcblockapi
+    password: dcblockapi12#$
+    driver-class-name: org.postgresql.Driver
