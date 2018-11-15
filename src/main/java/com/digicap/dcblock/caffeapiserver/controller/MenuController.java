@@ -1,4 +1,4 @@
-package com.digicap.dcblock.caffeapiserver.menu.controller;
+package com.digicap.dcblock.caffeapiserver.controller;
 
 import java.util.LinkedList;
 import org.springframework.web.bind.annotation.DeleteMapping;

@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 @EnableAutoConfiguration
-@MapperScan("com.digicap.dcblock.caffeapiserver")
 public class CaffeApiServerApplication {
 
 	public static void main(String[] args) {
