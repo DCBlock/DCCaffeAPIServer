@@ -7,8 +7,4 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class CategoryController {
 
-    @GetMapping("/api/menus")
-    LinkedList<Object> getCategories() {
-        return null;
-    }
 }
