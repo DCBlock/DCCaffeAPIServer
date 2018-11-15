@@ -1,6 +1,8 @@
 package com.digicap.dcblock.caffeapiserver.psession.controller;
 
 import com.digicap.dcblock.caffeapiserver.psession.mapper.PasswordMapper;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,5 +35,18 @@ public class PasswordSessionController {
         }
 
         return "false";
+    }
+
+    @GetMapping("/")
+    String getAllPasswordSessions() {
+        LinkedList<LinkedHashMap<String, String>> sessions = null;
+
+        try {
+            sessions = mapper.selectAllSession();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return " ";
     }
 }
