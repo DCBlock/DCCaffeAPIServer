@@ -4,6 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * category table DAO.
+ */
 @Setter
 @Getter
 @ToString

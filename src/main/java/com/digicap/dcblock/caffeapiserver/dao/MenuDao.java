@@ -11,8 +11,6 @@ public class MenuDao {
 
     private int category;
 
-    private int no;
-
     private int code;
 
     private String name_kor;

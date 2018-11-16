@@ -12,14 +12,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/categories")
 @Slf4j
 public class CategoryController {
 
     @Autowired
     CategoryService service;
 
-    @GetMapping
+    @GetMapping("/api/categories")
     LinkedList<CategoryDao> getAllCategory() throws NotFindException, UnknownException {
         LinkedList<CategoryDao> categoriesDao = null;
 

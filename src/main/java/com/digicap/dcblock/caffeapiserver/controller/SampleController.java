@@ -8,12 +8,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class SampleController {
 
-    @GetMapping("/sample/error/1")
+    @GetMapping("/api/sample/error/1")
     String getException2() throws UnknownException {
         throw new UnknownException("sample. unknown exception");
     }
 
-    @GetMapping("/sample/error/2")
+    @GetMapping("/api/sample/error/2")
     String getException1() throws NotFindException {
         throw new NotFindException("sample. not find resource");
     }

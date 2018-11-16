@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
-public class NotFindException extends Exception {
+public class NotFindException extends RuntimeException {
 
     @Getter
     private String reason;

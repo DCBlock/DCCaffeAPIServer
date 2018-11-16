@@ -7,18 +7,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "/api/psessions")
 @Slf4j
 public class PasswordSessionController {
 
     @Autowired
     PasswordSessionMapper mapper;
 
-    @GetMapping("")
+    @PostMapping("/api/psessions")
     LinkedList<LinkedHashMap<String, String>> getAllPasswordSessions() {
         LinkedList<LinkedHashMap<String, String>> sessions = null;
 
@@ -31,7 +31,7 @@ public class PasswordSessionController {
         return sessions;
     }
 
-    @GetMapping("/{key}")
+    @GetMapping("/api/psessions/{key}")
     String getPasswordSession(@PathVariable String key) {
         try {
             Integer exist = mapper.existKey(key);

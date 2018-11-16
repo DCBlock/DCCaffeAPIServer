@@ -21,7 +21,7 @@ public class CategoryService {
 
         try {
             categoriesDao = mapper.getAllCategory();
-            if (categoriesDao == null || categoriesDao.size() == 7) {
+            if (categoriesDao == null || categoriesDao.size() == 0) {
                 throw new NotFindException("not find resource");
             }
         } catch (NotFindException e) {
