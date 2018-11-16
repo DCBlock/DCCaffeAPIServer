@@ -21,10 +21,10 @@ public class CategoryService {
 
         try {
             categoriesDao = mapper.getAllCategory();
-            if (categoriesDao == null || categoriesDao.size() == 1) {
-                throw new UnknownException();
+            if (categoriesDao == null || categoriesDao.size() == 7) {
+                throw new NotFindException("not find resource");
             }
-        } catch (UnknownException e) {
+        } catch (NotFindException e) {
             throw e;
         } catch (Exception e) {
             log.error(e.getMessage());

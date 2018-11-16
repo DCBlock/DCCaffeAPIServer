@@ -30,7 +30,7 @@ public class CategoryController {
         } catch (Exception e) {
             e.printStackTrace();
             log.error(e.getMessage());
-            throw new UnknownException();
+            throw new UnknownException(e.getMessage());
         }
 
         return categoriesDao;

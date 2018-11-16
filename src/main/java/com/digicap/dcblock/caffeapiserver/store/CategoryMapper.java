@@ -10,6 +10,6 @@ import org.apache.ibatis.annotations.Select;
  */
 public interface CategoryMapper {
 
-    @Select("SELECT * FROM category")
+    @Select("SELECT * FROM category ORDER BY no ASC")
     public LinkedList<CategoryDao> getAllCategory();
 }
