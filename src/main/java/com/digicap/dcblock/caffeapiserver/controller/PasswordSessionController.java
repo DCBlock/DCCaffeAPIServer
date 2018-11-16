@@ -5,12 +5,10 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Deprecated
 @RestController
 @Slf4j
 public class PasswordSessionController {
@@ -18,7 +16,7 @@ public class PasswordSessionController {
     @Autowired
     PasswordSessionMapper mapper;
 
-    @PostMapping("/api/psessions")
+//    @PostMapping("/api/psessions")
     LinkedList<LinkedHashMap<String, String>> getAllPasswordSessions() {
         LinkedList<LinkedHashMap<String, String>> sessions = null;
 
@@ -31,7 +29,7 @@ public class PasswordSessionController {
         return sessions;
     }
 
-    @GetMapping("/api/psessions/{key}")
+//    @GetMapping("/api/psessions/{key}")
     String getPasswordSession(@PathVariable String key) {
         try {
             Integer exist = mapper.existKey(key);

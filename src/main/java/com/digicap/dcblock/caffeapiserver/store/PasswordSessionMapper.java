@@ -10,6 +10,7 @@ import org.apache.ibatis.annotations.Select;
 /**
  * password_session table을 사용하는 query들.
  */
+@Deprecated
 @Mapper
 public interface PasswordSessionMapper {
 
