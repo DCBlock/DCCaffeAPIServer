@@ -1,4 +1,4 @@
-package com.digicap.dcblock.caffeapiserver.filter;
+package com.digicap.dcblock.caffeapiserver.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -7,7 +7,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class ControllerFilterConfig implements WebMvcConfigurer {
+public class ControllerHandlerConfig implements WebMvcConfigurer {
 
     private HandlerInterceptor securityInterceptor;
 

@@ -1,4 +1,4 @@
-package com.digicap.dcblock.caffeapiserver.filter;
+package com.digicap.dcblock.caffeapiserver.handler;
 
 import com.digicap.dcblock.caffeapiserver.exception.ForbiddenException;
 import com.digicap.dcblock.caffeapiserver.util.ApplicationProperties;
@@ -10,12 +10,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 @Component
-public class ControllerFilter implements HandlerInterceptor {
+public class ControllerHandler implements HandlerInterceptor {
 
     ApplicationProperties properties;
 
     @Autowired
-    public ControllerFilter(ApplicationProperties properties) {
+    public ControllerHandler(ApplicationProperties properties) {
         this.properties = properties;
     }
 
