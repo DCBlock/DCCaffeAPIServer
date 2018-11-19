@@ -1,6 +1,6 @@
 package com.digicap.dcblock.caffeapiserver.controller;
 
-import com.digicap.dcblock.caffeapiserver.store.PasswordSessionMapper;
+import com.digicap.dcblock.caffeapiserver.store.PurchaseSessionMapper;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import lombok.extern.slf4j.Slf4j;
@@ -11,17 +11,17 @@ import org.springframework.web.bind.annotation.RestController;
 @Deprecated
 @RestController
 @Slf4j
-public class PasswordSessionController {
+public class PurchaseSessionController {
 
     @Autowired
-    PasswordSessionMapper mapper;
+    PurchaseSessionMapper mapper;
 
 //    @PostMapping("/api/psessions")
     LinkedList<LinkedHashMap<String, String>> getAllPasswordSessions() {
         LinkedList<LinkedHashMap<String, String>> sessions = null;
 
         try {
-            sessions = mapper.selectAllSession();
+//            sessions = mapper.selectAllSession();
         } catch (Exception e) {
             e.printStackTrace();
         }

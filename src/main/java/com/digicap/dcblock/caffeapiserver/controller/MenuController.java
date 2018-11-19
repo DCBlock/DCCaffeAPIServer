@@ -6,9 +6,11 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/api/caffe/menus")
 public class MenuController {
 
     private MenuService service;
@@ -18,7 +20,7 @@ public class MenuController {
         this.service = service;
     }
 
-    @GetMapping("/api/menus")
+    @GetMapping
     LinkedHashMap<String, LinkedList<MenuDao>> getAllMenus() {
         LinkedHashMap<String, LinkedList<MenuDao>> menus;
 

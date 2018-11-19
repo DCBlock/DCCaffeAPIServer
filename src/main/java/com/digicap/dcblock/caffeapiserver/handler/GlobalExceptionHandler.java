@@ -1,5 +1,6 @@
 package com.digicap.dcblock.caffeapiserver.handler;
 
+import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
 import lombok.AllArgsConstructor;
@@ -25,6 +26,13 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public ApiError handleException(NotFindException e) {
         return new ApiError(HttpStatus.NOT_FOUND.value(), e.getReason());
+    }
+
+    @ExceptionHandler(InvalidParameterException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ApiError handleException(InvalidParameterException e) {
+        return new ApiError(HttpStatus.BAD_REQUEST.value(), e.getReason());
     }
 
     /**
