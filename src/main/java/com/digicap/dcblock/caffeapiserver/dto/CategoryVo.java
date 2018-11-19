@@ -14,7 +14,7 @@ public class CategoryVo {
 
     private String name;
 
-    private int no;
+    private int order;
 
     private int code;
 }

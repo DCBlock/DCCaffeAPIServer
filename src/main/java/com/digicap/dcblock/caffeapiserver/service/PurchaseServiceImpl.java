@@ -41,8 +41,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             throw new NotFindException("not find user using rfid");
         }
 
-        ReceiptIdDto receiptIdDto = new ReceiptIdDto();
-
+        // ReceptId 생성.
         int receptId = 0;
 
         try {
@@ -52,6 +51,10 @@ public class PurchaseServiceImpl implements PurchaseService {
             throw e;
         }
 
+        // purchase table에 insert
+
+
+        ReceiptIdDto receiptIdDto = new ReceiptIdDto();
         receiptIdDto.setReceipt_id(insertZeroString(receptId));
         receiptIdDto.setName(userVo.getName());
         receiptIdDto.setDate(new TimeFormat().getCurrent());

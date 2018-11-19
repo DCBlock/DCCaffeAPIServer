@@ -1,5 +1,6 @@
 package com.digicap.dcblock.caffeapiserver.handler;
 
+import com.digicap.dcblock.caffeapiserver.exception.ForbiddenException;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
@@ -33,6 +34,13 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public ApiError handleException(InvalidParameterException e) {
         return new ApiError(HttpStatus.BAD_REQUEST.value(), e.getReason());
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    @ResponseBody
+    public ApiError handleException(ForbiddenException e) {
+        return new ApiError(HttpStatus.FORBIDDEN.value(), e.getReason());
     }
 
     /**
