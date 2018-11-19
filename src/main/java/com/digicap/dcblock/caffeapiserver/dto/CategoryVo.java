@@ -1,4 +1,4 @@
-package com.digicap.dcblock.caffeapiserver.dao;
+package com.digicap.dcblock.caffeapiserver.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +10,7 @@ import lombok.ToString;
 @Setter
 @Getter
 @ToString
-public class CategoryDao {
+public class CategoryVo {
 
     private String name;
 

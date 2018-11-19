@@ -1,6 +1,6 @@
 package com.digicap.dcblock.caffeapiserver.service;
 
-import com.digicap.dcblock.caffeapiserver.dao.UserDao;
+import com.digicap.dcblock.caffeapiserver.dto.UserVo;
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.store.PurchaseMapper;
@@ -8,9 +8,11 @@ import com.digicap.dcblock.caffeapiserver.store.UserMapper;
 import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 @Service
+@Primary
 @Slf4j
 public class PurchaseServiceImpl implements PurchaseService {
 
@@ -26,16 +28,16 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     public ReceiptIdDto getReceiptId(String rfid) {
-        UserDao userDao = null;
+        UserVo userVo = null;
 
         try {
-            userDao = userMapper.existUserByRfid(rfid);
+            userVo = userMapper.existUserByRfid(rfid);
         } catch (Exception e) {
             log.error(e.getMessage());
             throw e;
         }
 
-        if (userDao == null) {
+        if (userVo == null) {
             throw new NotFindException("not find user using rfid");
         }
 
@@ -51,7 +53,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
 
         receiptIdDto.setReceipt_id(insertZeroString(receptId));
-        receiptIdDto.setName(userDao.getName());
+        receiptIdDto.setName(userVo.getName());
         receiptIdDto.setDate(new TimeFormat().getCurrent());
 
         return receiptIdDto;

@@ -1,7 +1,6 @@
 package com.digicap.dcblock.caffeapiserver.store;
 
-import com.digicap.dcblock.caffeapiserver.dao.CategoryDao;
-import java.util.LinkedHashMap;
+import com.digicap.dcblock.caffeapiserver.dto.CategoryVo;
 import java.util.LinkedList;
 import org.apache.ibatis.annotations.Select;
 
@@ -10,6 +9,6 @@ import org.apache.ibatis.annotations.Select;
  */
 public interface CategoryMapper {
 
-    @Select("SELECT * FROM category ORDER BY no ASC")
-    public LinkedList<CategoryDao> getAllCategory();
+    @Select("SELECT * FROM category ORDER BY category.order ASC")
+    public LinkedList<CategoryVo> getAllCategory();
 }

@@ -1,7 +1,7 @@
 package com.digicap.dcblock.caffeapiserver.service;
 
-import com.digicap.dcblock.caffeapiserver.dao.CategoryDao;
-import com.digicap.dcblock.caffeapiserver.dao.MenuDao;
+import com.digicap.dcblock.caffeapiserver.dto.CategoryVo;
+import com.digicap.dcblock.caffeapiserver.dto.MenuVo;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
 import com.digicap.dcblock.caffeapiserver.store.CategoryMapper;
@@ -10,12 +10,14 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 /**
  * menu business logic class.
  */
 @Service
+@Primary
 @Slf4j
 public class MenuServiceImpl implements MenuService {
 
@@ -29,9 +31,9 @@ public class MenuServiceImpl implements MenuService {
         this.categoryMapper = categoryMapper;
     }
 
-    public LinkedHashMap<String, LinkedList<MenuDao>> getAllMenus() {
+    public LinkedHashMap<String, LinkedList<MenuVo>> getAllMenus() {
         // category 테이블에서 목록을 조회.
-        LinkedList<CategoryDao> categories = null;
+        LinkedList<CategoryVo> categories = null;
 
         try {
             categories = categoryMapper.getAllCategory();
@@ -46,11 +48,11 @@ public class MenuServiceImpl implements MenuService {
         }
 
         // category 테이블의 code를 기준으로 menus를 조회.
-        LinkedHashMap<String, LinkedList<MenuDao>> menus = new LinkedHashMap<>();
+        LinkedHashMap<String, LinkedList<MenuVo>> menus = new LinkedHashMap<>();
 
         try {
-            for (CategoryDao category : categories) {
-                LinkedList<MenuDao> menusByCode = getMenusByCategoryCode(category.getCode());
+            for (CategoryVo category : categories) {
+                LinkedList<MenuVo> menusByCode = getMenusByCategoryCode(category.getCode());
                 menus.put(category.getName(), menusByCode);
             }
         } catch (Exception e) {
@@ -61,8 +63,8 @@ public class MenuServiceImpl implements MenuService {
         return menus;
     }
 
-    private LinkedList<MenuDao> getMenusByCategoryCode(int code) throws Exception {
-        LinkedList<MenuDao> menus = null;
+    private LinkedList<MenuVo> getMenusByCategoryCode(int code) throws Exception {
+        LinkedList<MenuVo> menus = null;
 
         try {
             menus = menuMapper.getAllMenus(code);

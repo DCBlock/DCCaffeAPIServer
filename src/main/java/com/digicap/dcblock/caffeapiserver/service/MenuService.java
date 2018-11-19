@@ -1,10 +1,11 @@
 package com.digicap.dcblock.caffeapiserver.service;
 
-import com.digicap.dcblock.caffeapiserver.dao.MenuDao;
+import com.digicap.dcblock.caffeapiserver.dto.MenuVo;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import org.apache.ibatis.annotations.Select;
 
 public interface MenuService {
 
-    public LinkedHashMap<String, LinkedList<MenuDao>> getAllMenus();
+    public LinkedHashMap<String, LinkedList<MenuVo>> getAllMenus();
 }

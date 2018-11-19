@@ -1,6 +1,6 @@
 package com.digicap.dcblock.caffeapiserver.store;
 
-import com.digicap.dcblock.caffeapiserver.dao.UserDao;
+import com.digicap.dcblock.caffeapiserver.dto.UserVo;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
@@ -10,5 +10,5 @@ import org.apache.ibatis.annotations.Select;
 public interface UserMapper {
 
     @Select("SELECT name, email FROM users WHERE rfid = #{rfid}")
-    UserDao existUserByRfid(@Param("rfid") String rfid);
+    UserVo existUserByRfid(@Param("rfid") String rfid);
 }

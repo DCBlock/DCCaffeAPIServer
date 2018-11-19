@@ -1,12 +1,13 @@
 package com.digicap.dcblock.caffeapiserver.controller;
 
-import com.digicap.dcblock.caffeapiserver.dao.CategoryDao;
+import com.digicap.dcblock.caffeapiserver.dto.CategoryVo;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
 import com.digicap.dcblock.caffeapiserver.service.CategoryService;
 import java.util.LinkedList;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,12 +15,16 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class CategoryController {
 
-    @Autowired
     CategoryService service;
 
+    @Autowired
+    public CategoryController(CategoryService service) {
+        this.service = service;
+    }
+
     @GetMapping("/api/caffe/categories")
-    LinkedList<CategoryDao> getAllCategory() throws NotFindException, UnknownException {
-        LinkedList<CategoryDao> categoriesDao = null;
+    LinkedList<CategoryVo> getAllCategory() throws NotFindException, UnknownException {
+        LinkedList<CategoryVo> categoriesDao = null;
 
         try {
             categoriesDao = service.getAllCategories();

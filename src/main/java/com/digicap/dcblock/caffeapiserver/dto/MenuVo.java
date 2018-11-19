@@ -1,4 +1,4 @@
-package com.digicap.dcblock.caffeapiserver.dao;
+package com.digicap.dcblock.caffeapiserver.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -7,15 +7,15 @@ import lombok.ToString;
 @Setter
 @Getter
 @ToString
-public class MenuDao {
+public class MenuVo {
 
     private int category;
 
     private int code;
 
-    private String name_kor;
+    private String name_kr;
 
-    private String name_eng;
+    private String name_en;
 
     private int price;
 

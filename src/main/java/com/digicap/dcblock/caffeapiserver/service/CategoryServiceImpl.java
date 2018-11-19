@@ -1,26 +1,32 @@
 package com.digicap.dcblock.caffeapiserver.service;
 
-import com.digicap.dcblock.caffeapiserver.dao.CategoryDao;
+import com.digicap.dcblock.caffeapiserver.dto.CategoryVo;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.store.CategoryMapper;
 import java.util.LinkedList;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 @Service
+@Primary
 @Slf4j
 public class CategoryServiceImpl implements CategoryService {
 
-    @Autowired
     CategoryMapper mapper;
 
-    public LinkedList<CategoryDao> getAllCategories() {
-        LinkedList<CategoryDao> categoriesDao = null;
+    @Autowired
+    public CategoryServiceImpl(CategoryMapper mapper) {
+        this.mapper = mapper;
+    }
+
+    public LinkedList<CategoryVo> getAllCategories() {
+        LinkedList<CategoryVo> categoriesVo = null;
 
         try {
-            categoriesDao = mapper.getAllCategory();
-            if (categoriesDao == null || categoriesDao.size() == 0) {
+            categoriesVo = mapper.getAllCategory();
+            if (categoriesVo == null || categoriesVo.size() == 0) {
                 throw new NotFindException("not find resource");
             }
         } catch (NotFindException e) {
@@ -30,6 +36,6 @@ public class CategoryServiceImpl implements CategoryService {
             throw e;
         }
 
-        return categoriesDao;
+        return categoriesVo;
     }
 }

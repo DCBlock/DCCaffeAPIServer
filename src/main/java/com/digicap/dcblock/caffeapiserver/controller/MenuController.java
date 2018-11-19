@@ -1,6 +1,6 @@
 package com.digicap.dcblock.caffeapiserver.controller;
 
-import com.digicap.dcblock.caffeapiserver.dao.MenuDao;
+import com.digicap.dcblock.caffeapiserver.dto.MenuVo;
 import com.digicap.dcblock.caffeapiserver.service.MenuService;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -21,8 +21,8 @@ public class MenuController {
     }
 
     @GetMapping
-    LinkedHashMap<String, LinkedList<MenuDao>> getAllMenus() {
-        LinkedHashMap<String, LinkedList<MenuDao>> menus;
+    LinkedHashMap<String, LinkedList<MenuVo>> getAllMenus() {
+        LinkedHashMap<String, LinkedList<MenuVo>> menus;
 
         try {
             menus = service.getAllMenus();
