@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 /**
- * 매일 0시0분0초에 DB Sequence를 1로 초기화한다.
+ * Schedule이 필요한 기능 구현.
  */
 @Component
 @Slf4j
@@ -20,6 +20,9 @@ public class ScheduledConfig {
         this.purchaseMapper = mapper;
     }
 
+    /**
+     * 매일 0시 0분에 Receipt_id Sequence를 0으로 초기화한다.
+     */
     @Scheduled(cron="0 0 * * * *")
     public void initalizeReceiptIdSequence() {
         log.info("initalize ReceiptId Sequence");

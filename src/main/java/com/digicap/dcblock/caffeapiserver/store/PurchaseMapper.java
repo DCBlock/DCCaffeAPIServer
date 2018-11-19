@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Select;
  */
 public interface PurchaseMapper {
 
-    @Select("SELECT setval('purchase_recept_id', 1)")
+    @Select("SELECT setval('purchase_recept_id', 0)")
     int initReceptId();
 
     @Select("SELECT nextval('purchase_recept_id')")

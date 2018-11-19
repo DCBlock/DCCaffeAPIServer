@@ -32,6 +32,7 @@ public class PurchaseController {
             .map(Object::toString)
             .orElseThrow(() -> new InvalidParameterException("not find rfid"));
 
+        receiptIdDto = service.getReceiptId(rfid);
         return receiptIdDto;
     }
 }
