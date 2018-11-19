@@ -12,7 +12,7 @@ public class TimeFormat {
      * @return 2018-11-01
      */
     public String getCurrent() {
-        SimpleDateFormat simpleDateFormat= new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat simpleDateFormat= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
         simpleDateFormat.setTimeZone(getTimeZone("Asia/Seoul"));
 
         return simpleDateFormat.format(new Date());

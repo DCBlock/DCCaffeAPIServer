@@ -5,11 +5,13 @@ import com.digicap.dcblock.caffeapiserver.util.ApplicationProperties;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 @Component
+@Slf4j
 public class ControllerHandler implements HandlerInterceptor {
 
     ApplicationProperties properties;
@@ -23,12 +25,14 @@ public class ControllerHandler implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String remoteIp = getRemoteIP(request);
 
+        // remote client ip filtering.
         List<String> allow_remotes = properties.getAllow_remotes();
         if (!allow_remotes.contains(remoteIp)) {
+            log.error(remoteIp + " is not allow remote ip.");
             throw new ForbiddenException("not allow remote client");
         }
 
-        return false;
+        return true;
     }
 
     private String getRemoteIP(HttpServletRequest request){

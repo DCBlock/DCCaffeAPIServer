@@ -9,15 +9,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class ControllerHandlerConfig implements WebMvcConfigurer {
 
-    private HandlerInterceptor securityInterceptor;
+    private HandlerInterceptor handlerInterceptor;
 
     @Autowired
     public void setSecurityInterceptor(HandlerInterceptor securityInterceptor) {
-        this.securityInterceptor = securityInterceptor;
+        this.handlerInterceptor = securityInterceptor;
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(securityInterceptor).addPathPatterns("/api/caffe/**");
+        registry.addInterceptor(handlerInterceptor).addPathPatterns("/api/caffe/**");
     }
 }

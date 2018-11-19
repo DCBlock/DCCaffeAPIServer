@@ -28,7 +28,7 @@ public class ScheduledConfig {
         log.info("initalize ReceiptId Sequence");
 
         try {
-            purchaseMapper.initReceptId();
+            purchaseMapper.initReceiptId();
         } catch (Exception e) {
             log.error(e.getMessage());
         }

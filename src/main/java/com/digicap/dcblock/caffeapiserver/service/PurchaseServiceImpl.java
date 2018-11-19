@@ -3,9 +3,13 @@ package com.digicap.dcblock.caffeapiserver.service;
 import com.digicap.dcblock.caffeapiserver.dto.UserVo;
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
+import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
 import com.digicap.dcblock.caffeapiserver.store.PurchaseMapper;
+import com.digicap.dcblock.caffeapiserver.store.ReceiptIdsMapper;
 import com.digicap.dcblock.caffeapiserver.store.UserMapper;
 import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
+import java.util.HashMap;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -20,11 +24,15 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     private PurchaseMapper purchaseMapper;
 
+    private ReceiptIdsMapper receiptMapper;
+
     @Autowired
-    public PurchaseServiceImpl(UserMapper userMapper, PurchaseMapper purchaseMapper) {
+    public PurchaseServiceImpl(UserMapper userMapper, PurchaseMapper purchaseMapper, ReceiptIdsMapper receiptIdsMapper) {
         this.userMapper = userMapper;
 
         this.purchaseMapper = purchaseMapper;
+
+        this.receiptMapper = receiptIdsMapper;
     }
 
     public ReceiptIdDto getReceiptId(String rfid) {
@@ -42,24 +50,38 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
 
         // ReceptId 생성.
-        int receptId = 0;
+        int receiptId = 0;
 
         try {
-            receptId = purchaseMapper.getReceptId();
+            receiptId = purchaseMapper.getReceiptId();
         } catch (Exception e) {
             log.error(e.getMessage());
             throw e;
         }
 
         // purchase table에 insert
+        int result = 0;
+        try {
+           result = receiptMapper.setReceiptId(userVo.getName(), userVo.getEmail(), receiptId);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw e;
+        }
 
+        if (result == 0) {
+            throw new UnknownException("db error");
+        }
 
         ReceiptIdDto receiptIdDto = new ReceiptIdDto();
-        receiptIdDto.setReceipt_id(insertZeroString(receptId));
+        receiptIdDto.setReceipt_id(insertZeroString(receiptId));
         receiptIdDto.setName(userVo.getName());
         receiptIdDto.setDate(new TimeFormat().getCurrent());
 
         return receiptIdDto;
+    }
+
+    public int requestPurchases(int receiptId, List<HashMap<String, Object>> purchases) {
+        return 0;
     }
 
     private String insertZeroString(int number) {

@@ -3,6 +3,9 @@ package com.digicap.dcblock.caffeapiserver.controller;
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.service.PurchaseService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class PurchaseController {
 
     private final static String KEY_RFID = "rfid";
+    private final static String KEY_RECEIPT_ID = "receipt_id";
+    private final static String KEY_PURCHASES = "purchases";
 
     private PurchaseService service;
 
@@ -35,5 +40,22 @@ public class PurchaseController {
 
         receiptIdDto = service.getReceiptId(rfid);
         return receiptIdDto;
+    }
+
+    @PostMapping("/purchase")
+    String updatePurchaseByReceiptId(@RequestBody Map<String, Object> body) {
+        int result = 0;
+
+        String receiptId = Optional.ofNullable(body.get(KEY_RECEIPT_ID))
+            .map(Object::toString)
+            .orElseThrow(() -> new InvalidParameterException("not find receipt_id."));
+
+        List<HashMap<String, Object>> purchases = Optional.ofNullable(body.get(KEY_PURCHASES))
+            .map(s -> new ObjectMapper().convertValue(s, List.class))
+            .orElseThrow(() -> new InvalidParameterException("not find purchases."));
+
+
+        service.requestPurchases(10, purchases);
+        return receiptId;
     }
 }
