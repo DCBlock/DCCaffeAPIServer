@@ -23,12 +23,14 @@ public class ScheduledConfig {
     /**
      * 매일 0시 0분에 Receipt_id Sequence를 0으로 초기화한다.
      */
+    // TODO scheduled test
     @Scheduled(cron="0 0 * * * *")
-    public void initalizeReceiptIdSequence() {
-        log.info("initalize ReceiptId Sequence");
+    public void initializeReceiptIdSequence() {
+        // TODO logging, console, file
+        log.info("initialize ReceiptId Sequence");
 
         try {
-            purchaseMapper.initReceiptId();
+            purchaseMapper.updateReceiptId();
         } catch (Exception e) {
             log.error(e.getMessage());
         }

@@ -8,4 +8,6 @@ import org.apache.ibatis.annotations.Select;
 public interface MenuService {
 
     public LinkedHashMap<String, LinkedList<MenuVo>> getAllMenus();
+
+    public LinkedHashMap<Integer, LinkedList<MenuVo>> getAllMenusUsingCode();
 }

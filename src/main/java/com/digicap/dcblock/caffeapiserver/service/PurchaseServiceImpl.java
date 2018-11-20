@@ -1,14 +1,21 @@
 package com.digicap.dcblock.caffeapiserver.service;
 
+import com.digicap.dcblock.caffeapiserver.dto.MenuVo;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
+import com.digicap.dcblock.caffeapiserver.dto.PurchasedDto;
+import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo2;
 import com.digicap.dcblock.caffeapiserver.dto.UserVo;
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
+import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
+import com.digicap.dcblock.caffeapiserver.store.MenuMapper;
 import com.digicap.dcblock.caffeapiserver.store.PurchaseMapper;
 import com.digicap.dcblock.caffeapiserver.store.ReceiptIdsMapper;
 import com.digicap.dcblock.caffeapiserver.store.UserMapper;
 import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,26 +27,38 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class PurchaseServiceImpl implements PurchaseService {
 
+    private static final String COMPANY_DIGICAP = "digicap";
+    private static final String COMPANY_COVISION = "covision";
+
     private UserMapper userMapper;
 
     private PurchaseMapper purchaseMapper;
 
     private ReceiptIdsMapper receiptMapper;
 
+    private MenuMapper menuMapper;
+
+    private MenuService menuService;
+
     @Autowired
-    public PurchaseServiceImpl(UserMapper userMapper, PurchaseMapper purchaseMapper, ReceiptIdsMapper receiptIdsMapper) {
+    public PurchaseServiceImpl(UserMapper userMapper, PurchaseMapper purchaseMapper,
+        ReceiptIdsMapper receiptIdsMapper, MenuMapper menuMapper, MenuService menuService) {
         this.userMapper = userMapper;
 
         this.purchaseMapper = purchaseMapper;
 
         this.receiptMapper = receiptIdsMapper;
+
+        this.menuMapper = menuMapper;
+
+        this.menuService = menuService;
     }
 
     public ReceiptIdDto getReceiptId(String rfid) {
         UserVo userVo = null;
 
         try {
-            userVo = userMapper.existUserByRfid(rfid);
+            userVo = userMapper.selectUserByRfid(rfid);
         } catch (Exception e) {
             log.error(e.getMessage());
             throw e;
@@ -49,20 +68,20 @@ public class PurchaseServiceImpl implements PurchaseService {
             throw new NotFindException("not find user using rfid");
         }
 
-        // ReceptId 생성.
+        // ReceiptId 생성.
         int receiptId = 0;
 
         try {
-            receiptId = purchaseMapper.getReceiptId();
+            receiptId = purchaseMapper.selectReceiptId();
         } catch (Exception e) {
             log.error(e.getMessage());
             throw e;
         }
 
-        // purchase table에 insert
+        // receipts table에 insert
         int result = 0;
         try {
-           result = receiptMapper.setReceiptId(userVo.getName(), userVo.getEmail(), receiptId);
+           result = receiptMapper.insertReceiptId(userVo.getName(), userVo.getCompany(), receiptId);
         } catch (Exception e) {
             log.error(e.getMessage());
             throw e;
@@ -80,10 +99,103 @@ public class PurchaseServiceImpl implements PurchaseService {
         return receiptIdDto;
     }
 
-    public int requestPurchases(int receiptId, List<HashMap<String, Object>> purchases) {
-        return 0;
+    /**
+     * 구매 요청을 처리.
+     *
+     * @param receiptId 구매하려는 사용자가 발급받은 영수증 ID.
+     * @param _purchases 구매목록.
+     * @return
+     */
+    public PurchasedDto requestPurchases(int receiptId, List<LinkedHashMap<String, Object>> _purchases) {
+        // parameter 확인
+        ReceiptIdVo2 receiptIdVo2 = null;
+
+        try {
+            // TODO 일회성 적용
+            receiptIdVo2 = receiptMapper.selectByReceiptId(receiptId);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw e;
+        }
+
+        if (receiptIdVo2 == null) {
+            throw new NotFindException("not find receipt_id");
+        }
+
+        // hashmap to instance
+        LinkedList<PurchaseDto> purchases = toPurchaseDtos(_purchases);
+
+        LinkedHashMap<Integer, LinkedList<MenuVo>> menusInCategory = menuService.getAllMenusUsingCode();
+
+        // 구매요청한 카테고리, 메뉴 확인
+        for (PurchaseDto purchaseDto : purchases) {
+            int category = purchaseDto.getCategory();
+            int code = purchaseDto.getCode();
+            Integer bExist = menuMapper.existCode(code, category);
+            if (bExist == null) {
+               throw new InvalidParameterException("unknown category: " + category);
+            }
+
+            for (MenuVo menu : menusInCategory.get(category)) {
+                // 사용자 정보.
+                purchaseDto.setName(receiptIdVo2.getName());
+                purchaseDto.setUser_record_index(receiptIdVo2.getUser_record_index());
+
+                // 구매 정보.
+                purchaseDto.setPrice(menu.getPrice());
+                purchaseDto.setMenu_name_kr(menu.getName_kr());
+                purchaseDto.setReceipt_id(receiptId);
+
+                // DC 가격
+                String company = receiptIdVo2.getCompany();
+                if (company.equals(COMPANY_DIGICAP)) {
+                    purchaseDto.setDc_price(menu.getDc_digicap());
+                } else if (company.equals(COMPANY_COVISION)) {
+                    purchaseDto.setDc_price(menu.getDc_covision());
+                } else {
+                    purchaseDto.setDc_price(0);
+                }
+            }
+        }
+
+        // Insert Purchases Table.
+        for (PurchaseDto p : purchases) {
+            try {
+                int result = purchaseMapper.insertPurchase(p);
+                if (result == 0) {
+                    // TODO receipt id db delete
+                    throw new UnknownException("DB Insert Error.");
+                }
+            } catch (Exception e) {
+                // TODO receipt id db delete
+                throw new UnknownException(e.getMessage());
+            }
+        }
+
+        // TODO calc
+        PurchasedDto purchasedDto = new PurchasedDto();
+        purchasedDto.setTotal_price(10000);
+        purchasedDto.setTotal_dc_price(5000);
+        return purchasedDto;
     }
 
+    public List<PurchaseDto> cancelPurchases(int receiptId) {
+        return null;
+    }
+
+    public List<PurchaseDto> cancelApprovalPurchases(int receiptId) {
+        return null;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // private methods
+
+    /**
+     * 숫자를 네자리 문자열로 변경. 공백은 0으로 채움.
+     *
+     * @param number 숫자.
+     * @return
+     */
     private String insertZeroString(int number) {
         int length = String.valueOf(number).length();
 
@@ -98,5 +210,22 @@ public class PurchaseServiceImpl implements PurchaseService {
         } else {
             return value;
         }
+    }
+
+    private LinkedList<PurchaseDto> toPurchaseDtos(List<LinkedHashMap<String, Object>> purchases) {
+        LinkedList<PurchaseDto> results = new LinkedList<>();
+
+        for (LinkedHashMap<String, Object> p : purchases) {
+            PurchaseDto pp = new PurchaseDto();
+            pp.setCategory(Integer.valueOf(p.getOrDefault("category", -1).toString()));
+            pp.setCode(Integer.valueOf(p.getOrDefault("code", -1).toString()));
+            pp.setOpt_size(Integer.valueOf(p.getOrDefault("opt_size", -1).toString()));
+            pp.setOpt_type(Integer.valueOf(p.getOrDefault("opt_type", -1).toString()));
+            pp.setCount(Integer.valueOf(p.getOrDefault("count", -1).toString()));
+
+            results.add(pp);
+        }
+
+        return results;
     }
 }

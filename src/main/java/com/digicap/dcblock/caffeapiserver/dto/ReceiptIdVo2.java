@@ -5,11 +5,11 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class UserVo {
+public class ReceiptIdVo2 {
 
     private String name;
 
     private String company;
 
-    private long index;
+    private long user_record_index;
 }

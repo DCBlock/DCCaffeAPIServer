@@ -25,7 +25,7 @@ public class CategoryServiceImpl implements CategoryService {
         LinkedList<CategoryVo> categoriesVo = null;
 
         try {
-            categoriesVo = mapper.getAllCategory();
+            categoriesVo = mapper.selectAllCategory();
             if (categoriesVo == null || categoriesVo.size() == 0) {
                 throw new NotFindException("not find resource");
             }

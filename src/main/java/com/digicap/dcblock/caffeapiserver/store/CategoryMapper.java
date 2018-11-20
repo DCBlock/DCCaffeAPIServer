@@ -10,5 +10,5 @@ import org.apache.ibatis.annotations.Select;
 public interface CategoryMapper {
 
     @Select("SELECT * FROM category ORDER BY category.order ASC")
-    public LinkedList<CategoryVo> getAllCategory();
+    public LinkedList<CategoryVo> selectAllCategory();
 }

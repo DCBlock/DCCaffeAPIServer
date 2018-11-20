@@ -28,7 +28,7 @@ public class MenuController {
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Success", response = LinkedHashMap.class),
         @ApiResponse(code = 500, message = "Failure", response = ApiError.class)})
-    @GetMapping(produces = "application/json")
+    @GetMapping()
     LinkedHashMap<String, LinkedList<MenuVo>> getAllMenus() {
         LinkedHashMap<String, LinkedList<MenuVo>> menus;
 

@@ -5,11 +5,9 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class UserVo {
+public class PurchasedDto {
 
-    private String name;
+    private int total_price;
 
-    private String company;
-
-    private long index;
+    private int total_dc_price;
 }

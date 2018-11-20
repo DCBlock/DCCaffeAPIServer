@@ -9,6 +9,6 @@ import org.apache.ibatis.annotations.Select;
  */
 public interface UserMapper {
 
-    @Select("SELECT name, email FROM users WHERE rfid = #{rfid}")
-    UserVo existUserByRfid(@Param("rfid") String rfid);
+    @Select("SELECT name, company, index FROM users WHERE rfid = #{rfid}")
+    UserVo selectUserByRfid(@Param("rfid") String rfid);
 }

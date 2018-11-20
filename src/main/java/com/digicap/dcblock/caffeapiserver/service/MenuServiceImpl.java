@@ -36,7 +36,7 @@ public class MenuServiceImpl implements MenuService {
         LinkedList<CategoryVo> categories = null;
 
         try {
-            categories = categoryMapper.getAllCategory();
+            categories = categoryMapper.selectAllCategory();
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new UnknownException(e.getMessage());
@@ -63,11 +63,43 @@ public class MenuServiceImpl implements MenuService {
         return menus;
     }
 
+    public LinkedHashMap<Integer, LinkedList<MenuVo>> getAllMenusUsingCode() {
+        // category 테이블에서 목록을 조회.
+        LinkedList<CategoryVo> categories = null;
+
+        try {
+            categories = categoryMapper.selectAllCategory();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new UnknownException(e.getMessage());
+        }
+
+        if (categories == null || categories.size() == 0) {
+            log.error("category is null or 0.");
+            throw new NotFindException("category is null or 0.");
+        }
+
+        // category 테이블의 code를 기준으로 menus를 조회.
+        LinkedHashMap<Integer, LinkedList<MenuVo>> menus = new LinkedHashMap<>();
+
+        try {
+            for (CategoryVo category : categories) {
+                LinkedList<MenuVo> menusByCode = getMenusByCategoryCode(category.getCode());
+                menus.put(category.getCode(), menusByCode);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new UnknownException(e.getMessage());
+        }
+
+        return menus;
+    }
+
     private LinkedList<MenuVo> getMenusByCategoryCode(int code) throws Exception {
         LinkedList<MenuVo> menus = null;
 
         try {
-            menus = menuMapper.getAllMenus(code);
+            menus = menuMapper.selectAllMenus(code);
         } catch (Exception e) {
             throw e;
         }
