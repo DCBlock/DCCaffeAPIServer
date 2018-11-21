@@ -3,37 +3,22 @@ package com.digicap.dcblock.caffeapiserver.handler;
 import com.digicap.dcblock.caffeapiserver.exception.ForbiddenException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
 import com.digicap.dcblock.caffeapiserver.util.ApplicationProperties;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.ReadListener;
-import javax.servlet.Servlet;
 import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.TeeOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.HandlerInterceptor;
 
 @Component
 @Slf4j
-public class ControllerFilter { // implements Filter {
+public class ControllerFilter implements HandlerInterceptor {
 
     ApplicationProperties properties;
 
@@ -44,29 +29,35 @@ public class ControllerFilter { // implements Filter {
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
         try {
+
 //            HttpServletRequest httpRequest = (HttpServletRequest)request;
 //            HttpServletResponse httpResponse = (HttpServletResponse)response;
 //
 //            HttpRequestWrapper httpRequestWrapper = new HttpRequestWrapper(httpRequest);
 
             // before Controller
-//            preFilter(httpRequestWrapper);
+//            preFilter(request);
 
             chain.doFilter(request, response);
 
             // after Controller
 //            postFilter(httpRequestWrapper, httpResponse);
+        } catch (ForbiddenException e) {
+            throw e;
         } catch (ServletException | IOException e) {
             throw new UnknownException(e.getMessage());
         }
     }
 
-    private boolean preFilter(HttpRequestWrapper request) throws ForbiddenException, IOException {
-        long threadId = Thread.currentThread().getId();
-
-        String body = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8).replaceAll("\r", "").replaceAll("\n", "");
-        log.info(threadId + " " + request.getMethod() + " " + request.getRequestURI() + " " + body);
-
+    /**
+     * 허락된 IP목록만 접속 가능하도록 함
+     *
+     * @param request
+     * @return
+     * @throws ForbiddenException
+     */
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String remoteIp = getRemoteIP(request);
 
         // remote client ip filtering.
@@ -79,10 +70,10 @@ public class ControllerFilter { // implements Filter {
         return true;
     }
 
-    private void postFilter(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        long threadId = Thread.currentThread().getId();
-        log.info(threadId + " " + request.getMethod() + " " + request.getRequestURI() + " " + response.getStatus());
-    }
+//    private void postFilter(HttpServletRequest request, HttpServletResponse response) throws IOException {
+//        long threadId = Thread.currentThread().getId();
+//        log.info(threadId + " " + request.getMethod() + " " + request.getRequestURI() + " " + response.getStatus());
+//    }
 
     private String getRemoteIP(HttpServletRequest request){
         String ip = request.getHeader("X-FORWARDED-FOR");
@@ -110,57 +101,57 @@ public class ControllerFilter { // implements Filter {
         return ip;
     }
 
-    private class HttpRequestWrapper extends HttpServletRequestWrapper {
-
-        @Getter
-        private byte[] bodyData;
-
-        public HttpRequestWrapper(HttpServletRequest request) throws IOException {
-            super(request);
-
-            InputStream is = super.getInputStream();
-            bodyData = IOUtils.toByteArray(is);
-        }
-
-        @Override
-        public ServletInputStream getInputStream() throws IOException {
-            final ByteArrayInputStream bis = new ByteArrayInputStream(bodyData);
-            return new ServletImpl(bis);
-        }
-
-        private class ServletImpl extends ServletInputStream {
-
-            private InputStream is;
-
-            public ServletImpl(InputStream bis) {
-                is = bis;
-            }
-
-            @Override
-            public int read() throws IOException {
-                return is.read();
-            }
-
-            @Override
-            public int read(byte[] b) throws IOException {
-                return is.read(b);
-            }
-
-            @Override
-            public boolean isFinished() {
-                return false;
-            }
-
-            @Override
-            public boolean isReady() {
-                return false;
-            }
-
-            @Override
-            public void setReadListener(ReadListener listener) {
-            }
-        }
-    }
+//    private class HttpRequestWrapper extends HttpServletRequestWrapper {
+//
+//        @Getter
+//        private byte[] bodyData;
+//
+//        public HttpRequestWrapper(HttpServletRequest request) throws IOException {
+//            super(request);
+//
+//            InputStream is = super.getInputStream();
+//            bodyData = IOUtils.toByteArray(is);
+//        }
+//
+//        @Override
+//        public ServletInputStream getInputStream() throws IOException {
+//            final ByteArrayInputStream bis = new ByteArrayInputStream(bodyData);
+//            return new ServletImpl(bis);
+//        }
+//
+//        private class ServletImpl extends ServletInputStream {
+//
+//            private InputStream is;
+//
+//            public ServletImpl(InputStream bis) {
+//                is = bis;
+//            }
+//
+//            @Override
+//            public int read() throws IOException {
+//                return is.read();
+//            }
+//
+//            @Override
+//            public int read(byte[] b) throws IOException {
+//                return is.read(b);
+//            }
+//
+//            @Override
+//            public boolean isFinished() {
+//                return false;
+//            }
+//
+//            @Override
+//            public boolean isReady() {
+//                return false;
+//            }
+//
+//            @Override
+//            public void setReadListener(ReadListener listener) {
+//            }
+//        }
+//    }
 
 //    private class HttpResponseWrapper extends HttpServletResponseWrapper {
 //

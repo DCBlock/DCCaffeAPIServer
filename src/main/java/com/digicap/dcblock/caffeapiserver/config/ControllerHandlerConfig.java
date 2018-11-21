@@ -7,15 +7,29 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @Configuration
-public class ControllerFilterConfig {
+public class ControllerHandlerConfig implements WebMvcConfigurer {
 
-    ApplicationProperties properties;
+    private ApplicationProperties properties;
+
+    private HandlerInterceptor interceptor;
 
     @Autowired
-    public ControllerFilterConfig(ApplicationProperties properties) {
+    public ControllerHandlerConfig(ApplicationProperties properties, HandlerInterceptor interceptor) {
         this.properties = properties;
+        this.interceptor = interceptor;
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(interceptor)
+            .addPathPatterns("/api/caffe/**");
+//            .excludePathPatterns("/public/**");
     }
 
 //    @Bean
