@@ -251,9 +251,9 @@ public class PurchaseServiceImpl implements PurchaseService {
         LinkedList<PurchaseDto> results = null;
 
         try {
-            results = purchaseMapper.updateReceiptCancelAppovalStatus(receiptId);
+            results = purchaseMapper.updateReceiptCancelApprovalStatus(receiptId);
             if (results == null || results.size() == 0) {
-                new NotFindException("not find cancel' purchase using receipt_id");
+                throw new NotFindException("not find cancel' purchase using receipt_id");
             }
         } catch (NotFindException e) {
             throw e;

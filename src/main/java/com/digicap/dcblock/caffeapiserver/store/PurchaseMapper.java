@@ -29,5 +29,5 @@ public interface PurchaseMapper {
 
     LinkedList<PurchaseDto> updateReceiptCancelStatus(@Param("receiptId") int receiptId);
 
-    LinkedList<PurchaseDto> updateReceiptCancelAppovalStatus(@Param("receiptId") int receiptId);
+    LinkedList<PurchaseDto> updateReceiptCancelApprovalStatus(@Param("receiptId") int receiptId);
 }

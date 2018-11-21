@@ -44,7 +44,7 @@
     RETURNING *
   </select>
 
-  <select id="updateReceiptCancelAppovalStatus" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseDto">
+  <select id="updateReceiptCancelApprovalStatus" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseDto">
     UPDATE
       purchases
     SET
