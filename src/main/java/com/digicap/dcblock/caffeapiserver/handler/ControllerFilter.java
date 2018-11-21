@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
 
 @Component
 @Slf4j
@@ -70,7 +71,12 @@ public class ControllerFilter implements HandlerInterceptor {
         return true;
     }
 
-//    private void postFilter(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) {
+        log.debug("response " + response.getStatus());
+    }
+
+    //    private void postFilter(HttpServletRequest request, HttpServletResponse response) throws IOException {
 //        long threadId = Thread.currentThread().getId();
 //        log.info(threadId + " " + request.getMethod() + " " + request.getRequestURI() + " " + response.getStatus());
 //    }
