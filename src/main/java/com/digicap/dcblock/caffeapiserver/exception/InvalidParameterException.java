@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
-public class InvalidParameterException extends java.security.InvalidParameterException {
+public class InvalidParameterException extends RuntimeException {
 
     @Getter
     private String reason;

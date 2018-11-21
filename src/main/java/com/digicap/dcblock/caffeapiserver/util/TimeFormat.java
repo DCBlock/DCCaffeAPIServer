@@ -2,6 +2,7 @@ package com.digicap.dcblock.caffeapiserver.util;
 
 import static java.util.TimeZone.getTimeZone;
 
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -16,5 +17,12 @@ public class TimeFormat {
         simpleDateFormat.setTimeZone(getTimeZone("Asia/Seoul"));
 
         return simpleDateFormat.format(new Date());
+    }
+
+    public String timestampToString(Timestamp timestamp) {
+        SimpleDateFormat simpleDateFormat= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        simpleDateFormat.setTimeZone(getTimeZone("Asia/Seoul"));
+
+        return simpleDateFormat.format(timestamp);
     }
 }

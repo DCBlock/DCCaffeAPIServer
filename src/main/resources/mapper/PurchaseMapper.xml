@@ -29,4 +29,16 @@
          #{receipt_id}
       )
   </insert>
+
+  <select id="updateReceiptStatus" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseDto">
+    UPDATE
+      purchases
+    SET
+      receipt_status = #{receiptAfterStatus}
+    WHERE
+      receipt_id = #{receiptId}
+    AND
+      receipt_status = #{receiptBeforeStatus}
+    RETURNING *
+  </select>
 </mapper>

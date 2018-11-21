@@ -3,7 +3,7 @@ package com.digicap.dcblock.caffeapiserver.service;
 import com.digicap.dcblock.caffeapiserver.dto.MenuVo;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchasedDto;
-import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo2;
+import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo;
 import com.digicap.dcblock.caffeapiserver.dto.UserVo;
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
@@ -29,6 +29,10 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     private static final String COMPANY_DIGICAP = "digicap";
     private static final String COMPANY_COVISION = "covision";
+
+    private static final int RECEIPT_STATUS_PURCHASE = 0;
+    private static final int RECEIPT_STATUS_CANCEL = 1;
+    private static final int RECEIPT_STATUS_CANCELED = 1;
 
     private UserMapper userMapper;
 
@@ -108,18 +112,27 @@ public class PurchaseServiceImpl implements PurchaseService {
      */
     public PurchasedDto requestPurchases(int receiptId, List<LinkedHashMap<String, Object>> _purchases) {
         // parameter 확인
-        ReceiptIdVo2 receiptIdVo2 = null;
+        ReceiptIdVo receiptIdVo = null;
 
         try {
-            // TODO 일회성 적용
-            receiptIdVo2 = receiptMapper.selectByReceiptId(receiptId);
+            receiptIdVo = receiptMapper.selectByReceiptId(receiptId);
         } catch (Exception e) {
+            e.printStackTrace();
             log.error(e.getMessage());
             throw e;
         }
 
-        if (receiptIdVo2 == null) {
+        if (receiptIdVo == null) {
             throw new NotFindException("not find receipt_id");
+        }
+
+        // receiptId는 구매 API 성공과 상관없이 일회용.
+        try {
+            receiptMapper.deleteByReceiptId(receiptId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+            // 로그만 남기고 프로세스 동작.
         }
 
         // hashmap to instance
@@ -138,8 +151,8 @@ public class PurchaseServiceImpl implements PurchaseService {
 
             for (MenuVo menu : menusInCategory.get(category)) {
                 // 사용자 정보.
-                purchaseDto.setName(receiptIdVo2.getName());
-                purchaseDto.setUser_record_index(receiptIdVo2.getUser_record_index());
+                purchaseDto.setName(receiptIdVo.getName());
+                purchaseDto.setUser_record_index(receiptIdVo.getUser_record_index());
 
                 // 구매 정보.
                 purchaseDto.setPrice(menu.getPrice());
@@ -147,7 +160,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                 purchaseDto.setReceipt_id(receiptId);
 
                 // DC 가격
-                String company = receiptIdVo2.getCompany();
+                String company = receiptIdVo.getCompany();
                 if (company.equals(COMPANY_DIGICAP)) {
                     purchaseDto.setDc_price(menu.getDc_digicap());
                 } else if (company.equals(COMPANY_COVISION)) {
@@ -172,19 +185,86 @@ public class PurchaseServiceImpl implements PurchaseService {
             }
         }
 
-        // TODO calc
         PurchasedDto purchasedDto = new PurchasedDto();
-        purchasedDto.setTotal_price(10000);
-        purchasedDto.setTotal_dc_price(5000);
+        purchasedDto.setTotal_price(calcTotalPrice(purchases));
+        purchasedDto.setTotal_dc_price(calcTotalDcPrice(purchases));
+        purchasedDto.setPurchased_date(new TimeFormat().getCurrent());
         return purchasedDto;
     }
 
+    /**
+     * 구매된 목록 중에서 취소를 처리(취소가 완료가 아닌 취소대기
+     *
+     * @param receiptId
+     * @return
+     */
     public List<PurchaseDto> cancelPurchases(int receiptId) {
-        return null;
+        try {
+            if (!purchaseMapper.existReceiptId(receiptId)) {
+                throw new NotFindException("not find receipt_id");
+            }
+        } catch (NotFindException e) {
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+            throw new UnknownException(e.getMessage());
+        }
+
+        LinkedList<PurchaseDto> results = null;
+
+        try {
+            results = purchaseMapper
+                .updateReceiptStatus(receiptId, RECEIPT_STATUS_PURCHASE, RECEIPT_STATUS_CANCEL);
+            if (results == null || results.size() == 0) {
+                throw new NotFindException("not find purchase list using receipt_id");
+            }
+        } catch (NotFindException e) {
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+            throw new UnknownException(e.getMessage());
+        }
+
+        return results;
     }
 
+    /**
+     * 구매취소 요청을 승인
+     *
+     * @param receiptId receipt id
+     * @return
+     */
     public List<PurchaseDto> cancelApprovalPurchases(int receiptId) {
-        return null;
+        try {
+            if (!purchaseMapper.existReceiptId(receiptId)) {
+                throw new NotFindException("not find receipt_id");
+            }
+        } catch (NotFindException e) {
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+            throw new UnknownException(e.getMessage());
+        }
+
+        LinkedList<PurchaseDto> results = null;
+
+        try {
+            results = purchaseMapper.updateReceiptStatus(receiptId, RECEIPT_STATUS_CANCEL, RECEIPT_STATUS_CANCELED);
+            if (results == null || results.size() == 0) {
+                new NotFindException("not find cancel' purchase using receipt_id");
+            }
+        } catch (NotFindException e) {
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+            throw new UnknownException(e.getMessage());
+        }
+
+        return results;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -227,5 +307,37 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
 
         return results;
+    }
+
+    /**
+     * 구매목록에서 총 구매비용을 계산
+     *
+     * @param purchases purchase list
+     * @return total price
+     */
+    private int calcTotalPrice(LinkedList<PurchaseDto> purchases) {
+        int total = 0;
+
+        for (PurchaseDto p : purchases) {
+            total += p.getPrice();
+        }
+
+        return total;
+    }
+
+    /**
+     * 구매목록에서 총 할인비용을 계산
+     *
+     * @param purchases purchase list
+     * @return total price
+     */
+    private int calcTotalDcPrice(LinkedList<PurchaseDto> purchases) {
+        int total = 0;
+
+        for (PurchaseDto p : purchases) {
+            total += p.getDc_price();
+        }
+
+        return total;
     }
 }

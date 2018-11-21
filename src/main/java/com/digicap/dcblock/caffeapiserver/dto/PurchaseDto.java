@@ -1,5 +1,6 @@
 package com.digicap.dcblock.caffeapiserver.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,11 +22,14 @@ public class PurchaseDto {
 
     private int count;
 
-    private String name;
-
-    private long user_record_index;
-
     private String menu_name_kr;
 
+    @JsonIgnore
+    private String name;
+
+    @JsonIgnore
+    private long user_record_index;
+
+    @JsonIgnore
     private int receipt_id;
 }

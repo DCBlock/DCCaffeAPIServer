@@ -1,7 +1,7 @@
 package com.digicap.dcblock.caffeapiserver.store;
 
-import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo2;
-import com.digicap.dcblock.caffeapiserver.dto.UserVo;
+import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -19,6 +19,9 @@ public interface ReceiptIdsMapper {
     @Insert("INSERT INTO receipt_ids (name, company, receipt_id) VALUES (#{name}, #{company}, #{receiptId})")
     int insertReceiptId(@Param("name") String name, @Param("company") String company, @Param("receiptId") int receiptId);
 
-    @Select("SELECT name, company, user_record_index FROM receipt_ids WHERE receipt_id = #{receiptId} AND regdate BETWEEN (select TIMESTAMP 'today') AND (select TIMESTAMP 'tomorrow')")
-    ReceiptIdVo2 selectByReceiptId(@Param("receiptId") int receiptId);
+    @Select("SELECT name, company, user_record_index, regdate FROM receipt_ids WHERE receipt_id = #{receiptId} AND regdate BETWEEN (select TIMESTAMP 'today') AND (select TIMESTAMP 'tomorrow')")
+    ReceiptIdVo selectByReceiptId(@Param("receiptId") int receiptId);
+
+    @Delete("DELETE FROM receipt_ids WHERE receipt_id = #{receiptId}")
+    Integer deleteByReceiptId(@Param("receiptId") int receiptId);
 }

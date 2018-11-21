@@ -54,7 +54,7 @@ public class PurchaseController {
     PurchasedDto createPurchasesByReceiptId(@PathVariable("receiptId") String _receiptId, @RequestBody HashMap<String, Object> body) {
         int receiptId = getIntegerValueOf(_receiptId);
 
-        // TODO unsafe code
+        // TODO unsafe code to safe code
         List<LinkedHashMap<String, Object>> purchases = Optional.ofNullable(body.get(KEY_PURCHASES))
             .map(s -> new ObjectMapper().convertValue(s, List.class))
             .orElseThrow(() -> new InvalidParameterException("not find purchases."));
@@ -75,7 +75,7 @@ public class PurchaseController {
         return result;
     }
 
-    @PatchMapping("/purchase/receipt/{receipt_id}/cancel-approval")
+    @PatchMapping("/purchase/receipt/{receiptId}/cancel-approval")
     HashMap<String, List<PurchaseDto>> canceledPurchaseByReceiptId(@PathVariable("receiptId") String _receiptId) {
         int receiptId = getIntegerValueOf(_receiptId);
 
