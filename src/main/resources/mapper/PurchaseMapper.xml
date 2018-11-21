@@ -30,15 +30,31 @@
       )
   </insert>
 
-  <select id="updateReceiptStatus" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseDto">
+  <select id="updateReceiptCancelStatus" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseDto">
     UPDATE
       purchases
     SET
-      receipt_status = #{receiptAfterStatus}
+      receipt_status = '1',
+      cancel_date = 'now()',
+      update_date = 'now()'
     WHERE
       receipt_id = #{receiptId}
     AND
-      receipt_status = #{receiptBeforeStatus}
+      receipt_status = '0'
+    RETURNING *
+  </select>
+
+  <select id="updateReceiptCancelAppovalStatus" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseDto">
+    UPDATE
+      purchases
+    SET
+      receipt_status = '2',
+      canceled_date = 'now()',
+      update_date = 'now()'
+    WHERE
+      receipt_id = #{receiptId}
+    AND
+      receipt_status = '1'
     RETURNING *
   </select>
 </mapper>

@@ -27,5 +27,7 @@ public interface PurchaseMapper {
     @Select("SELECT EXISTS(select 1 FROM purchases WHERE receipt_id = #{receiptId})")
     boolean existReceiptId(@Param("receiptId") int receiptId);
 
-    LinkedList<PurchaseDto> updateReceiptStatus(@Param("receiptId") int receiptId, @Param("receiptBeforeStatus") int receiptBeforeStatus, @Param("receiptAfterStatus") int receiptAfterStatus);
+    LinkedList<PurchaseDto> updateReceiptCancelStatus(@Param("receiptId") int receiptId);
+
+    LinkedList<PurchaseDto> updateReceiptCancelAppovalStatus(@Param("receiptId") int receiptId);
 }
