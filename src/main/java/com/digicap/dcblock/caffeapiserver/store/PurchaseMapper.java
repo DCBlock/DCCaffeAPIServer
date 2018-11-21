@@ -1,6 +1,7 @@
 package com.digicap.dcblock.caffeapiserver.store;
 
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
+import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.ibatis.annotations.Insert;
@@ -26,6 +27,9 @@ public interface PurchaseMapper {
 
     @Select("SELECT EXISTS(select 1 FROM purchases WHERE receipt_id = #{receiptId})")
     boolean existReceiptId(@Param("receiptId") int receiptId);
+
+    @Select("SELECT update_date FROM purchases WHERE receipt_id = #{receiptId} AND receipt_status = '0' ORDER BY update_date")
+    LinkedList<Timestamp> selectByReceiptId(@Param("receiptId") int receiptId);
 
     LinkedList<PurchaseDto> updateReceiptCancelStatus(@Param("receiptId") int receiptId);
 

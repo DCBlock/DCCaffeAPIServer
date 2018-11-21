@@ -6,6 +6,7 @@ import com.digicap.dcblock.caffeapiserver.dto.PurchasedDto;
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo;
 import com.digicap.dcblock.caffeapiserver.dto.UserVo;
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
+import com.digicap.dcblock.caffeapiserver.exception.ExpiredTimeException;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
@@ -14,6 +15,9 @@ import com.digicap.dcblock.caffeapiserver.store.PurchaseMapper;
 import com.digicap.dcblock.caffeapiserver.store.ReceiptIdsMapper;
 import com.digicap.dcblock.caffeapiserver.store.UserMapper;
 import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
+import java.sql.Timestamp;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,6 +33,9 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     private static final String COMPANY_DIGICAP = "digicap";
     private static final String COMPANY_COVISION = "covision";
+
+    private static final int MINUTES = 1;
+    private static final int TEN_MINUTES = 10 * MINUTES;
 
     private static final int RECEIPT_STATUS_PURCHASE = 0;
     private static final int RECEIPT_STATUS_CANCEL = 1;
@@ -199,9 +206,16 @@ public class PurchaseServiceImpl implements PurchaseService {
      * @return
      */
     public List<PurchaseDto> cancelPurchases(int receiptId) {
+        LinkedList<Timestamp> updateDatePurchases = null;
+
         try {
-            if (!purchaseMapper.existReceiptId(receiptId)) {
-                throw new NotFindException("not find receipt_id");
+//            if (!purchaseMapper.existReceiptId(receiptId)) {
+//                throw new NotFindException("not find receipt_id");
+//            }
+
+            updateDatePurchases = purchaseMapper.selectByReceiptId(receiptId);
+            if (updateDatePurchases == null || updateDatePurchases.size() == 0) {
+                throw new NotFindException("not find purchases using receipt_id");
             }
         } catch (NotFindException e) {
             throw e;
@@ -211,7 +225,10 @@ public class PurchaseServiceImpl implements PurchaseService {
             throw new UnknownException(e.getMessage());
         }
 
-        // TODO 구매 취소 가능한 시간 확인
+        // 구매 취소 가능한 시간 확인. 10분
+        if (enablePurchaseCancel(updateDatePurchases.getFirst())) {
+            throw new ExpiredTimeException("expired time for cancel purchase");
+        }
 
         LinkedList<PurchaseDto> results = null;
 
@@ -340,5 +357,23 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
 
         return total;
+    }
+
+    /**
+     * 구매취소 가능 시간을 확인
+     *
+     * @param timestamp purchase timestamp
+     * @return
+     */
+    private boolean enablePurchaseCancel(Timestamp timestamp) {
+        LocalTime startTime = timestamp.toLocalDateTime().toLocalTime();
+        LocalTime endTime = LocalTime.now();
+        long minutes = ChronoUnit.MINUTES.between(startTime, endTime);
+
+        if (minutes > TEN_MINUTES) {
+            return false;
+        }
+
+        return true;
     }
 }
