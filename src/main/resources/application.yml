@@ -2,6 +2,14 @@ spring:
   datasource:
     url: jdbc:postgresql://127.0.0.1:5432/dcblock
 
+logging:
+  level:
+    org:
+     springframework:
+       web:
+         filter:
+           CommonsRequestLoggingFilter: DEBUG
+
 allow_remotes:
   - 127.0.0.1
   - 10.1.203.12
