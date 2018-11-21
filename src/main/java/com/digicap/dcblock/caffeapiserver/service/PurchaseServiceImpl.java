@@ -211,6 +211,8 @@ public class PurchaseServiceImpl implements PurchaseService {
             throw new UnknownException(e.getMessage());
         }
 
+        // TODO 구매 취소 가능한 시간 확인
+
         LinkedList<PurchaseDto> results = null;
 
         try {
