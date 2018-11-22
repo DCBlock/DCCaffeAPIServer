@@ -6,9 +6,27 @@
     INTO
       menus
       (
+         category,
+         name_kr,
+         name_en,
+         price,
+         dc_digicap,
+         dc_covision,
+         opt_type,
+         opt_size,
+         "order"
       )
     VALUES
       (
+         #{category},
+         #{name_kr},
+         #{name_en},
+         #{price},
+         #{dc_digicap},
+         #{dc_covision},
+         #{opt_type},
+         #{opt_size},
+         (SELECT MAX("order") + 1 FROM menus WHERE category = #{category})
       )
     RETURNING *
   </select>

@@ -1,5 +1,6 @@
 package com.digicap.dcblock.caffeapiserver.service;
 
+import com.digicap.dcblock.caffeapiserver.dto.MenuVo;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
@@ -108,8 +109,35 @@ public class MenuServiceImpl implements MenuService {
         } catch (Exception e) {
             e.printStackTrace();
             log.error(e.getMessage());
-            throw e;
+            throw new UnknownException(e.getMessage());
         }
+    }
+
+    @Override
+    public MenuVo setMenu(MenuVo menuVo) {
+        MenuVo result = null;
+
+        try {
+           if (!menuMapper.existCategory(menuVo.getCategory())) {
+              throw new NotFindException(String.format("not find category(%d)", menuVo.getCategory()));
+           }
+        } catch (NotFindException e) {
+            throw e;
+        } catch (Exception e) {
+          e.printStackTrace();
+          log.error(e.getMessage());
+          throw new UnknownException(e.getMessage());
+        }
+
+        try {
+           result = menuMapper.insertMenu(menuVo);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+            throw new UnknownException(e.getMessage());
+        }
+
+        return result;
     }
 
     private LinkedList<MenuDto> getMenusByCategoryCode(int code) throws Exception {

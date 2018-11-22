@@ -1,6 +1,7 @@
 package com.digicap.dcblock.caffeapiserver.store;
 
 import com.digicap.dcblock.caffeapiserver.dto.MenuDto;
+import com.digicap.dcblock.caffeapiserver.dto.MenuVo;
 import java.util.LinkedList;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
@@ -20,5 +21,8 @@ public interface MenuMapper {
     @Delete("DELETE FROM menus WHERE code = #{code} AND category = #{category}")
     Integer deleteCode(@Param("code") int code, @Param("category") int category);
 
-    MenuDto insertMenu(@Param("code") int code, @Param("category") int category);
+    MenuVo insertMenu(MenuVo menu);
+
+    @Select("SELECT EXISTS(SELECT 1 FROM menus WHERE category = #{category})")
+    boolean existCategory(@Param("category") int category);
 }

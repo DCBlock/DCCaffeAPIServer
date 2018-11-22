@@ -1,10 +1,9 @@
 package com.digicap.dcblock.caffeapiserver.controller;
 
+import com.digicap.dcblock.caffeapiserver.dto.MenuVo;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
-
-import javax.websocket.server.PathParam;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -53,8 +52,9 @@ public class MenuController {
     }
 
     @PostMapping
-    String insertMenu(@RequestBody HashMap<String, Object> body) {
-        return "";
+    MenuVo insertMenu(@RequestBody MenuVo body) {
+        MenuVo result = service.setMenu(body);
+        return result;
     }
 
     @PatchMapping
@@ -65,6 +65,6 @@ public class MenuController {
     @DeleteMapping("/{category}/{code}")
     HashMap<String, String> deleteMenu(@PathVariable("category") int category, @PathVariable("code") int code) {
         service.deleteMenu(category, code);
-        return new HashMap<String, String>();
+        return new HashMap<>();
     }
 }
