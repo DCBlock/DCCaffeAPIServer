@@ -2,9 +2,11 @@ package com.digicap.dcblock.caffeapiserver.service;
 
 import com.digicap.dcblock.caffeapiserver.dto.CategoryVo;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
+import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
 import com.digicap.dcblock.caffeapiserver.store.CategoryMapper;
 import java.util.LinkedList;
 import lombok.extern.slf4j.Slf4j;
+import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -14,13 +16,14 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class CategoryServiceImpl implements CategoryService {
 
-    CategoryMapper mapper;
+    private CategoryMapper mapper;
 
     @Autowired
     public CategoryServiceImpl(CategoryMapper mapper) {
         this.mapper = mapper;
     }
 
+    @Override
     public LinkedList<CategoryVo> getAllCategories() {
         LinkedList<CategoryVo> categoriesVo = null;
 
@@ -37,5 +40,20 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         return categoriesVo;
+    }
+
+    @Override
+    public CategoryVo postCategory(String name) {
+        CategoryVo categoryVo = null;
+
+        try {
+            categoryVo = mapper.insertCategory(name);
+        } catch (MyBatisSystemException e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+            throw new UnknownException(e.getMessage());
+        }
+
+        return categoryVo;
     }
 }

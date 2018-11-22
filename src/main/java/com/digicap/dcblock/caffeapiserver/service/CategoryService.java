@@ -5,5 +5,7 @@ import java.util.LinkedList;
 
 public interface CategoryService {
 
-    public LinkedList<CategoryVo> getAllCategories() throws Exception;
+    LinkedList<CategoryVo> getAllCategories() throws Exception;
+
+    CategoryVo postCategory(String name);
 }

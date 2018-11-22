@@ -5,7 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * category table DAO.
+ * category table VO.
  */
 @Setter
 @Getter
@@ -14,7 +14,7 @@ public class CategoryVo {
 
     private String name;
 
-    private int order;
-
     private int code;
+
+    private int order;
 }
