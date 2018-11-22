@@ -1,17 +1,20 @@
 package com.digicap.dcblock.caffeapiserver.service;
 
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
+
 import com.digicap.dcblock.caffeapiserver.dto.CategoryVo;
-import com.digicap.dcblock.caffeapiserver.dto.MenuVo;
+import com.digicap.dcblock.caffeapiserver.dto.MenuDto;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
 import com.digicap.dcblock.caffeapiserver.store.CategoryMapper;
 import com.digicap.dcblock.caffeapiserver.store.MenuMapper;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
+
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Service;
 
 /**
  * menu business logic class.
@@ -31,7 +34,7 @@ public class MenuServiceImpl implements MenuService {
         this.categoryMapper = categoryMapper;
     }
 
-    public LinkedHashMap<String, LinkedList<MenuVo>> getAllMenus() {
+    public LinkedHashMap<String, LinkedList<MenuDto>> getAllMenus() {
         // category 테이블에서 목록을 조회.
         LinkedList<CategoryVo> categories = null;
 
@@ -48,11 +51,11 @@ public class MenuServiceImpl implements MenuService {
         }
 
         // category 테이블의 code를 기준으로 menus를 조회.
-        LinkedHashMap<String, LinkedList<MenuVo>> menus = new LinkedHashMap<>();
+        LinkedHashMap<String, LinkedList<MenuDto>> menus = new LinkedHashMap<>();
 
         try {
             for (CategoryVo category : categories) {
-                LinkedList<MenuVo> menusByCode = getMenusByCategoryCode(category.getCode());
+                LinkedList<MenuDto> menusByCode = getMenusByCategoryCode(category.getCode());
                 menus.put(category.getName(), menusByCode);
             }
         } catch (Exception e) {
@@ -63,7 +66,7 @@ public class MenuServiceImpl implements MenuService {
         return menus;
     }
 
-    public LinkedHashMap<Integer, LinkedList<MenuVo>> getAllMenusUsingCode() {
+    public LinkedHashMap<Integer, LinkedList<MenuDto>> getAllMenusUsingCode() {
         // category 테이블에서 목록을 조회.
         LinkedList<CategoryVo> categories = null;
 
@@ -80,11 +83,11 @@ public class MenuServiceImpl implements MenuService {
         }
 
         // category 테이블의 code를 기준으로 menus를 조회.
-        LinkedHashMap<Integer, LinkedList<MenuVo>> menus = new LinkedHashMap<>();
+        LinkedHashMap<Integer, LinkedList<MenuDto>> menus = new LinkedHashMap<>();
 
         try {
             for (CategoryVo category : categories) {
-                LinkedList<MenuVo> menusByCode = getMenusByCategoryCode(category.getCode());
+                LinkedList<MenuDto> menusByCode = getMenusByCategoryCode(category.getCode());
                 menus.put(category.getCode(), menusByCode);
             }
         } catch (Exception e) {
@@ -95,8 +98,22 @@ public class MenuServiceImpl implements MenuService {
         return menus;
     }
 
-    private LinkedList<MenuVo> getMenusByCategoryCode(int code) throws Exception {
-        LinkedList<MenuVo> menus = null;
+    @Override
+    public void deleteMenu(int category, int code) {
+        try {
+            Integer result = menuMapper.deleteCode(code, category);
+            if (result == null || result == 0) {
+                throw new NotFindException(String.format("not find menu for delete. Category(%d) Code(%d)", code, category));
+            }        
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+            throw e;
+        }
+    }
+
+    private LinkedList<MenuDto> getMenusByCategoryCode(int code) throws Exception {
+        LinkedList<MenuDto> menus = null;
 
         try {
             menus = menuMapper.selectAllMenus(code);

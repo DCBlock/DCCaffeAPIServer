@@ -30,6 +30,7 @@ public class PurchaseController {
     // for Response
     private final static String KEY_PURCHASE_CANCELS = "purchase_cancels";
     private final static String KEY_PURCHASE_CANCELEDS = "purchase_canceleds";
+    private final static String KEY_URI = "uri";
 
     private PurchaseService service;
 
@@ -37,6 +38,9 @@ public class PurchaseController {
     public PurchaseController(PurchaseService service) {
         this.service = service;
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // 구매 관련 API
 
     @PostMapping("/purchase/receipt/id")
     ReceiptIdDto createReceiptId(@RequestBody Map<String, Object> body) {
@@ -87,6 +91,27 @@ public class PurchaseController {
         return result;
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // 구매 token API
+
+    @PostMapping("/tokens/purchased")
+    HashMap<String, String> getPurchasedToken(@RequestBody Map<String, Object> body) {
+
+        String rfid = Optional.ofNullable(body.get(KEY_RFID))
+            .map(Object::toString)
+            .orElseThrow(() -> new InvalidParameterException("not find rfid"));
+        return null;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // etc
+
+    /**
+     *
+     *
+     * @param _value
+     * @return
+     */
     private int getIntegerValueOf(String _value) {
         int value = 0;
 

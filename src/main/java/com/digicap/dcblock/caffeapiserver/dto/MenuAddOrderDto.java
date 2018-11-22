@@ -7,9 +7,7 @@ import lombok.ToString;
 @Setter
 @Getter
 @ToString
-public class MenuVo {
+public class MenuAddOrderDto extends MenuDto {
 
-    private int category;
-
-    private int code;
+    private int order;
 }

@@ -1,6 +1,6 @@
 package com.digicap.dcblock.caffeapiserver.service;
 
-import com.digicap.dcblock.caffeapiserver.dto.MenuVo;
+import com.digicap.dcblock.caffeapiserver.dto.MenuDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchasedDto;
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo;
@@ -145,18 +145,18 @@ public class PurchaseServiceImpl implements PurchaseService {
         // hashmap to instance
         LinkedList<PurchaseDto> purchases = toPurchaseDtos(_purchases);
 
-        LinkedHashMap<Integer, LinkedList<MenuVo>> menusInCategory = menuService.getAllMenusUsingCode();
+        LinkedHashMap<Integer, LinkedList<MenuDto>> menusInCategory = menuService.getAllMenusUsingCode();
 
         // 구매요청한 카테고리, 메뉴 확인
         for (PurchaseDto purchaseDto : purchases) {
             int category = purchaseDto.getCategory();
             int code = purchaseDto.getCode();
-            Integer bExist = menuMapper.existCode(code, category);
-            if (bExist == null) {
+            boolean bExist = menuMapper.existCode(code, category);
+            if (!bExist) {
                throw new InvalidParameterException("unknown category: " + category);
             }
 
-            for (MenuVo menu : menusInCategory.get(category)) {
+            for (MenuDto menu : menusInCategory.get(category)) {
                 // 사용자 정보.
                 purchaseDto.setName(receiptIdVo.getName());
                 purchaseDto.setUser_record_index(receiptIdVo.getUser_record_index());
