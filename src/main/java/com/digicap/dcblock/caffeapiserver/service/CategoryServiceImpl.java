@@ -1,9 +1,11 @@
 package com.digicap.dcblock.caffeapiserver.service;
 
 import com.digicap.dcblock.caffeapiserver.dto.CategoryVo;
+import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
 import com.digicap.dcblock.caffeapiserver.store.CategoryMapper;
+import com.digicap.dcblock.caffeapiserver.store.MenuMapper;
 import java.util.LinkedList;
 import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.MyBatisSystemException;
@@ -18,9 +20,13 @@ public class CategoryServiceImpl implements CategoryService {
 
     private CategoryMapper mapper;
 
+    private MenuMapper menuMapper;
+
     @Autowired
-    public CategoryServiceImpl(CategoryMapper mapper) {
+    public CategoryServiceImpl(CategoryMapper mapper, MenuMapper menuMapper) {
         this.mapper = mapper;
+
+        this.menuMapper = menuMapper;
     }
 
     @Override
@@ -48,6 +54,40 @@ public class CategoryServiceImpl implements CategoryService {
 
         try {
             categoryVo = mapper.insertCategory(name);
+        } catch (MyBatisSystemException e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+            throw new UnknownException(e.getMessage());
+        }
+
+        return categoryVo;
+    }
+
+    @Override
+    public CategoryVo deleteCategory(int code) {
+        CategoryVo categoryVo = null;
+
+        try {
+            if (menuMapper.existCategory(code)) {
+                // TODO extension error code
+                throw new InvalidParameterException(String.format("Code(%d) include menus.", code));
+            }
+        } catch (MyBatisSystemException e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+            throw new UnknownException(e.getMessage());
+        }
+
+        try {
+            categoryVo = mapper.selectByCode(code);
+            if (categoryVo == null) {
+                throw new NotFindException(String.format("not find code(%d) in category.", code));
+            }
+
+            Integer result = mapper.deleteCategory(code);
+            if (result == null || result == 0) {
+                throw new UnknownException(String.format("fail delete code(%d)", code));
+            }
         } catch (MyBatisSystemException e) {
             e.printStackTrace();
             log.error(e.getMessage());

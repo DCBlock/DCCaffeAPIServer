@@ -8,4 +8,6 @@ public interface CategoryService {
     LinkedList<CategoryVo> getAllCategories() throws Exception;
 
     CategoryVo postCategory(String name);
+
+    CategoryVo deleteCategory(int code);
 }

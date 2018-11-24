@@ -3,6 +3,7 @@ package com.digicap.dcblock.caffeapiserver.handler;
 import com.digicap.dcblock.caffeapiserver.dto.ApiError;
 import com.digicap.dcblock.caffeapiserver.exception.ExpiredTimeException;
 import com.digicap.dcblock.caffeapiserver.exception.ForbiddenException;
+import com.digicap.dcblock.caffeapiserver.exception.IncludedMenusException;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
@@ -49,6 +50,14 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.NOT_ACCEPTABLE)
     @ResponseBody
     public ApiError handleException(ExpiredTimeException e) {
+        return new ApiError(HttpStatus.NOT_ACCEPTABLE.value(), e.getReason());
+    }
+
+
+    @ExceptionHandler(IncludedMenusException.class)
+    @ResponseStatus(value = HttpStatus.NOT_ACCEPTABLE)
+    @ResponseBody
+    public ApiError handleException(IncludedMenusException e) {
         return new ApiError(HttpStatus.NOT_ACCEPTABLE.value(), e.getReason());
     }
 }

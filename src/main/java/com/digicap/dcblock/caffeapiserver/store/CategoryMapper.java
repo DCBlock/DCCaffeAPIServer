@@ -2,6 +2,7 @@ package com.digicap.dcblock.caffeapiserver.store;
 
 import com.digicap.dcblock.caffeapiserver.dto.CategoryVo;
 import java.util.LinkedList;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
@@ -14,4 +15,10 @@ public interface CategoryMapper {
     LinkedList<CategoryVo> selectAllCategory();
 
     CategoryVo insertCategory(@Param("name") String name);
+
+    @Select("SELECT * FROM category WHERE code = #{code}")
+    CategoryVo selectByCode(@Param("code") int code);
+
+    @Delete("DELETE FROM category WHERE code = #{code}")
+    Integer deleteCategory(@Param("code") int code);
 }
