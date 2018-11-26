@@ -86,7 +86,8 @@ public class CategoryServiceImpl implements CategoryService {
         try {
             LinkedList<MenuVo> menus = menuMapper.deleteByCategory(code);
             if (menus == null) {
-                throw new UnknownException(String.format("fail delete menus by category(%d)", code));
+                throw new UnknownException(
+                    String.format("fail delete menus by category(%d)", code));
             }
 
             menusInCategoryDto.setMenus(menus);
@@ -104,7 +105,9 @@ public class CategoryServiceImpl implements CategoryService {
             menusInCategoryDto.setCode(categoryVo.getCode());
             menusInCategoryDto.setName(categoryVo.getName());
             menusInCategoryDto.setOrder(categoryVo.getOrder());
-        } catch (MyBatisSystemException e) {
+        } catch (NotFindException | UnknownException e) {
+            throw e;
+        } catch (Exception e) {
             e.printStackTrace();
             log.error(e.getMessage());
             throw new UnknownException(e.getMessage());
