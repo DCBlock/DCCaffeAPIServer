@@ -25,4 +25,7 @@ public interface MenuMapper {
 
     @Select("SELECT EXISTS(SELECT 1 FROM menus WHERE category = #{category})")
     boolean existCategory(@Param("category") int category);
+
+    @Select("DELETE FROM menus WHERE category = #{category} RETURNING *")
+    LinkedList<MenuVo> deleteByCategory(@Param("category") int category);
 }

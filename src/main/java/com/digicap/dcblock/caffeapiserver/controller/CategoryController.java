@@ -1,6 +1,7 @@
 package com.digicap.dcblock.caffeapiserver.controller;
 
 import com.digicap.dcblock.caffeapiserver.dto.CategoryVo;
+import com.digicap.dcblock.caffeapiserver.dto.MenusInCategoryDto;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
@@ -57,9 +58,9 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{code}")
-    CategoryVo deleteCategory(@PathVariable("code") int code) {
+    MenusInCategoryDto deleteCategory(@PathVariable("code") int code) {
 
-        CategoryVo result = service.deleteCategory(code);
+        MenusInCategoryDto result = service.deleteCategory(code);
         return result;
     }
 }

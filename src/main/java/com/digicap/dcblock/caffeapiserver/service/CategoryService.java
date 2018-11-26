@@ -1,6 +1,7 @@
 package com.digicap.dcblock.caffeapiserver.service;
 
 import com.digicap.dcblock.caffeapiserver.dto.CategoryVo;
+import com.digicap.dcblock.caffeapiserver.dto.MenusInCategoryDto;
 import java.util.LinkedList;
 
 public interface CategoryService {
@@ -9,5 +10,5 @@ public interface CategoryService {
 
     CategoryVo postCategory(String name);
 
-    CategoryVo deleteCategory(int code);
+    MenusInCategoryDto deleteCategory(int code);
 }
