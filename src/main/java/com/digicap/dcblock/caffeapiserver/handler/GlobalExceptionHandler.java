@@ -6,6 +6,7 @@ import com.digicap.dcblock.caffeapiserver.exception.ForbiddenException;
 import com.digicap.dcblock.caffeapiserver.exception.IncludedMenusException;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
+import com.digicap.dcblock.caffeapiserver.exception.NotSupportedException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -51,6 +52,13 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public ApiError handleException(ExpiredTimeException e) {
         return new ApiError(HttpStatus.NOT_ACCEPTABLE.value(), e.getReason());
+    }
+
+    @ExceptionHandler(NotSupportedException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ApiError handleException(NotSupportedException e) {
+        return new ApiError(HttpStatus.BAD_REQUEST.value(), e.getReason());
     }
 
 

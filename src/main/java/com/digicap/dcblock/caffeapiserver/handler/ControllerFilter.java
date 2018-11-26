@@ -1,10 +1,12 @@
 package com.digicap.dcblock.caffeapiserver.handler;
 
 import com.digicap.dcblock.caffeapiserver.exception.ForbiddenException;
+import com.digicap.dcblock.caffeapiserver.exception.NotSupportedException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
 import com.digicap.dcblock.caffeapiserver.util.ApplicationProperties;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -21,7 +23,9 @@ import org.springframework.web.servlet.ModelAndView;
 @Slf4j
 public class ControllerFilter implements HandlerInterceptor {
 
-    ApplicationProperties properties;
+    private static final String ACCEPT = "Accept";
+
+    private ApplicationProperties properties;
 
     @Autowired
     public ControllerFilter(ApplicationProperties properties) {
@@ -66,6 +70,14 @@ public class ControllerFilter implements HandlerInterceptor {
         if (!allow_remotes.contains(remoteIp)) {
             log.error(remoteIp + " is not allow remote ip.");
             throw new ForbiddenException("not allow remote client");
+        }
+
+        // API Version Check
+        String apiVersion = request.getHeader(ACCEPT);
+        if (!apiVersion.equals(properties.getApi_version())) {
+            String message = String.format("not support API Version(%s)", apiVersion);
+            log.error(message);
+            throw new NotSupportedException(message);
         }
 
         return true;
