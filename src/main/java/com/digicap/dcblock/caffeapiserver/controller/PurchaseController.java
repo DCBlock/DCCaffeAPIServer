@@ -5,6 +5,7 @@ import com.digicap.dcblock.caffeapiserver.dto.PurchasedDto;
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.service.PurchaseService;
+import com.digicap.dcblock.caffeapiserver.service.TemporaryUriService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -33,6 +34,9 @@ public class PurchaseController {
     private final static String KEY_URI = "uri";
 
     private PurchaseService service;
+
+    @Autowired
+    private TemporaryUriService temporaryUriService;
 
     @Autowired
     public PurchaseController(PurchaseService service) {
@@ -94,13 +98,18 @@ public class PurchaseController {
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // 구매 token API
 
-    @PostMapping("/tokens/purchased")
-    HashMap<String, String> getPurchasedToken(@RequestBody Map<String, Object> body) {
-
+    @PostMapping("/temporary")
+    HashMap<String, String> getTemporaryUri(@RequestBody Map<String, Object> body) {
         String rfid = Optional.ofNullable(body.get(KEY_RFID))
             .map(Object::toString)
             .orElseThrow(() -> new InvalidParameterException("not find rfid"));
-        return null;
+
+        String randomUri = temporaryUriService.createTemporaryUri(rfid);
+//        temporaryUriService.existTemporary("7179b058-e9df-47a3-b3ca-420260181dfa");
+        
+        HashMap<String, String> result = new HashMap<>();
+        result.put("uri", "http://localhost:8080/" + randomUri);
+        return result;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
