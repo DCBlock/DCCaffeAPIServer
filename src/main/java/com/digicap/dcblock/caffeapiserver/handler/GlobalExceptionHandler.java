@@ -6,6 +6,7 @@ import com.digicap.dcblock.caffeapiserver.exception.ForbiddenException;
 import com.digicap.dcblock.caffeapiserver.exception.IncludedMenusException;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
+import com.digicap.dcblock.caffeapiserver.exception.NotImplementedException;
 import com.digicap.dcblock.caffeapiserver.exception.NotSupportedException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
 import org.springframework.http.HttpStatus;
@@ -66,7 +67,7 @@ public class GlobalExceptionHandler {
         return new ApiError(HttpStatus.NOT_ACCEPTABLE.value(), e.getReason());
     }
 
-    @ExceptionHandler(NotSupportedException.class)
+    @ExceptionHandler(NotImplementedException.class)
     @ResponseStatus(value = HttpStatus.NOT_IMPLEMENTED)
     @ResponseBody
     public ApiError handleException() {
