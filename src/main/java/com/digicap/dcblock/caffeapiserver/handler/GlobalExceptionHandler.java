@@ -65,4 +65,11 @@ public class GlobalExceptionHandler {
     public ApiError handleException(IncludedMenusException e) {
         return new ApiError(HttpStatus.NOT_ACCEPTABLE.value(), e.getReason());
     }
+
+    @ExceptionHandler(NotSupportedException.class)
+    @ResponseStatus(value = HttpStatus.NOT_IMPLEMENTED)
+    @ResponseBody
+    public ApiError handleException() {
+        return new ApiError(HttpStatus.NOT_IMPLEMENTED.value(), "not supported uri");
+    }
 }
