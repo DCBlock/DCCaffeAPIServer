@@ -6,7 +6,6 @@ import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
 import com.digicap.dcblock.caffeapiserver.util.ApplicationProperties;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;

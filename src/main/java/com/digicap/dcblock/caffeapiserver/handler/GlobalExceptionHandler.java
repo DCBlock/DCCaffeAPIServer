@@ -8,8 +8,6 @@ import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.exception.NotSupportedException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -60,7 +58,6 @@ public class GlobalExceptionHandler {
     public ApiError handleException(NotSupportedException e) {
         return new ApiError(HttpStatus.BAD_REQUEST.value(), e.getReason());
     }
-
 
     @ExceptionHandler(IncludedMenusException.class)
     @ResponseStatus(value = HttpStatus.NOT_ACCEPTABLE)
