@@ -14,7 +14,7 @@ import org.apache.ibatis.annotations.Select;
  */
 public interface PurchaseMapper {
 
-    @Select("SELECT setval('purchase_receipt_id', 0)")
+    @Select("SELECT setval('purchase_receipt_id', '0')")
     int updateReceiptId();
 
     @Select("SELECT nextval('purchase_receipt_id')")
