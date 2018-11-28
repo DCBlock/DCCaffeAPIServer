@@ -43,5 +43,5 @@ public class PurchaseDto {
     private int receipt_id;
 
     @NonNull
-    private int receiptStatus;
+    private int receipt_status;
 }

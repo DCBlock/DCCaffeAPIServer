@@ -135,7 +135,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         // Set Where Case.
         PurchaseDto purchaseDto = new PurchaseDto();
         purchaseDto.setUser_record_index(0);
-        purchaseDto.setReceiptStatus(RECEIPT_STATUS_PURCHASE);
+        purchaseDto.setReceipt_status(RECEIPT_STATUS_PURCHASE);
 
         // Get Purchased List.
         LinkedList<PurchaseVo> purchases = service.getPurchases(purchaseDto, from, to);

@@ -1,6 +1,5 @@
 spring:
   datasource:
-    url: jdbc:postgresql://127.0.0.1:5432/dcblock
 
 logging:
   level:
@@ -19,3 +18,5 @@ api_version: application/vnd.digicap+json;version=1.0
 
 # Must added Last Slash of URI
 purchase_list_viewer_server: http://localhost:8080/
+
+random_uri_expired_minute: 60

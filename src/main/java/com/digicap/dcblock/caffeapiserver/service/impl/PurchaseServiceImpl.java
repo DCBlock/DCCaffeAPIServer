@@ -1,5 +1,6 @@
 package com.digicap.dcblock.caffeapiserver.service.impl;
 
+import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
 import com.digicap.dcblock.caffeapiserver.dto.MenuDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
@@ -34,17 +35,13 @@ import org.springframework.stereotype.Service;
 @Service
 @Primary
 @Slf4j
-public class PurchaseServiceImpl implements PurchaseService {
+public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerApplicationConstants {
 
     private static final String COMPANY_DIGICAP = "digicap";
     private static final String COMPANY_COVISION = "covision";
 
     private static final int MINUTES = 1;
     private static final int TEN_MINUTES = 10 * MINUTES;
-
-    private static final int RECEIPT_STATUS_PURCHASE = 0;
-    private static final int RECEIPT_STATUS_CANCEL = 1;
-    private static final int RECEIPT_STATUS_CANCELED = 1;
 
     private UserMapper userMapper;
 
@@ -186,6 +183,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         // Insert Purchases Table.
         for (PurchaseDto p : purchases) {
             try {
+                p.setReceipt_status(RECEIPT_STATUS_PURCHASE);
                 int result = purchaseMapper.insertPurchase(p);
                 if (result == 0) {
                     // TODO receipt id db delete
@@ -294,7 +292,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     public LinkedList<PurchaseVo> getPurchases(PurchaseDto purchaseDto, Date fromDate, Date toDate) {
         try {
             LinkedList<PurchaseVo> purchases = purchaseMapper.selectAllByUser(fromDate, toDate,
-                purchaseDto.getUser_record_index(), purchaseDto.getReceiptStatus());
+                purchaseDto.getUser_record_index(), purchaseDto.getReceipt_status());
             return purchases;
         } catch (MyBatisSystemException e) {
             e.printStackTrace();
