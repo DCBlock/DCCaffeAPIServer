@@ -1,6 +1,7 @@
-package com.digicap.dcblock.caffeapiserver.service;
+package com.digicap.dcblock.caffeapiserver.service.impl;
 
 import com.digicap.dcblock.caffeapiserver.dto.MenuVo;
+import com.digicap.dcblock.caffeapiserver.service.MenuService;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 

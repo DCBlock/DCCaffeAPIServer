@@ -16,6 +16,6 @@ public interface TemporaryUriMapper {
     @SelectKey(statement="SELECT uuid_generate_v1()", keyProperty="random_uri", resultType=String.class, before=true) 
     Integer insertUri(TemporaryUriDto temporaryUriDto);
 
-    @Select("DELETE FROM temporary_uri WHERE random_uri = #{randomUri} RETURNING random_uri AS randomUri, user_record_index AS userRecordIndex, name")
+    @Select("DELETE FROM temporary_uri WHERE random_uri = #{random_uri} RETURNING random_uri, user_record_index AS userRecordIndex, name")
     TemporaryUriVo deleteAndSelectUri(TemporaryUriDto temporaryUriDto);
 }

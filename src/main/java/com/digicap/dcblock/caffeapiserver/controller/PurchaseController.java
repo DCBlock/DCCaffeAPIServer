@@ -1,5 +1,6 @@
 package com.digicap.dcblock.caffeapiserver.controller;
 
+import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchasedDto;
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
@@ -12,26 +13,20 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/caffe/purchases")
-public class PurchaseController {
-
-    // for Request
-    private final static String KEY_RFID = "rfid";
-    private final static String KEY_PURCHASES = "purchases";
-
-    // for Response
-    private final static String KEY_PURCHASE_CANCELS = "purchase_cancels";
-    private final static String KEY_PURCHASE_CANCELEDS = "purchase_canceleds";
-    private final static String KEY_URI = "uri";
+@Slf4j
+public class PurchaseController implements CaffeApiServerApplicationConstants {
 
     private PurchaseService service;
 
@@ -46,7 +41,7 @@ public class PurchaseController {
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // 구매 관련 API
 
-    @PostMapping("/purchase/receipt/id")
+    @PostMapping("/api/caffe/purchases/purchase/receipt/id")
     ReceiptIdDto createReceiptId(@RequestBody Map<String, Object> body) {
         ReceiptIdDto receiptIdDto = null;
 
@@ -58,7 +53,7 @@ public class PurchaseController {
         return receiptIdDto;
     }
 
-    @PostMapping("/purchase/receipt/{receiptId}")
+    @PostMapping("/api/caffe/purchases/purchase/receipt/{receiptId}")
     PurchasedDto createPurchasesByReceiptId(@PathVariable("receiptId") String _receiptId, @RequestBody HashMap<String, Object> body) {
         int receiptId = getIntegerValueOf(_receiptId);
 
@@ -71,7 +66,7 @@ public class PurchaseController {
         return purchasedDto;
     }
 
-    @PatchMapping("/purchase/receipt/{receiptId}/cancel")
+    @PatchMapping("/api/caffe/purchases/purchase/receipt/{receiptId}/cancel")
     HashMap<String, List<PurchaseDto>> cancelPurchaseByReceiptId(@PathVariable("receiptId") String _receiptId) {
         int receiptId = getIntegerValueOf(_receiptId);
 
@@ -83,7 +78,7 @@ public class PurchaseController {
         return result;
     }
 
-    @PatchMapping("/purchase/receipt/{receiptId}/cancel-approval")
+    @PatchMapping("/api/caffe/purchases/purchase/receipt/{receiptId}/cancel-approval")
     HashMap<String, List<PurchaseDto>> canceledPurchaseByReceiptId(@PathVariable("receiptId") String _receiptId) {
         int receiptId = getIntegerValueOf(_receiptId);
 
@@ -98,7 +93,7 @@ public class PurchaseController {
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // 구매 token API
 
-    @PostMapping("/temporary")
+    @PostMapping("/api/caffe/purchases/temporary")
     HashMap<String, String> getTemporaryUri(@RequestBody Map<String, Object> body) {
         String rfid = Optional.ofNullable(body.get(KEY_RFID))
             .map(Object::toString)
@@ -110,6 +105,15 @@ public class PurchaseController {
         HashMap<String, String> result = new HashMap<>();
         result.put("uri", "http://localhost:8080/" + randomUri);
         return result;
+    }
+
+    @GetMapping("/api/caffe/purchases/temporary/{randomUri}")
+    void getPurchasesByRandomUri(@PathVariable("randomUri") String randomUri,
+        @RequestParam("purchaseBefore") String before,
+        @RequestParam("purchaseAfter") String after) {
+        //TemporaryUriVo temporaryUriVo = temporaryUriService.existTemporary(randomUri);
+
+        System.out.println("");
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////

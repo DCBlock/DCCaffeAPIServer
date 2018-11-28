@@ -1,5 +1,6 @@
-package com.digicap.dcblock.caffeapiserver.service;
+package com.digicap.dcblock.caffeapiserver.service.impl;
 
+import com.digicap.dcblock.caffeapiserver.service.UserService;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 

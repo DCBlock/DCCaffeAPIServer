@@ -14,11 +14,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/caffe/categories")
 @Slf4j
 public class CategoryController {
 
@@ -29,7 +27,7 @@ public class CategoryController {
         this.service = service;
     }
 
-    @GetMapping
+    @GetMapping("/api/caffe/categories")
     LinkedList<CategoryVo> getAllCategory() throws NotFindException, UnknownException {
         LinkedList<CategoryVo> categoriesDao = null;
 
@@ -46,7 +44,7 @@ public class CategoryController {
         return categoriesDao;
     }
 
-    @PostMapping
+    @PostMapping("/api/caffe/categories")
     CategoryVo createCategory(@RequestBody CategoryVo categoryVo) {
         if (categoryVo.getName().replaceAll(" ", "").isEmpty()) {
             throw new InvalidParameterException("name is empty");
@@ -56,9 +54,8 @@ public class CategoryController {
         return result;
     }
 
-    @DeleteMapping("/{code}")
+    @DeleteMapping("/api/caffe/categories/{code}")
     MenusInCategoryDto deleteCategory(@PathVariable("code") int code) {
-
         MenusInCategoryDto result = service.deleteCategory(code);
         return result;
     }

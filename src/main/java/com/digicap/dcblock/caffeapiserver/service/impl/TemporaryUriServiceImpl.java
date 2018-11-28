@@ -1,10 +1,12 @@
-package com.digicap.dcblock.caffeapiserver.service;
+package com.digicap.dcblock.caffeapiserver.service.impl;
 
 import com.digicap.dcblock.caffeapiserver.dto.TemporaryUriDto;
 import com.digicap.dcblock.caffeapiserver.dto.TemporaryUriVo;
 import com.digicap.dcblock.caffeapiserver.dto.UserVo;
+import com.digicap.dcblock.caffeapiserver.exception.ExpiredTimeException;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
+import com.digicap.dcblock.caffeapiserver.service.TemporaryUriService;
 import com.digicap.dcblock.caffeapiserver.store.TemporaryUriMapper;
 import com.digicap.dcblock.caffeapiserver.store.UserMapper;
 
@@ -33,8 +35,8 @@ public class TemporaryUriServiceImpl implements TemporaryUriService {
     @Override
     public String createTemporaryUri(String rfid) {
         UserVo userVo = Optional.ofNullable(userMapper.selectUserByRfid(rfid))
-                .orElseThrow(() -> new NotFindException("not find rfid' user"));
-        
+            .orElseThrow(() -> new NotFindException("not find rfid' user"));
+
         TemporaryUriDto temporaryUriDto = new TemporaryUriDto();
         temporaryUriDto.setName(userVo.getName());
         temporaryUriDto.setUserRecordIndex(userVo.getIndex());
@@ -45,25 +47,27 @@ public class TemporaryUriServiceImpl implements TemporaryUriService {
     }
 
     @Override
-    public boolean existTemporary(String uuid) {
-        TemporaryUriVo temporaryUriVo = null;
+    public TemporaryUriVo existTemporary(String uuid) {
+//        TemporaryUriVo temporaryUriVo = null;
 
         TemporaryUriDto temporaryUriDto = new TemporaryUriDto();
-//        temporaryUriDto.setRandomUri(uuid);
+        temporaryUriDto.setRandom_uri(uuid);
 
-        try {
-            temporaryUriVo = temporaryUriMapper.deleteAndSelectUri(temporaryUriDto);
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-            throw e;
-        }
+        TemporaryUriVo temporaryUriVo = Optional.ofNullable(temporaryUriMapper.deleteAndSelectUri(temporaryUriDto))
+            .orElseThrow(() -> new ExpiredTimeException("expired uuid"));
+//        try {
+//            temporaryUriVo = temporaryUriMapper.deleteAndSelectUri(temporaryUriDto);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            log.error(e.getMessage());
+//            throw e;
+//        }
 
-        if (temporaryUriVo != null) {
-            log.debug("delete UUID(%s) from temporary_uri", uuid);
-            return true;
-        }
+//        if (temporaryUriVo != null) {
+//            log.debug("delete UUID(%s) from temporary_uri", uuid);
+//            return true;
+//        }
 
-        return false;
+        return temporaryUriVo;
     }
 }
