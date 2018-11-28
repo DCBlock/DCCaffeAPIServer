@@ -18,14 +18,12 @@ public class TimeFormat {
     public String getCurrent() {
         SimpleDateFormat simpleDateFormat= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
         simpleDateFormat.setTimeZone(getTimeZone("Asia/Seoul"));
-
         return simpleDateFormat.format(new Date());
     }
 
     public String timestampToString(Timestamp timestamp) {
         SimpleDateFormat simpleDateFormat= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
         simpleDateFormat.setTimeZone(getTimeZone("Asia/Seoul"));
-
         return simpleDateFormat.format(timestamp);
     }
     
@@ -41,5 +39,11 @@ public class TimeFormat {
        calendar.add(Calendar.MINUTE, minute);
        
        return calendar.getTime();
+    }
+
+    public String fromLong(long timestamp) {
+        SimpleDateFormat simpleDateFormat= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        simpleDateFormat.setTimeZone(getTimeZone("Asia/Seoul"));
+        return simpleDateFormat.format(timestamp);
     }
 }

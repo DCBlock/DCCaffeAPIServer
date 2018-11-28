@@ -1,6 +1,7 @@
 package com.digicap.dcblock.caffeapiserver.store;
 
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
 import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
@@ -34,4 +35,7 @@ public interface PurchaseMapper {
     LinkedList<PurchaseDto> updateReceiptCancelStatus(@Param("receiptId") int receiptId);
 
     LinkedList<PurchaseDto> updateReceiptCancelApprovalStatus(@Param("receiptId") int receiptId);
+
+    @Select("SELECT * FROM purchases WHERE user_index_id = #{userIndexId} AND receipt_status = #{receiptStatus} AND reg_date > #{_from} AND reg_Date < #{_to}")
+    LinkedList<PurchaseVo> selectAllByUser(PurchaseDto purchaseDto, @Param("_from") String from, @Param("_to") String to);
 }

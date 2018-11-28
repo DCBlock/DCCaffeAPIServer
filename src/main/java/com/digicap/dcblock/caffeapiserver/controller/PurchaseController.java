@@ -2,17 +2,24 @@ package com.digicap.dcblock.caffeapiserver.controller;
 
 import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
 import com.digicap.dcblock.caffeapiserver.dto.PurchasedDto;
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
+import com.digicap.dcblock.caffeapiserver.dto.TemporaryUriVo;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.service.PurchaseService;
 import com.digicap.dcblock.caffeapiserver.service.TemporaryUriService;
+import com.digicap.dcblock.caffeapiserver.util.ApplicationProperties;
+import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,11 +37,14 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
 
     private PurchaseService service;
 
+    ApplicationProperties applicationProperties;
+
     @Autowired
     private TemporaryUriService temporaryUriService;
 
     @Autowired
-    public PurchaseController(PurchaseService service) {
+    public PurchaseController(ApplicationProperties applicationProperties, PurchaseService service) {
+        this.applicationProperties = applicationProperties;
         this.service = service;
     }
 
@@ -100,20 +110,34 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
             .orElseThrow(() -> new InvalidParameterException("not find rfid"));
 
         String randomUri = temporaryUriService.createTemporaryUri(rfid);
-//        temporaryUriService.existTemporary("7179b058-e9df-47a3-b3ca-420260181dfa");
-        
+
         HashMap<String, String> result = new HashMap<>();
-        result.put("uri", "http://localhost:8080/" + randomUri);
+        result.put("uri", applicationProperties.getPurchase_list_viewer_server() + randomUri);
         return result;
     }
 
     @GetMapping("/api/caffe/purchases/temporary/{randomUri}")
-    void getPurchasesByRandomUri(@PathVariable("randomUri") String randomUri,
-        @RequestParam("purchaseBefore") String before,
-        @RequestParam("purchaseAfter") String after) {
-        //TemporaryUriVo temporaryUriVo = temporaryUriService.existTemporary(randomUri);
+    LinkedList<PurchaseVo> getPurchasesByRandomUri(@PathVariable("randomUri") String randomUri,
+        @RequestParam("purchaseBefore") String _before,
+        @RequestParam("purchaseAfter") String _after) {
+        // Check Valid Format
+        long before = getLongValueOf(_before);
+        long after = getLongValueOf(_after);
 
-        System.out.println("");
+        TimeFormat timeFormat = new TimeFormat();
+        String from = timeFormat.fromLong(after);
+        String to = timeFormat.fromLong(before);
+
+        // Get registered user_record_index and name by random uri.
+        TemporaryUriVo temporaryUriVo = temporaryUriService.existTemporary(randomUri);
+
+        PurchaseDto purchaseDto = new PurchaseDto();
+        purchaseDto.setUser_record_index(0);
+        // TODO !!!!! 1:Purchased Status.
+        purchaseDto.setReceiptStatus(0);
+
+        LinkedList<PurchaseVo> results = service.getPurchases(purchaseDto, from, to);
+        return results;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -130,6 +154,18 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
 
         try {
             value = Integer.valueOf(_value);
+        } catch (NumberFormatException e) {
+            throw new InvalidParameterException(e.getMessage());
+        }
+
+        return value;
+    }
+
+    private long getLongValueOf(String _value) {
+        long value = 0;
+
+        try {
+            value = Long.valueOf(_value);
         } catch (NumberFormatException e) {
             throw new InvalidParameterException(e.getMessage());
         }

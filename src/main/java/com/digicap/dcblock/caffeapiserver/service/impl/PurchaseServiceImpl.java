@@ -2,6 +2,7 @@ package com.digicap.dcblock.caffeapiserver.service.impl;
 
 import com.digicap.dcblock.caffeapiserver.dto.MenuDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
 import com.digicap.dcblock.caffeapiserver.dto.PurchasedDto;
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo;
 import com.digicap.dcblock.caffeapiserver.dto.UserVo;
@@ -24,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -285,6 +287,21 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
 
         return results;
+    }
+
+    @Override
+    public LinkedList<PurchaseVo> getPurchases(PurchaseDto purchaseDto, String fromDate, String toDate) {
+        LinkedList<PurchaseVo> purchases = null;
+
+        try {
+            purchases = purchaseMapper.selectAllByUser(purchaseDto, fromDate, toDate);
+        } catch (MyBatisSystemException e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+            throw new UnknownException(e.getMessage());
+        }
+
+        return purchases;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////

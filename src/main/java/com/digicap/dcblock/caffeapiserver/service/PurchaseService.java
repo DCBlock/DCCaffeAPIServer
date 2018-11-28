@@ -1,18 +1,22 @@
 package com.digicap.dcblock.caffeapiserver.service;
 
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
 import com.digicap.dcblock.caffeapiserver.dto.PurchasedDto;
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 public interface PurchaseService {
 
-    public ReceiptIdDto getReceiptId(String rfid);
+    ReceiptIdDto getReceiptId(String rfid);
 
-    public PurchasedDto requestPurchases(int receiptId, List<LinkedHashMap<String, Object>> purchases);
+    PurchasedDto requestPurchases(int receiptId, List<LinkedHashMap<String, Object>> purchases);
 
-    public List<PurchaseDto> cancelPurchases(int receiptId);
+    List<PurchaseDto> cancelPurchases(int receiptId);
 
-    public List<PurchaseDto> cancelApprovalPurchases(int receiptId);
+    List<PurchaseDto> cancelApprovalPurchases(int receiptId);
+
+    LinkedList<PurchaseVo> getPurchases(PurchaseDto purchaseDto, String fromDate, String toDate);
 }

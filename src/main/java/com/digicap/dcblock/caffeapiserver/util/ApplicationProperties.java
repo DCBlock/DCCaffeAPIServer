@@ -18,4 +18,6 @@ public class ApplicationProperties {
     private List<String> allow_remotes = new ArrayList<>();
 
     private String api_version;
+
+    private String purchase_list_viewer_server;
 }
