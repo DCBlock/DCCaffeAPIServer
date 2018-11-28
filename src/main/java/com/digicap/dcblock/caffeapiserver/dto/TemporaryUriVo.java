@@ -1,24 +1,20 @@
 package com.digicap.dcblock.caffeapiserver.dto;
 
-import java.util.Date;
+import java.sql.Timestamp;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 @Getter
 @ToString
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class TemporaryUriVo {
 
-    @NonNull
     private String randomUri;
 
-    @NonNull
     private long userRecordIndex;
 
-    @NonNull
     private String name;
 
-    private Date regDate;
+    private Timestamp regDate;
 }

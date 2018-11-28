@@ -18,6 +18,7 @@ import com.digicap.dcblock.caffeapiserver.store.PurchaseMapper;
 import com.digicap.dcblock.caffeapiserver.store.ReceiptIdsMapper;
 import com.digicap.dcblock.caffeapiserver.store.UserMapper;
 import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -290,18 +291,16 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     @Override
-    public LinkedList<PurchaseVo> getPurchases(PurchaseDto purchaseDto, String fromDate, String toDate) {
-        LinkedList<PurchaseVo> purchases = null;
-
+    public LinkedList<PurchaseVo> getPurchases(PurchaseDto purchaseDto, Date fromDate, Date toDate) {
         try {
-            purchases = purchaseMapper.selectAllByUser(purchaseDto, fromDate, toDate);
+            LinkedList<PurchaseVo> purchases = purchaseMapper.selectAllByUser(fromDate, toDate,
+                purchaseDto.getUser_record_index(), purchaseDto.getReceiptStatus());
+            return purchases;
         } catch (MyBatisSystemException e) {
             e.printStackTrace();
             log.error(e.getMessage());
             throw new UnknownException(e.getMessage());
         }
-
-        return purchases;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////

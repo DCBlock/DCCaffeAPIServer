@@ -12,7 +12,7 @@ import com.digicap.dcblock.caffeapiserver.service.TemporaryUriService;
 import com.digicap.dcblock.caffeapiserver.util.ApplicationProperties;
 import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Date;
+import java.sql.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -117,34 +117,37 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
     }
 
     @GetMapping("/api/caffe/purchases/temporary/{randomUri}")
-    LinkedList<PurchaseVo> getPurchasesByRandomUri(@PathVariable("randomUri") String randomUri,
+    LinkedHashMap<String, Object> getPurchasesByRandomUri(
+        @PathVariable("randomUri") String randomUri,
         @RequestParam("purchaseBefore") String _before,
         @RequestParam("purchaseAfter") String _after) {
         // Check Valid Format
         long before = getLongValueOf(_before);
         long after = getLongValueOf(_after);
 
-        TimeFormat timeFormat = new TimeFormat();
-        String from = timeFormat.fromLong(after);
-        String to = timeFormat.fromLong(before);
+        // long timestamp to java.sql.Date
+        Date from = new Date(after * 1000);
+        Date to = new Date(before * 1000);
 
         // Get registered user_record_index and name by random uri.
         TemporaryUriVo temporaryUriVo = temporaryUriService.existTemporary(randomUri);
 
+        // Set Where Case.
         PurchaseDto purchaseDto = new PurchaseDto();
         purchaseDto.setUser_record_index(0);
-        // TODO !!!!! 1:Purchased Status.
-        purchaseDto.setReceiptStatus(0);
+        purchaseDto.setReceiptStatus(RECEIPT_STATUS_PURCHASE);
 
-        LinkedList<PurchaseVo> results = service.getPurchases(purchaseDto, from, to);
-        return results;
+        // Get Purchased List.
+        LinkedList<PurchaseVo> purchases = service.getPurchases(purchaseDto, from, to);
+
+        // Result
+        LinkedHashMap<String, Object> result = new LinkedHashMap<>();
+        result.put("name", temporaryUriVo.getName());
+        result.put("purchases", purchases);
+        return result;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    // etc
-
     /**
-     *
      *
      * @param _value
      * @return

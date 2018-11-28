@@ -20,4 +20,6 @@ public class ApplicationProperties {
     private String api_version;
 
     private String purchase_list_viewer_server;
+
+    private int random_uri_expired_minute;
 }

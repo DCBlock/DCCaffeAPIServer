@@ -36,7 +36,7 @@ public class PurchaseDto {
     @JsonIgnore
     private String name;
 
-    @JsonIgnore
+    @NonNull
     private long user_record_index;
 
     @JsonIgnore

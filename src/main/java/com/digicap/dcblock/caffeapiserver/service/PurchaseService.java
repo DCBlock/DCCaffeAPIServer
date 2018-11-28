@@ -4,6 +4,7 @@ import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
 import com.digicap.dcblock.caffeapiserver.dto.PurchasedDto;
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
+import java.sql.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,5 +19,5 @@ public interface PurchaseService {
 
     List<PurchaseDto> cancelApprovalPurchases(int receiptId);
 
-    LinkedList<PurchaseVo> getPurchases(PurchaseDto purchaseDto, String fromDate, String toDate);
+    LinkedList<PurchaseVo> getPurchases(PurchaseDto purchaseDto, Date from, Date to);
 }

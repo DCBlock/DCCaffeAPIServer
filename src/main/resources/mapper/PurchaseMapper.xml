@@ -57,4 +57,21 @@
       receipt_status = '1'
     RETURNING *
   </select>
+
+  <select id="selectAllByUser" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseVo">
+    <![CDATA[
+    SELECT
+      code, price, dc_price, opt_type, opt_size, count, menu_name_kr
+    FROM
+      purchases
+    WHERE
+      user_record_index = #{userRecordIndex}
+    AND
+      receipt_status = #{receiptStatus}
+    AND
+      purchase_date >= #{_from}
+    AND
+      purchase_date <= #{_to}
+    ]]>
+  </select>
 </mapper>

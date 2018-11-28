@@ -28,16 +28,15 @@ public class TimeFormat {
     }
     
     /**
-     * 현재 시간 + minute
+     * timestamp + minute
      * 
      * @param minute add minute
      * @return
      */
-    public Date getAddMinute(int minute) {
+    public Date getAddMinute(long timestamp, int minute) {
        Calendar calendar = Calendar.getInstance(Locale.KOREA); 
-       calendar.setTime(new Date());
+       calendar.setTime(new Date(timestamp));
        calendar.add(Calendar.MINUTE, minute);
-       
        return calendar.getTime();
     }
 

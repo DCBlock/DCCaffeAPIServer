@@ -2,13 +2,12 @@ package com.digicap.dcblock.caffeapiserver.store;
 
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.LinkedList;
-import java.util.List;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
 /**
  * purchase table을 사용하는 query들.
@@ -36,6 +35,5 @@ public interface PurchaseMapper {
 
     LinkedList<PurchaseDto> updateReceiptCancelApprovalStatus(@Param("receiptId") int receiptId);
 
-    @Select("SELECT * FROM purchases WHERE user_index_id = #{userIndexId} AND receipt_status = #{receiptStatus} AND reg_date > #{_from} AND reg_Date < #{_to}")
-    LinkedList<PurchaseVo> selectAllByUser(PurchaseDto purchaseDto, @Param("_from") String from, @Param("_to") String to);
+    LinkedList<PurchaseVo> selectAllByUser(@Param("_from") Date from, @Param("_to") Date to, @Param("userRecordIndex") long userRecordIndex, @Param("receiptStatus") int receiptStatus);
 }

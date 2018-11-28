@@ -12,10 +12,12 @@ import com.digicap.dcblock.caffeapiserver.dto.TemporaryUriVo;
  */
 public interface TemporaryUriMapper {
 
-    @Insert("INSERT INTO temporary_uri (user_record_index, name, random_uri) VALUES (#{userRecordIndex}, #{name}, #{random_uri})")
+    @Insert("INSERT INTO temporary_uri (user_record_index, name, random_uri) "
+        + "VALUES (#{userRecordIndex}, #{name}, #{random_uri})")
     @SelectKey(statement="SELECT uuid_generate_v1()", keyProperty="random_uri", resultType=String.class, before=true) 
     Integer insertUri(TemporaryUriDto temporaryUriDto);
 
-    @Select("DELETE FROM temporary_uri WHERE random_uri = #{random_uri} RETURNING random_uri, user_record_index AS userRecordIndex, name")
+    @Select("DELETE FROM temporary_uri WHERE random_uri = #{random_uri} "
+        + "RETURNING random_uri, user_record_index AS userRecordIndex, name, reg_date AS regDate")
     TemporaryUriVo deleteAndSelectUri(TemporaryUriDto temporaryUriDto);
 }
