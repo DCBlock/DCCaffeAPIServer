@@ -1,27 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.digicap.dcblock.caffeapiserver.store.CategoryMapper">
-  <select id="insertCategory" resultType="com.digicap.dcblock.caffeapiserver.dto.CategoryVo">
-    INSERT INTO
-      category (
-        "order",
-        name
-      )
-    VALUES (
-      (SELECT MAX("order") + 1 FROM category),
-      #{name}
-    )
-    RETURNING *
-  </select>
-
-  <update id="updateCategories" parameterType="java.util.List">
-    <foreach collection="list" item="item" index="index" separator=";">
-      UPDATE
-        category
-      SET
-        name = item.name, order = item.order
-      WHERE
-        code = #{item.code}
-    </foreach>
-  </update>
+    <select id="insertCategory" resultType="com.digicap.dcblock.caffeapiserver.dto.CategoryVo">
+        INSERT INTO
+            category (
+                "order",
+                name
+            )
+        VALUES (
+            (SELECT MAX("order") + 1 FROM category),
+            #{name}
+        )
+        RETURNING *
+    </select>
+    <update id="updateCategories" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" separator=";">
+            UPDATE
+                category
+            SET
+                name = #{item.name}, "order" = #{item.order}
+            WHERE
+                code = #{item.code}
+        </foreach>
+    </update>
 </mapper>

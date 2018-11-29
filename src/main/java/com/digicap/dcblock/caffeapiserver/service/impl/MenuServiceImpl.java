@@ -1,10 +1,13 @@
 package com.digicap.dcblock.caffeapiserver.service.impl;
 
 import com.digicap.dcblock.caffeapiserver.dto.MenuVo;
+import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.service.MenuService;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
+import net.bytebuddy.dynamic.scaffold.MethodGraph.Linked;
+import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -141,6 +144,30 @@ public class MenuServiceImpl implements MenuService {
         return result;
     }
 
+    @Override
+    public LinkedList<MenuDto> updateAllMenusInCategory(int category, LinkedList<MenuDto> menus) throws MyBatisSystemException {
+        // Check.
+        int size = menuMapper.selectMenuInCategorySize(category);
+        if (size != menus.size()) {
+            throw new InvalidParameterException("invalid update count for menus");
+        }
+
+        // Add Category to instance in list.
+        for (MenuDto m : menus) {
+            m.setCategory(category);
+        }
+
+        // Update.
+        menuMapper.updateAllMenuByCategory(menus);
+        return null;
+    }
+
+    /**
+     *
+     * @param code
+     * @return
+     * @throws Exception
+     */
     private LinkedList<MenuDto> getMenusByCategoryCode(int code) throws Exception {
         LinkedList<MenuDto> menus = null;
 

@@ -118,17 +118,14 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void updateAll(LinkedList<CategoryVo> categories) {
-        try {
-            int size = categoryMapper.selectAllCategorySize();
-            if (size != categories.size()) {
-                throw new InvalidParameterException("invalid update count");
-            }
-            categoryMapper.updateCategories(categories);
-        } catch (MyBatisSystemException e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-            throw new UnknownException(e.getMessage());
+    public void updateAll(LinkedList<CategoryVo> categories) throws MyBatisSystemException {
+        // Check.
+        int size = categoryMapper.selectAllCategorySize();
+        if (size != categories.size()) {
+            throw new InvalidParameterException("invalid update count");
         }
+
+        // Update.
+        categoryMapper.updateCategories(categories);
     }
 }

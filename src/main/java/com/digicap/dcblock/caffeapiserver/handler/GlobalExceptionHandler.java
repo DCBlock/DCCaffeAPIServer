@@ -9,6 +9,8 @@ import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.exception.NotImplementedException;
 import com.digicap.dcblock.caffeapiserver.exception.NotSupportedException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
+import lombok.extern.slf4j.Slf4j;
+import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(UnknownException.class)
@@ -72,5 +75,14 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public ApiError handleException() {
         return new ApiError(HttpStatus.NOT_IMPLEMENTED.value(), "not supported uri");
+    }
+
+    @ExceptionHandler(MyBatisSystemException.class)
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public ApiError handleException(MyBatisSystemException e) {
+        e.printStackTrace();
+        log.error(e.getMessage());
+        return new ApiError(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
     }
 }

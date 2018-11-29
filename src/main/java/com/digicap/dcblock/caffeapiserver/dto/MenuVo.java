@@ -9,23 +9,23 @@ import lombok.ToString;
 @ToString
 public class MenuVo {
 
-    int category;
+    private int category;
 
-    int code;
+    private int code;
 
-    int order;
+    private int order;
 
-    String name_en;
+    private String name_en;
 
-    String name_kr;
+    private String name_kr;
 
-    int price;
+    private int price = -1;
 
-    int dc_digicap;
+    private int dc_digicap = -1;
 
-    int dc_covision;
+    private int dc_covision = -1;
 
-    int opt_size;
+    private int opt_size = -1;
 
-    int opt_type;
+    private int opt_type = -1;
 }
