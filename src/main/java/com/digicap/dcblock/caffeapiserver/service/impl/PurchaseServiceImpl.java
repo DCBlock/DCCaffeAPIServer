@@ -119,17 +119,9 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
      * @param _purchases 구매목록.
      * @return
      */
-    public PurchasedDto requestPurchases(int receiptId, List<LinkedHashMap<String, Object>> _purchases) {
+    public PurchasedDto requestPurchases(int receiptId, List<LinkedHashMap<String, Object>> _purchases) throws MyBatisSystemException {
         // parameter 확인
-        ReceiptIdVo receiptIdVo = null;
-
-        try {
-            receiptIdVo = receiptMapper.selectByReceiptId(receiptId);
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-            throw e;
-        }
+        ReceiptIdVo receiptIdVo = receiptMapper.selectByReceiptId(receiptId);
 
         if (receiptIdVo == null) {
             throw new NotFindException("not find receipt_id");
@@ -138,7 +130,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         // receiptId는 구매 API 성공과 상관없이 일회용.
         try {
             receiptMapper.deleteByReceiptId(receiptId);
-        } catch (Exception e) {
+        } catch (MyBatisSystemException e) {
             e.printStackTrace();
             log.error(e.getMessage());
             // 로그만 남기고 프로세스 동작.
@@ -208,24 +200,10 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
      * @param receiptId
      * @return
      */
-    public List<PurchaseDto> cancelPurchases(int receiptId) {
-        LinkedList<Timestamp> updateDatePurchases = null;
-
-        try {
-//            if (!purchaseMapper.existReceiptId(receiptId)) {
-//                throw new NotFindException("not find receipt_id");
-//            }
-
-            updateDatePurchases = purchaseMapper.selectByReceiptId(receiptId);
-            if (updateDatePurchases == null || updateDatePurchases.size() == 0) {
-                throw new NotFindException("not find purchases using receipt_id");
-            }
-        } catch (NotFindException e) {
-            throw e;
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-            throw new UnknownException(e.getMessage());
+    public List<PurchaseDto> cancelPurchases(int receiptId) throws MyBatisSystemException {
+        LinkedList<Timestamp> updateDatePurchases = purchaseMapper.selectByReceiptId(receiptId);
+        if (updateDatePurchases == null || updateDatePurchases.size() == 0) {
+            throw new NotFindException("not find purchases using receipt_id");
         }
 
         // 구매 취소 가능한 시간 확인. 10분
@@ -233,19 +211,9 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
             throw new ExpiredTimeException("expired time for cancel purchase");
         }
 
-        LinkedList<PurchaseDto> results = null;
-
-        try {
-            results = purchaseMapper.updateReceiptCancelStatus(receiptId);
-            if (results == null || results.size() == 0) {
-                throw new NotFindException("not find purchase list using receipt_id");
-            }
-        } catch (NotFindException e) {
-            throw e;
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-            throw new UnknownException(e.getMessage());
+        LinkedList<PurchaseDto> results = purchaseMapper.updateReceiptCancelStatus(receiptId);
+        if (results == null || results.size() == 0) {
+            throw new NotFindException("not find purchase list using receipt_id");
         }
 
         return results;
@@ -257,48 +225,24 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
      * @param receiptId receipt id
      * @return
      */
-    public List<PurchaseDto> cancelApprovalPurchases(int receiptId) {
-        try {
-            if (!purchaseMapper.existReceiptId(receiptId)) {
-                throw new NotFindException("not find receipt_id");
-            }
-        } catch (NotFindException e) {
-            throw e;
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-            throw new UnknownException(e.getMessage());
+    public List<PurchaseDto> cancelApprovalPurchases(int receiptId) throws MyBatisSystemException {
+        if (!purchaseMapper.existReceiptId(receiptId)) {
+            throw new NotFindException("not find receipt_id");
         }
 
-        LinkedList<PurchaseDto> results = null;
-
-        try {
-            results = purchaseMapper.updateReceiptCancelApprovalStatus(receiptId);
-            if (results == null || results.size() == 0) {
-                throw new NotFindException("not find cancel' purchase using receipt_id");
-            }
-        } catch (NotFindException e) {
-            throw e;
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-            throw new UnknownException(e.getMessage());
+        LinkedList<PurchaseDto> results = purchaseMapper.updateReceiptCancelApprovalStatus(receiptId);
+        if (results == null || results.size() == 0) {
+            throw new NotFindException("not find cancel' purchase using receipt_id");
         }
 
         return results;
     }
 
     @Override
-    public LinkedList<PurchaseVo> getPurchases(PurchaseDto purchaseDto, Date fromDate, Date toDate) {
-        try {
-            LinkedList<PurchaseVo> purchases = purchaseMapper.selectAllByUser(fromDate, toDate,
-                purchaseDto.getUser_record_index(), purchaseDto.getReceipt_status());
-            return purchases;
-        } catch (MyBatisSystemException e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-            throw new UnknownException(e.getMessage());
-        }
+    public LinkedList<PurchaseVo> getPurchases(PurchaseDto purchaseDto, Date fromDate, Date toDate) throws MyBatisSystemException {
+        LinkedList<PurchaseVo> purchases = purchaseMapper.selectAllByUser(fromDate, toDate,
+            purchaseDto.getUser_record_index(), purchaseDto.getReceipt_status());
+        return purchases;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////

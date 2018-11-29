@@ -12,12 +12,10 @@ import com.digicap.dcblock.caffeapiserver.store.UserMapper;
 
 import com.digicap.dcblock.caffeapiserver.util.ApplicationProperties;
 import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
-import java.sql.Timestamp;
-import java.text.Format;
 import java.util.Date;
 import java.util.Optional;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
+import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -43,7 +41,7 @@ public class TemporaryUriServiceImpl implements TemporaryUriService {
     }
 
     @Override
-    public String createTemporaryUri(String rfid) {
+    public String createTemporaryUri(String rfid) throws MyBatisSystemException {
         UserVo userVo = Optional.ofNullable(userMapper.selectUserByRfid(rfid))
             .orElseThrow(() -> new NotFindException("not find rfid' user"));
 

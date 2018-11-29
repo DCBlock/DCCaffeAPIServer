@@ -6,7 +6,6 @@ import com.digicap.dcblock.caffeapiserver.service.MenuService;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
-import net.bytebuddy.dynamic.scaffold.MethodGraph.Linked;
 import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -104,43 +103,21 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
-    public void deleteMenu(int category, int code) {
-        try {
-            Integer result = menuMapper.deleteCode(code, category);
-            if (result == null || result == 0) {
-                throw new NotFindException(String.format("not find menu for delete. Category(%d) Code(%d)", code, category));
-            }        
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-            throw new UnknownException(e.getMessage());
+    public void deleteMenu(int category, int code) throws MyBatisSystemException {
+        Integer result = menuMapper.deleteCode(code, category);
+        if (result == null || result == 0) {
+            throw new NotFindException(String.format("not find menu for delete. Category(%d) Code(%d)", code, category));
         }
     }
 
     @Override
-    public MenuVo setMenu(MenuVo menuVo) {
-        MenuVo result = null;
-
-        try {
-           if (!menuMapper.existCategory(menuVo.getCategory())) {
-              throw new NotFindException(String.format("not find category(%d)", menuVo.getCategory()));
-           }
-        } catch (NotFindException e) {
-            throw e;
-        } catch (Exception e) {
-          e.printStackTrace();
-          log.error(e.getMessage());
-          throw new UnknownException(e.getMessage());
+    public MenuVo setMenu(MenuVo menuVo) throws MyBatisSystemException {
+        // Check.
+        if (!menuMapper.existCategory(menuVo.getCategory())) {
+            throw new NotFindException(String.format("not find category(%d)", menuVo.getCategory()));
         }
 
-        try {
-           result = menuMapper.insertMenu(menuVo);
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-            throw new UnknownException(e.getMessage());
-        }
-
+        MenuVo result = menuMapper.insertMenu(menuVo);
         return result;
     }
 
@@ -168,15 +145,8 @@ public class MenuServiceImpl implements MenuService {
      * @return
      * @throws Exception
      */
-    private LinkedList<MenuDto> getMenusByCategoryCode(int code) throws Exception {
-        LinkedList<MenuDto> menus = null;
-
-        try {
-            menus = menuMapper.selectAllMenus(code);
-        } catch (Exception e) {
-            throw e;
-        }
-
+    private LinkedList<MenuDto> getMenusByCategoryCode(int code) throws MyBatisSystemException {
+        LinkedList<MenuDto> menus = menuMapper.selectAllMenus(code);
         return menus;
     }
 }
