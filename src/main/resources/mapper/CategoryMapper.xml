@@ -13,4 +13,15 @@
     )
     RETURNING *
   </select>
+
+  <update id="updateCategories" parameterType="java.util.List">
+    <foreach collection="list" item="item" index="index" separator=";">
+      UPDATE
+        category
+      SET
+        name = item.name, order = item.order
+      WHERE
+        code = #{item.code}
+    </foreach>
+  </update>
 </mapper>

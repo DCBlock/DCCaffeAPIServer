@@ -3,6 +3,7 @@ package com.digicap.dcblock.caffeapiserver.service.impl;
 import com.digicap.dcblock.caffeapiserver.dto.CategoryVo;
 import com.digicap.dcblock.caffeapiserver.dto.MenuVo;
 import com.digicap.dcblock.caffeapiserver.dto.MenusInCategoryDto;
+import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
 import com.digicap.dcblock.caffeapiserver.service.CategoryService;
@@ -114,5 +115,20 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         return menusInCategoryDto;
+    }
+
+    @Override
+    public void updateAll(LinkedList<CategoryVo> categories) {
+        try {
+            int size = categoryMapper.selectAllCategorySize();
+            if (size != categories.size()) {
+                throw new InvalidParameterException("invalid update count");
+            }
+            categoryMapper.updateCategories(categories);
+        } catch (MyBatisSystemException e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+            throw new UnknownException(e.getMessage());
+        }
     }
 }

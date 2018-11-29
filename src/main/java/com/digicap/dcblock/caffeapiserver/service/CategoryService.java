@@ -11,4 +11,6 @@ public interface CategoryService {
     CategoryVo postCategory(String name);
 
     MenusInCategoryDto deleteCategory(int code);
+
+    void updateAll(LinkedList<CategoryVo> categories);
 }

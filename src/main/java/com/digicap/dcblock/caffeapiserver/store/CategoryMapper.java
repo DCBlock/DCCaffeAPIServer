@@ -21,4 +21,9 @@ public interface CategoryMapper {
 
     @Delete("DELETE FROM category WHERE code = #{code}")
     Integer deleteCategory(@Param("code") int code);
+
+    Integer updateCategories(LinkedList<CategoryVo> categories);
+
+    @Select("SELECT COUNT(*) FROM category")
+    Integer selectAllCategorySize();
 }
