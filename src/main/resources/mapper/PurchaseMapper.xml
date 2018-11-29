@@ -1,77 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.digicap.dcblock.caffeapiserver.store.PurchaseMapper">
-  <insert id="insertPurchase" parameterType="com.digicap.dcblock.caffeapiserver.dto.PurchaseDto">
-    INSERT INTO purchases
-      (
-         count,
-         price,
-         dc_price,
-         name,
-         user_record_index,
-         code,
-         menu_name_kr,
-         opt_size,
-         opt_type,
-         receipt_id
-      )
-    VALUES
-      (
-         #{count},
-         #{price},
-         #{dc_price},
-         #{name},
-         #{user_record_index},
-         #{code},
-         #{menu_name_kr},
-         #{opt_size},
-         #{opt_type},
-         #{receipt_id}
-      )
-  </insert>
+    <insert id="insertPurchase" parameterType="com.digicap.dcblock.caffeapiserver.dto.PurchaseDto">
+        INSERT INTO purchases (
+            count,
+            price,
+            dc_price,
+            name,
+            user_record_index,
+            code,
+            menu_name_kr,
+            opt_size,
+            opt_type,
+            receipt_id
+        )
+        VALUES (
+            #{count},
+            #{price},
+            #{dc_price},
+            #{name},
+            #{user_record_index},
+            #{code},
+            #{menu_name_kr},
+            #{opt_size},
+            #{opt_type},
+            #{receipt_id}
+        )
+    </insert>
+    <select id="updateReceiptCancelStatus" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseDto">
+        UPDATE
+            purchases
+        SET
+            receipt_status = '1',
+            cancel_date = 'now()',
+            update_date = 'now()'
+        WHERE
+            receipt_id = #{receiptId}
+        AND
+            receipt_status = '0'
+        RETURNING *
+    </select>
 
-  <select id="updateReceiptCancelStatus" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseDto">
-    UPDATE
-      purchases
-    SET
-      receipt_status = '1',
-      cancel_date = 'now()',
-      update_date = 'now()'
-    WHERE
-      receipt_id = #{receiptId}
-    AND
-      receipt_status = '0'
-    RETURNING *
-  </select>
-
-  <select id="updateReceiptCancelApprovalStatus" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseDto">
-    UPDATE
-      purchases
-    SET
-      receipt_status = '2',
-      canceled_date = 'now()',
-      update_date = 'now()'
-    WHERE
-      receipt_id = #{receiptId}
-    AND
-      receipt_status = '1'
-    RETURNING *
-  </select>
-
-  <select id="selectAllByUser" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseVo">
-    <![CDATA[
-    SELECT
-      code, price, dc_price, opt_type, opt_size, count, menu_name_kr
-    FROM
-      purchases
-    WHERE
-      user_record_index = #{userRecordIndex}
-    AND
-      receipt_status = #{receiptStatus}
-    AND
-      purchase_date >= #{_from}
-    AND
-      purchase_date <= #{_to}
-    ]]>
-  </select>
+    <select id="updateReceiptCancelApprovalStatus" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseDto">
+        UPDATE
+            purchases
+        SET
+            receipt_status = '2',
+            canceled_date = 'now()',
+            update_date = 'now()'
+        WHERE
+            receipt_id = #{receiptId}
+        AND
+            receipt_status = '1'
+        RETURNING *
+    </select>
+    <select id="selectAllByUser" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseVo">
+        <![CDATA[
+        SELECT
+            code, price, dc_price, opt_type, opt_size, count, menu_name_kr
+        FROM
+            purchases
+        WHERE
+            user_record_index = #{userRecordIndex}
+        AND
+            receipt_status = #{receiptStatus}
+        AND
+            purchase_date >= #{_from}
+        AND
+            purchase_date <= #{_to}
+        ]]>
+    </select>
 </mapper>
