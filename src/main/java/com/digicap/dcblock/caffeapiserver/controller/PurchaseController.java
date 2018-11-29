@@ -130,20 +130,12 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
     }
 
     @GetMapping("/api/caffe/purchases/temporary/{randomUri}")
-    LinkedHashMap<String, Object> getPurchasesByRandomUri(
-        @PathVariable("randomUri") String randomUri,
-        @RequestParam("purchaseBefore") String _before,
-        @RequestParam("purchaseAfter") String _after) {
-        // Check Valid Format
-        long before = getLongValueOf(_before);
-        long after = getLongValueOf(_after);
-
-        // long timestamp to java.sql.Date
-        Date from = new Date(after * 1000);
-        Date to = new Date(before * 1000);
-
+    LinkedHashMap<String, Object> getPurchasesByUri(@PathVariable("randomUri") String uri) {
         // Get registered user_record_index and name by random uri.
-        TemporaryUriVo temporaryUriVo = temporaryUriService.existTemporary(randomUri);
+        TemporaryUriVo temporaryUriVo = temporaryUriService.existTemporary(uri);
+
+        Date from = new Date(temporaryUriVo.getSearchDateBefore().getTime());
+        Date to = new Date(temporaryUriVo.getSearchDateBefore().getTime());
 
         // Set Where Case.
         PurchaseDto purchaseDto = new PurchaseDto();
@@ -153,11 +145,28 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         // Get Purchased List.
         LinkedList<PurchaseVo> purchases = service.getPurchases(purchaseDto, from, to);
 
+        int total = 0;
+        int dc_total = 0;
+
+        for (PurchaseVo p : purchases) {
+            total += p.getPrice() * p.getCount();
+            dc_total += p.getDcPrice() * p.getCount();
+        }
+
         // Result
         LinkedHashMap<String, Object> result = new LinkedHashMap<>();
         result.put("name", temporaryUriVo.getName());
+        result.put("total", total);
+        result.put("dc_total", dc_total);
         result.put("purchases", purchases);
         return result;
+    }
+
+    @GetMapping("/api/caffe/purchases/purchase/rfid/{rfid}")
+    void getBalanceByRfid(@PathVariable("rfid") String rfid,
+        @RequestParam("purchaseBefore") String _before,
+        @RequestParam("purchaseAfter") String _after) {
+
     }
 
     /**

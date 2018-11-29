@@ -18,6 +18,7 @@ public interface TemporaryUriMapper {
     Integer insertUri(TemporaryUriDto temporaryUriDto);
 
     @Select("DELETE FROM temporary_uri WHERE random_uri = #{random_uri} "
-        + "RETURNING random_uri, user_record_index AS userRecordIndex, name, reg_date AS regDate")
+        + "RETURNING random_uri, user_record_index AS userRecordIndex, name, reg_date AS regDate,"
+        + "search_date_after AS searchDateAfter, search_date_before AS searchDateBefore")
     TemporaryUriVo deleteAndSelectUri(TemporaryUriDto temporaryUriDto);
 }
