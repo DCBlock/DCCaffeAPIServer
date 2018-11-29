@@ -13,13 +13,14 @@ import com.digicap.dcblock.caffeapiserver.util.ApplicationProperties;
 import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +28,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -105,11 +105,24 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
 
     @PostMapping("/api/caffe/purchases/temporary")
     HashMap<String, String> getTemporaryUri(@RequestBody Map<String, Object> body) {
+        // Validation.
         String rfid = Optional.ofNullable(body.get(KEY_RFID))
             .map(Object::toString)
             .orElseThrow(() -> new InvalidParameterException("not find rfid"));
 
-        String randomUri = temporaryUriService.createTemporaryUri(rfid);
+        Timestamp after = Optional.ofNullable(body.get(KEY_PURCHASE_AFTER))
+            .map(Objects::toString)
+            .map(o -> Long.valueOf(o) * 1000)
+            .map(o -> new Timestamp(o))
+            .orElseThrow(() -> new InvalidParameterException("not find purchase_after"));
+
+        Timestamp before = Optional.ofNullable(body.get(KEY_PURCHASE_BEFORE))
+            .map(Objects::toString)
+            .map(o -> Long.valueOf(o) * 1000)
+            .map(o -> new Timestamp(o))
+            .orElseThrow(() -> new InvalidParameterException("not find purchase_before"));
+
+        String randomUri = temporaryUriService.createTemporaryUri(rfid, after, before);
 
         HashMap<String, String> result = new HashMap<>();
         result.put("uri", applicationProperties.getPurchase_list_viewer_server() + randomUri);

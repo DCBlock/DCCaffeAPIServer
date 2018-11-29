@@ -12,8 +12,8 @@ import com.digicap.dcblock.caffeapiserver.dto.TemporaryUriVo;
  */
 public interface TemporaryUriMapper {
 
-    @Insert("INSERT INTO temporary_uri (user_record_index, name, random_uri) "
-        + "VALUES (#{userRecordIndex}, #{name}, #{random_uri})")
+    @Insert("INSERT INTO temporary_uri (user_record_index, name, random_uri, search_date_after, search_date_before) "
+        + "VALUES (#{userRecordIndex}, #{name}, #{random_uri}, #{searchDateAfter}, #{searchDateBefore})")
     @SelectKey(statement="SELECT uuid_generate_v1()", keyProperty="random_uri", resultType=String.class, before=true) 
     Integer insertUri(TemporaryUriDto temporaryUriDto);
 

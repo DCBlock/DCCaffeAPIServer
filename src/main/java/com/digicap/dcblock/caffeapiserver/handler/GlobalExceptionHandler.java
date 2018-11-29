@@ -9,9 +9,11 @@ import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.exception.NotImplementedException;
 import com.digicap.dcblock.caffeapiserver.exception.NotSupportedException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
+import java.lang.reflect.MalformedParameterizedTypeException;
 import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -84,5 +86,14 @@ public class GlobalExceptionHandler {
         e.printStackTrace();
         log.error(e.getMessage());
         return new ApiError(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ApiError handleException(MethodArgumentNotValidException e) {
+        e.printStackTrace();
+        log.error(e.getMessage());
+        return new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
     }
 }

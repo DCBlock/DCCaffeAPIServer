@@ -1,5 +1,6 @@
 package com.digicap.dcblock.caffeapiserver.dto;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,4 +18,8 @@ public class TemporaryUriDto {
     private long userRecordIndex;
 
     private Date regDate;
+
+    private Timestamp searchDateBefore;
+
+    private Timestamp searchDateAfter;
 }

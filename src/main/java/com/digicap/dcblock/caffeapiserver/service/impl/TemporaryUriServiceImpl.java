@@ -12,6 +12,7 @@ import com.digicap.dcblock.caffeapiserver.store.UserMapper;
 
 import com.digicap.dcblock.caffeapiserver.util.ApplicationProperties;
 import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -41,13 +42,18 @@ public class TemporaryUriServiceImpl implements TemporaryUriService {
     }
 
     @Override
-    public String createTemporaryUri(String rfid) throws MyBatisSystemException {
+    public String createTemporaryUri(String rfid, Timestamp before, Timestamp after) throws MyBatisSystemException {
         UserVo userVo = Optional.ofNullable(userMapper.selectUserByRfid(rfid))
             .orElseThrow(() -> new NotFindException("not find rfid' user"));
 
+        // Instance
         TemporaryUriDto temporaryUriDto = new TemporaryUriDto();
         temporaryUriDto.setName(userVo.getName());
         temporaryUriDto.setUserRecordIndex(userVo.getIndex());
+
+        temporaryUriDto.setSearchDateAfter(after);
+
+        temporaryUriDto.setSearchDateBefore(before);
 
         Optional.ofNullable(temporaryUriMapper.insertUri(temporaryUriDto))
                 .orElseThrow(() -> new UnknownException("DB Error. insert Random URI."));

@@ -8,6 +8,8 @@ public interface CaffeApiServerApplicationConstants {
     // for Request
     String KEY_RFID = "rfid";
     String KEY_PURCHASES = "purchases";
+    String KEY_PURCHASE_AFTER = "purchase_after";
+    String KEY_PURCHASE_BEFORE = "purchase_before";
 
     // for Response
     String KEY_PURCHASE_CANCELS = "purchase_cancels";
