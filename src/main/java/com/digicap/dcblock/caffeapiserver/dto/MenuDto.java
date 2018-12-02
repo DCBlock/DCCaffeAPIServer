@@ -28,7 +28,11 @@ public class MenuDto {
 
     private int dc_covision = -1;
 
-    private int opt_type = -1;
+    @JsonProperty("type")
+    private String opt_type;
 
-    private int opt_size = -1;
+    @JsonProperty("size")
+    private String opt_size;
+
+    private String event_name ="";
 }

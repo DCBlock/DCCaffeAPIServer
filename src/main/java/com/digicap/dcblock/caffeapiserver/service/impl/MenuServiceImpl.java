@@ -1,5 +1,6 @@
 package com.digicap.dcblock.caffeapiserver.service.impl;
 
+import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
 import com.digicap.dcblock.caffeapiserver.dto.MenuVo;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.service.MenuService;
@@ -26,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Primary
 @Slf4j
-public class MenuServiceImpl implements MenuService {
+public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationConstants {
 
     private MenuMapper menuMapper;
 
@@ -38,17 +39,9 @@ public class MenuServiceImpl implements MenuService {
         this.categoryMapper = categoryMapper;
     }
 
-    public LinkedHashMap<String, LinkedList<MenuDto>> getAllMenus() {
+    public LinkedHashMap<String, LinkedList<MenuDto>> getAllMenus() throws MyBatisSystemException {
         // category 테이블에서 목록을 조회.
-        LinkedList<CategoryVo> categories = null;
-
-        try {
-            categories = categoryMapper.selectAllCategory();
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw new UnknownException(e.getMessage());
-        }
-
+        LinkedList<CategoryVo> categories = categoryMapper.selectAllCategory();
         if (categories == null || categories.size() == 0) {
             log.error("category is null or 0.");
             throw new NotFindException("category is null or 0.");
@@ -147,6 +140,41 @@ public class MenuServiceImpl implements MenuService {
      */
     private LinkedList<MenuDto> getMenusByCategoryCode(int code) throws MyBatisSystemException {
         LinkedList<MenuDto> menus = menuMapper.selectAllMenus(code);
+
+        transTypeAndSize(menus);
+
         return menus;
     }
+
+    /**
+     * opt_size, opt_type value trans.
+     * @param menus
+     * @return
+     */
+    private LinkedList<MenuDto> transTypeAndSize(LinkedList<MenuDto> menus) {
+        for (MenuDto m : menus) {
+            switch (m.getOpt_size()) {
+                case "0":
+                    m.setOpt_size(OPT_SIZE_REGULAR);
+                    break;
+                case "1":
+                    m.setOpt_size(OPT_SIZE_SMALL);
+                    break;
+            }
+
+            switch (m.getOpt_type()) {
+                case "0":
+                    m.setOpt_type(OPT_TYPE_HOT);
+                    break;
+                case "1":
+                    m.setOpt_type(OPT_TYPE_ICED);
+                    break;
+                case "2":
+                    m.setOpt_type(OPT_TYPE_BOTH);
+                    break;
+            }
+        }
+        return menus;
+    }
+
 }

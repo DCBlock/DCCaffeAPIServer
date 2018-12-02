@@ -20,4 +20,11 @@ public interface CaffeApiServerApplicationConstants {
     int RECEIPT_STATUS_PURCHASE = 1;
     int RECEIPT_STATUS_CANCEL = 2;
     int RECEIPT_STATUS_CANCELED = 3;
+
+    String OPT_SIZE_REGULAR = "REGULAR";
+    String OPT_SIZE_SMALL = "SMALL";
+
+    String OPT_TYPE_HOT = "HOT";
+    String OPT_TYPE_ICED = "ICED";
+    String OPT_TYPE_BOTH = "BOTH";
 }
