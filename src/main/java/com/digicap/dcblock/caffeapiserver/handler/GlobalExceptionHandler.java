@@ -9,7 +9,6 @@ import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.exception.NotImplementedException;
 import com.digicap.dcblock.caffeapiserver.exception.NotSupportedException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
-import java.lang.reflect.MalformedParameterizedTypeException;
 import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.http.HttpStatus;

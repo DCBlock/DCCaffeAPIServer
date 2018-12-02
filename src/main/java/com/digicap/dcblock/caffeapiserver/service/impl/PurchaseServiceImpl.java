@@ -2,6 +2,7 @@ package com.digicap.dcblock.caffeapiserver.service.impl;
 
 import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
 import com.digicap.dcblock.caffeapiserver.dto.MenuDto;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseBalanceDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
 import com.digicap.dcblock.caffeapiserver.dto.PurchasedDto;
@@ -26,6 +27,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -243,6 +245,42 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         LinkedList<PurchaseVo> purchases = purchaseMapper.selectAllByUser(fromDate, toDate,
             purchaseDto.getUser_record_index(), purchaseDto.getReceipt_status());
         return purchases;
+    }
+
+    @Override
+    public PurchaseBalanceDto getBalanceByRfid(String rfid, Date fromDate, Date toDate) throws MyBatisSystemException {
+        // TODO Admin API
+        UserVo userVo = Optional.ofNullable(userMapper.selectUserByRfid(rfid))
+            .orElseThrow(() -> new NotFindException(String.format("not find rfid(%s)", rfid)));
+
+        if (userVo.getName() == null) {
+            throw new NotFindException(String.format("not find rfid(%s)", rfid));
+        }
+
+        //
+        PurchaseDto purchaseDto = new PurchaseDto();
+        purchaseDto.setUser_record_index(userVo.getIndex());
+        purchaseDto.setReceipt_status(RECEIPT_STATUS_PURCHASE);
+
+        // Get Purchases.
+        LinkedList<PurchaseVo> purchases = purchaseMapper.selectAllByUser(fromDate, toDate,
+            purchaseDto.getUser_record_index(), purchaseDto.getReceipt_status());
+
+        // Calculate total, dc_total.
+        int total = 0;
+        int dc_total = 0;
+        for (PurchaseVo p : purchases) {
+            total += p.getPrice() * p.getCount();
+            dc_total += p.getDcPrice() * p.getCount();
+        }
+
+        // Set Value.
+        PurchaseBalanceDto balanceDto = new PurchaseBalanceDto();
+        balanceDto.setTotal_price(total);
+        balanceDto.setTotal_dc_price(dc_total);
+        balanceDto.setName(userVo.getName());
+
+        return balanceDto;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////

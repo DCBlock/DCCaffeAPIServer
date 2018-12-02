@@ -1,5 +1,6 @@
 package com.digicap.dcblock.caffeapiserver.service;
 
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseBalanceDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
 import com.digicap.dcblock.caffeapiserver.dto.PurchasedDto;
@@ -20,4 +21,6 @@ public interface PurchaseService {
     List<PurchaseDto> cancelApprovalPurchases(int receiptId);
 
     LinkedList<PurchaseVo> getPurchases(PurchaseDto purchaseDto, Date from, Date to);
+
+    PurchaseBalanceDto getBalanceByRfid(String rfid, Date fromDate, Date toDate);
 }

@@ -1,6 +1,7 @@
 package com.digicap.dcblock.caffeapiserver.controller;
 
 import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseBalanceDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
 import com.digicap.dcblock.caffeapiserver.dto.PurchasedDto;
@@ -9,6 +10,7 @@ import com.digicap.dcblock.caffeapiserver.dto.TemporaryUriVo;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.service.PurchaseService;
 import com.digicap.dcblock.caffeapiserver.service.TemporaryUriService;
+import com.digicap.dcblock.caffeapiserver.service.UserService;
 import com.digicap.dcblock.caffeapiserver.util.ApplicationProperties;
 import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,9 +37,9 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class PurchaseController implements CaffeApiServerApplicationConstants {
 
-    private PurchaseService service;
+    private ApplicationProperties applicationProperties;
 
-    ApplicationProperties applicationProperties;
+    private PurchaseService service;
 
     @Autowired
     private TemporaryUriService temporaryUriService;
@@ -139,7 +141,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
 
         // Set Where Case.
         PurchaseDto purchaseDto = new PurchaseDto();
-        purchaseDto.setUser_record_index(0);
+        purchaseDto.setUser_record_index(temporaryUriVo.getUserRecordIndex());
         purchaseDto.setReceipt_status(RECEIPT_STATUS_PURCHASE);
 
         // Get Purchased List.
@@ -163,10 +165,17 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
     }
 
     @GetMapping("/api/caffe/purchases/purchase/rfid/{rfid}")
-    void getBalanceByRfid(@PathVariable("rfid") String rfid,
+    PurchaseBalanceDto getBalanceByRfid(@PathVariable("rfid") String rfid,
         @RequestParam("purchaseBefore") String _before,
         @RequestParam("purchaseAfter") String _after) {
 
+        long _from = getLongValueOf(_after);
+        long _to = getLongValueOf(_before);
+
+        Date from = new Date(_from * 1000);
+        Date to = new Date(_to * 1000);
+
+        return service.getBalanceByRfid(rfid, from, to);
     }
 
     /**
