@@ -42,8 +42,8 @@ public class MenuController {
     }
 
     @PostMapping("/api/caffe/menus")
-    MenuVo insertMenu(@RequestBody MenuVo body) {
-        MenuVo result = service.setMenu(body);
+    MenuDto insertMenu(@RequestBody MenuDto body) {
+        MenuDto result = service.setMenu(body);
         return result;
     }
 

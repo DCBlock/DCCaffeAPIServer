@@ -32,5 +32,5 @@ public interface MenuMapper {
     @Select("SELECT COUNT(*) FROM menus WHERE category = #{category}")
     int selectMenuInCategorySize(@Param("category") int category);
 
-    Integer updateAllMenuByCategory(LinkedList<MenuDto> menus);
+    Integer updateAllMenuByCategory(LinkedList<MenuVo> menus);
 }

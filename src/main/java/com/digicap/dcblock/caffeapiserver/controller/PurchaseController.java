@@ -1,6 +1,8 @@
 package com.digicap.dcblock.caffeapiserver.controller;
 
 import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
+import com.digicap.dcblock.caffeapiserver.dto.Purchase2Dto;
+import com.digicap.dcblock.caffeapiserver.dto.Purchase2Vo;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseBalanceDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
@@ -10,12 +12,11 @@ import com.digicap.dcblock.caffeapiserver.dto.TemporaryUriVo;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.service.PurchaseService;
 import com.digicap.dcblock.caffeapiserver.service.TemporaryUriService;
-import com.digicap.dcblock.caffeapiserver.service.UserService;
 import com.digicap.dcblock.caffeapiserver.util.ApplicationProperties;
-import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -79,25 +80,35 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
     }
 
     @PatchMapping("/api/caffe/purchases/purchase/receipt/{receiptId}/cancel")
-    HashMap<String, List<PurchaseDto>> cancelPurchaseByReceiptId(@PathVariable("receiptId") String _receiptId) {
+    HashMap<String, List<Purchase2Dto>> cancelPurchaseByReceiptId(@PathVariable("receiptId") String _receiptId) {
         int receiptId = getIntegerValueOf(_receiptId);
 
         List<PurchaseDto> cancels = service.cancelPurchases(receiptId);
 
-        LinkedHashMap<String, List<PurchaseDto>> result = new LinkedHashMap<>();
-        result.put(KEY_PURCHASE_CANCELS, cancels);
+        List<Purchase2Dto> cancels2 = new ArrayList();
+        for (PurchaseDto p : cancels) {
+            cancels2.add(toPurchaseDto(p));
+        }
+
+        LinkedHashMap<String, List<Purchase2Dto>> result = new LinkedHashMap<>();
+        result.put(KEY_PURCHASE_CANCELS, cancels2);
 
         return result;
     }
 
     @PatchMapping("/api/caffe/purchases/purchase/receipt/{receiptId}/cancel-approval")
-    HashMap<String, List<PurchaseDto>> canceledPurchaseByReceiptId(@PathVariable("receiptId") String _receiptId) {
+    HashMap<String, List<Purchase2Dto>> canceledPurchaseByReceiptId(@PathVariable("receiptId") String _receiptId) {
         int receiptId = getIntegerValueOf(_receiptId);
 
         List<PurchaseDto> canceleds = service.cancelApprovalPurchases(receiptId);
 
-        LinkedHashMap<String, List<PurchaseDto>> result = new LinkedHashMap<>();
-        result.put(KEY_PURCHASE_CANCELEDS, canceleds);
+        List<Purchase2Dto> cancels2 = new ArrayList();
+        for (PurchaseDto p : canceleds) {
+            cancels2.add(toPurchaseDto(p));
+        }
+
+        LinkedHashMap<String, List<Purchase2Dto>> result = new LinkedHashMap<>();
+        result.put(KEY_PURCHASE_CANCELEDS, cancels2);
 
         return result;
     }
@@ -136,7 +147,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         // Get registered user_record_index and name by random uri.
         TemporaryUriVo temporaryUriVo = temporaryUriService.existTemporary(uri);
 
-        Date from = new Date(temporaryUriVo.getSearchDateBefore().getTime());
+        Date from = new Date(temporaryUriVo.getSearchDateAfter().getTime());
         Date to = new Date(temporaryUriVo.getSearchDateBefore().getTime());
 
         // Set Where Case.
@@ -146,6 +157,11 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
 
         // Get Purchased List.
         LinkedList<PurchaseVo> purchases = service.getPurchases(purchaseDto, from, to);
+
+        List<Purchase2Vo> cancels2 = new ArrayList();
+        for (PurchaseVo p : purchases) {
+            cancels2.add(toPurchase2Vo(p));
+        }
 
         int total = 0;
         int dc_total = 0;
@@ -160,7 +176,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         result.put("name", temporaryUriVo.getName());
         result.put("total", total);
         result.put("dc_total", dc_total);
-        result.put("purchases", purchases);
+        result.put("purchases", cancels2);
         return result;
     }
 
@@ -205,5 +221,70 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         }
 
         return value;
+    }
+
+    private Purchase2Dto toPurchaseDto(PurchaseDto purchaseDto) {
+        Purchase2Dto newPurchase = new Purchase2Dto();
+
+        newPurchase.setCategory(purchaseDto.getCategory());
+        newPurchase.setCode(purchaseDto.getCode());
+        newPurchase.setCount(purchaseDto.getCount());
+        newPurchase.setDc_price(purchaseDto.getDc_price());
+        newPurchase.setMenu_name_kr(purchaseDto.getMenu_name_kr());
+        newPurchase.setName(purchaseDto.getName());
+        newPurchase.setPrice(purchaseDto.getPrice());
+        newPurchase.setReceipt_id(purchaseDto.getReceipt_id());
+        newPurchase.setReceipt_status(purchaseDto.getReceipt_id());
+        newPurchase.setUser_record_index(purchaseDto.getUser_record_index());
+        switch (purchaseDto.getOpt_size()) {
+            case 0:
+                newPurchase.setSize(OPT_SIZE_REGULAR);
+                break;
+            case 1:
+                newPurchase.setSize(OPT_SIZE_SMALL);
+                break;
+        }
+
+        switch (purchaseDto.getOpt_type()) {
+            case 0:
+                newPurchase.setType(OPT_TYPE_HOT);
+                break;
+            case 1:
+                newPurchase.setType(OPT_TYPE_ICED);
+                break;
+            case 2:
+                newPurchase.setType(OPT_TYPE_BOTH);
+                break;
+        }
+
+        return newPurchase;
+    }
+
+    private Purchase2Vo toPurchase2Vo(PurchaseVo p) {
+
+        String size = "";
+        switch (p.getOptSize()) {
+            case 0:
+                size = OPT_SIZE_REGULAR;
+                break;
+            case 1:
+                size = OPT_SIZE_SMALL;
+                break;
+        }
+
+        String type = "";
+        switch (p.getOptType()) {
+            case 0:
+                type = OPT_TYPE_HOT;
+                break;
+            case 1:
+                type = OPT_TYPE_ICED;
+                break;
+            case 2:
+                type = OPT_TYPE_BOTH;
+                break;
+        }
+
+        return new Purchase2Vo(p.getCode(), p.getPrice(), p.getDcPrice(), type, size, p.getCount(), p.getMenuNameKr());
     }
 }

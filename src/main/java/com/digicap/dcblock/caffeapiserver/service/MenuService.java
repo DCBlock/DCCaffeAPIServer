@@ -14,7 +14,7 @@ public interface MenuService {
 
     void deleteMenu(int category, int code);
 
-    MenuVo setMenu(MenuVo menuVo);
+    MenuDto setMenu(MenuDto menuVo);
 
     LinkedList<MenuDto> updateAllMenusInCategory(int category, LinkedList<MenuDto> menus);
 }

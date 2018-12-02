@@ -4,9 +4,14 @@ import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
 import com.digicap.dcblock.caffeapiserver.dto.MenuVo;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.service.MenuService;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.sun.javafx.scene.control.skin.VirtualFlow.ArrayLinkedList;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
+import net.bytebuddy.dynamic.scaffold.MethodGraph.Linked;
 import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -104,14 +109,16 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
     }
 
     @Override
-    public MenuVo setMenu(MenuVo menuVo) throws MyBatisSystemException {
+    public MenuDto setMenu(MenuDto menuDto) throws MyBatisSystemException {
         // Check.
-        if (!menuMapper.existCategory(menuVo.getCategory())) {
-            throw new NotFindException(String.format("not find category(%d)", menuVo.getCategory()));
+        if (!menuMapper.existCategory(menuDto.getCategory())) {
+            throw new NotFindException(String.format("not find category(%d)", menuDto.getCategory()));
         }
 
-        MenuVo result = menuMapper.insertMenu(menuVo);
-        return result;
+        MenuVo tempVo = toMenuVo(menuDto);
+        MenuVo result = menuMapper.insertMenu(tempVo);
+        MenuDto tempDto = toMenuDto(result);
+        return tempDto;
     }
 
     @Override
@@ -127,8 +134,13 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
             m.setCategory(category);
         }
 
+        LinkedList<MenuVo> menusVo = new LinkedList<>();
+        for (MenuDto m : menus) {
+            menusVo.add(toMenuVo(m));
+        }
+
         // Update.
-        menuMapper.updateAllMenuByCategory(menus);
+        menuMapper.updateAllMenuByCategory(menusVo);
         return null;
     }
 
@@ -177,4 +189,77 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
         return menus;
     }
 
+    private MenuDto toMenuDto(MenuVo v) {
+        MenuDto t = new MenuDto();
+        t.setCategory(v.getCategory());
+        t.setCode(v.getCode());
+        t.setOrder(v.getOrder());
+        t.setName_en(v.getName_en());
+        t.setName_kr(v.getName_en());
+        t.setPrice(v.getPrice());
+        t.setDc_digicap(v.getDc_digicap());
+        t.setDc_covision(v.getDc_covision());
+        // TODO EVENT_NAME
+        t.setEvent_name("");
+
+        switch (v.getOpt_type()) {
+            case 0:
+                t.setOpt_type(OPT_TYPE_HOT);
+                break;
+            case 1:
+                t.setOpt_type(OPT_TYPE_ICED);
+                break;
+            case 2:
+                t.setOpt_type(OPT_TYPE_BOTH);
+                break;
+        }
+
+        switch (v.getOpt_size()) {
+            case 0:
+                t.setOpt_size(OPT_SIZE_REGULAR);
+                break;
+            case 1:
+                t.setOpt_size(OPT_SIZE_SMALL);
+                break;
+        }
+
+        return t;
+    }
+
+    private MenuVo toMenuVo(MenuDto t) {
+        MenuVo v = new MenuVo();
+        v.setCategory(t.getCategory());
+        v.setCode(t.getCode());
+        v.setOrder(t.getOrder());
+        v.setName_en(t.getName_en());
+        v.setName_kr(t.getName_en());
+        v.setPrice(t.getPrice());
+        v.setDc_digicap(t.getDc_digicap());
+        v.setDc_covision(t.getDc_covision());
+        // TODO EVENT_NAME
+        //t.setEvent_name("");
+
+        switch (t.getOpt_type()) {
+            case OPT_TYPE_HOT:
+                v.setOpt_type(0);
+                break;
+            case OPT_TYPE_ICED:
+                v.setOpt_type(1);
+                break;
+            case OPT_TYPE_BOTH:
+                v.setOpt_type(2);
+                break;
+        }
+
+        switch (t.getOpt_size()) {
+            case OPT_SIZE_REGULAR:
+                v.setOpt_size(0);
+                break;
+            case OPT_SIZE_SMALL:
+                v.setOpt_size(1);
+                break;
+        }
+
+        return v;
+    }
 }

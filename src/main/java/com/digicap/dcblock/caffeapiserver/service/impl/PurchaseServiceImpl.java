@@ -209,7 +209,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         }
 
         // 구매 취소 가능한 시간 확인. 10분
-        if (enablePurchaseCancel(updateDatePurchases.getFirst())) {
+        if (!enablePurchaseCancel(updateDatePurchases.getFirst())) {
             throw new ExpiredTimeException("expired time for cancel purchase");
         }
 
@@ -315,9 +315,31 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
             PurchaseDto pp = new PurchaseDto();
             pp.setCategory(Integer.valueOf(p.getOrDefault("category", -1).toString()));
             pp.setCode(Integer.valueOf(p.getOrDefault("code", -1).toString()));
-            pp.setOpt_size(Integer.valueOf(p.getOrDefault("opt_size", -1).toString()));
-            pp.setOpt_type(Integer.valueOf(p.getOrDefault("opt_type", -1).toString()));
             pp.setCount(Integer.valueOf(p.getOrDefault("count", -1).toString()));
+
+            String size = p.getOrDefault("size", -1).toString();
+            switch (size) {
+                case OPT_SIZE_REGULAR:
+                    pp.setOpt_size(0);
+                    break;
+                case OPT_SIZE_SMALL:
+                    pp.setOpt_size(1);
+                    break;
+                default:
+                    throw new InvalidParameterException(String.format("unknown size(%s)", size));
+            }
+
+            String type = p.getOrDefault("type", -1).toString();
+            switch (type) {
+                case OPT_TYPE_HOT:
+                    pp.setOpt_type(0);
+                    break;
+                case OPT_TYPE_ICED:
+                    pp.setOpt_type(1);
+                    break;
+                default:
+                    throw new InvalidParameterException(String.format("unknown type(%s)", type));
+            }
 
             results.add(pp);
         }
@@ -368,10 +390,10 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         LocalTime endTime = LocalTime.now();
         long minutes = ChronoUnit.MINUTES.between(startTime, endTime);
 
-        if (minutes > TEN_MINUTES) {
-            return false;
+        if (minutes < TEN_MINUTES) {
+            return true;
         }
 
-        return true;
+        return false;
     }
 }
