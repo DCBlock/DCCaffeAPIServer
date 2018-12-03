@@ -1,9 +1,5 @@
 spring:
   datasource:
-    url: jdbc:postgresql://10.1.203.12:5432/dcblock
-    username: apiserver
-    password: digicap12#$
-    driver-class-name: org.postgresql.Driver
 
 logging:
   level:
@@ -20,7 +16,7 @@ allow_remotes:
 
 api_version: application/vnd.digicap.v1+json
 
-purchase_list_viewer_server: http://10.51.6.20:9090/my_order
+purchase_list_viewer_server: http://10.51.6.20:8080/my_order
 
 admin_server: http://localhost:8080/api
 
