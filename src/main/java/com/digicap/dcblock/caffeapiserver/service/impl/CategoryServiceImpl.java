@@ -35,7 +35,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public LinkedList<CategoryVo> getAllCategories() {
+    public LinkedList<CategoryVo> getAllCategories() throws MyBatisSystemException {
         LinkedList<CategoryVo> categoriesVo = null;
 
         try {
@@ -45,31 +45,19 @@ public class CategoryServiceImpl implements CategoryService {
             }
         } catch (NotFindException e) {
             throw e;
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw e;
         }
 
         return categoriesVo;
     }
 
     @Override
-    public CategoryVo postCategory(String name) {
-        CategoryVo categoryVo = null;
-
-        try {
-            categoryVo = categoryMapper.insertCategory(name);
-        } catch (MyBatisSystemException e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-            throw new UnknownException(e.getMessage());
-        }
-
+    public CategoryVo postCategory(String name) throws MyBatisSystemException {
+        CategoryVo categoryVo = categoryMapper.insertCategory(name);
         return categoryVo;
     }
 
     @Override
-    public MenusInCategoryDto deleteCategory(int code) {
+    public MenusInCategoryDto deleteCategory(int code) throws MyBatisSystemException {
         MenusInCategoryDto menusInCategoryDto = null;
 
         // 카테고리 삭제하고 하위 메뉴도 삭제.
@@ -108,10 +96,6 @@ public class CategoryServiceImpl implements CategoryService {
             menusInCategoryDto.setOrder(categoryVo.getOrder());
         } catch (NotFindException | UnknownException e) {
             throw e;
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-            throw new UnknownException(e.getMessage());
         }
 
         return menusInCategoryDto;

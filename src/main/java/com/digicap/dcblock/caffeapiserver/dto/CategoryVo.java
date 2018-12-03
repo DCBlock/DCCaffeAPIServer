@@ -7,7 +7,6 @@ import lombok.ToString;
 /**
  * category table VO.
  */
-@Setter
 @Getter
 @ToString
 public class CategoryVo {
