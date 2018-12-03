@@ -22,4 +22,6 @@ public class ApplicationProperties {
     private String purchase_list_viewer_server;
 
     private int random_uri_expired_minute;
+
+    private String admin_server;
 }
