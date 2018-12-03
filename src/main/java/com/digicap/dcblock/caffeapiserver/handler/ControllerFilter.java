@@ -34,7 +34,6 @@ public class ControllerFilter implements HandlerInterceptor {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
         try {
 
-//            HttpServletRequest httpRequest = (HttpServletRequest)request;
 //            HttpServletResponse httpResponse = (HttpServletResponse)response;
 //
 //            HttpRequestWrapper httpRequestWrapper = new HttpRequestWrapper(httpRequest);
@@ -42,10 +41,16 @@ public class ControllerFilter implements HandlerInterceptor {
             // before Controller
 //            preFilter(request);
 
-            chain.doFilter(request, response);
+//            HttpServletRequest httpRequest = (HttpServletRequest)request;
+//            final String uri = httpRequest.getRequestURI();
+//            final String header = httpRequest.getHeader("Authorization");
+//            if (header == null || !header.startsWith("Bearer ")) {
+//                throw new InvalidParameterException("No JWT token found in request headers");
+//            }
+//
+//            String authToken = header.substring(7);
 
-            // after Controller
-//            postFilter(httpRequestWrapper, httpResponse);
+            chain.doFilter(request, response);
         } catch (ForbiddenException e) {
             throw e;
         } catch (ServletException | IOException e) {
