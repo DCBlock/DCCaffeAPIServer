@@ -16,8 +16,7 @@ allow_remotes:
 
 api_version: application/vnd.digicap.v1+json
 
-# Must added Last Slash of URI
-purchase_list_viewer_server: http://localhost:8080/
+purchase_list_viewer_server: http://10.51.6.20:8080/my_order
 
 admin_server: http://localhost:8080/api
 

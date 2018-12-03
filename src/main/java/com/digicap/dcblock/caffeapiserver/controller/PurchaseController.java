@@ -138,7 +138,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         String randomUri = temporaryUriService.createTemporaryUri(rfid, after, before);
 
         HashMap<String, String> result = new HashMap<>();
-        result.put("uri", applicationProperties.getPurchase_list_viewer_server() + randomUri);
+        result.put("uri", String.format("%s/%s",applicationProperties.getPurchase_list_viewer_server(), randomUri));
         return result;
     }
 
