@@ -1,6 +1,9 @@
 package com.digicap.dcblock.caffeapiserver.config;
 
 import com.digicap.dcblock.caffeapiserver.store.PurchaseMapper;
+import com.digicap.dcblock.caffeapiserver.store.ReceiptIdsMapper;
+import java.sql.Date;
+import java.sql.Timestamp;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -13,11 +16,15 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class ScheduledConfig {
 
-    PurchaseMapper purchaseMapper;
+    private PurchaseMapper purchaseMapper;
+
+    private ReceiptIdsMapper receiptIdsMapper;
 
     @Autowired
-    public ScheduledConfig(PurchaseMapper mapper) {
+    public ScheduledConfig(PurchaseMapper mapper, ReceiptIdsMapper receiptIdsMapper) {
         this.purchaseMapper = mapper;
+
+        this.receiptIdsMapper = receiptIdsMapper;
     }
 
     /**
@@ -30,6 +37,12 @@ public class ScheduledConfig {
 
         try {
             purchaseMapper.updateReceiptId();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+
+        try {
+            receiptIdsMapper.deleteAll(new Timestamp(System.currentTimeMillis()));
         } catch (Exception e) {
             log.error(e.getMessage());
         }

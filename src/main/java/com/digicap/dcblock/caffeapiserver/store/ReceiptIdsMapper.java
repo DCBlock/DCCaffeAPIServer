@@ -1,6 +1,7 @@
 package com.digicap.dcblock.caffeapiserver.store;
 
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo;
+import java.sql.Timestamp;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -25,4 +26,6 @@ public interface ReceiptIdsMapper {
 
     @Delete("DELETE FROM receipt_ids WHERE receipt_id = #{receiptId}")
     Integer deleteByReceiptId(@Param("receiptId") int receiptId);
+
+    Integer deleteAll(@Param("regDate") Timestamp regDate);
 }
