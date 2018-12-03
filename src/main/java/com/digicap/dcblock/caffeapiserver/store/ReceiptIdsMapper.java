@@ -16,8 +16,9 @@ public interface ReceiptIdsMapper {
     @Select("SELECT 1 FROM receipt_ids WHERE receipt_id = #{receiptId}")
     Integer existReceiptId(int receiptId);
 
-    @Insert("INSERT INTO receipt_ids (name, company, receipt_id) VALUES (#{name}, #{company}, #{receiptId})")
-    int insertReceiptId(@Param("name") String name, @Param("company") String company, @Param("receiptId") int receiptId);
+    @Insert("INSERT INTO receipt_ids (name, company, receipt_id, user_record_index) "
+        + "VALUES (#{name}, #{company}, #{receiptId}, #{index})")
+    int insertReceiptId(@Param("name") String name, @Param("company") String company, @Param("receiptId") int receiptId, @Param("index") long index);
 
     @Select("SELECT name, company, user_record_index, regdate FROM receipt_ids WHERE receipt_id = #{receiptId} AND regdate BETWEEN (select TIMESTAMP 'today') AND (select TIMESTAMP 'tomorrow')")
     ReceiptIdVo selectByReceiptId(@Param("receiptId") int receiptId);

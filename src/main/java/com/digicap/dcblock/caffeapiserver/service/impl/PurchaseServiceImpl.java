@@ -96,7 +96,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         // receipts table에 insert
         int result = 0;
         try {
-           result = receiptMapper.insertReceiptId(userVo.getName(), userVo.getCompany(), receiptId);
+           result = receiptMapper.insertReceiptId(userVo.getName(), userVo.getCompany(), receiptId, userVo.getIndex());
         } catch (Exception e) {
             log.error(e.getMessage());
             throw e;

@@ -42,7 +42,7 @@ public class TemporaryUriServiceImpl implements TemporaryUriService {
     }
 
     @Override
-    public String createTemporaryUri(String rfid, Timestamp before, Timestamp after) throws MyBatisSystemException {
+    public String createTemporaryUri(String rfid, Timestamp after, Timestamp before) throws MyBatisSystemException {
         UserVo userVo = Optional.ofNullable(userMapper.selectUserByRfid(rfid))
             .orElseThrow(() -> new NotFindException("not find rfid' user"));
 
