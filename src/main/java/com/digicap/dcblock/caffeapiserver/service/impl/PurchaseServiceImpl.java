@@ -317,7 +317,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
             pp.setCode(Integer.valueOf(p.getOrDefault("code", -1).toString()));
             pp.setCount(Integer.valueOf(p.getOrDefault("count", -1).toString()));
 
-            String size = p.getOrDefault("size", -1).toString();
+            String size = p.getOrDefault("size", -1).toString().toUpperCase();
             switch (size) {
                 case OPT_SIZE_REGULAR:
                     pp.setOpt_size(0);
@@ -329,7 +329,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
                     throw new InvalidParameterException(String.format("unknown size(%s)", size));
             }
 
-            String type = p.getOrDefault("type", -1).toString();
+            String type = p.getOrDefault("type", -1).toString().toUpperCase();
             switch (type) {
                 case OPT_TYPE_HOT:
                     pp.setOpt_type(0);
