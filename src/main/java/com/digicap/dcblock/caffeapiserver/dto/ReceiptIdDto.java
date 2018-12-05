@@ -11,5 +11,7 @@ public class ReceiptIdDto {
 
     private String name;
 
+    private String company;
+    
     private String date;
 }

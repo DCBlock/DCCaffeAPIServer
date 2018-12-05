@@ -7,18 +7,21 @@ import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
 import com.digicap.dcblock.caffeapiserver.dto.PurchasedDto;
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo;
+import com.digicap.dcblock.caffeapiserver.dto.UserDto;
 import com.digicap.dcblock.caffeapiserver.dto.UserVo;
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
 import com.digicap.dcblock.caffeapiserver.exception.ExpiredTimeException;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
+import com.digicap.dcblock.caffeapiserver.proxy.AdminServer;
 import com.digicap.dcblock.caffeapiserver.service.MenuService;
 import com.digicap.dcblock.caffeapiserver.service.PurchaseService;
 import com.digicap.dcblock.caffeapiserver.store.MenuMapper;
 import com.digicap.dcblock.caffeapiserver.store.PurchaseMapper;
 import com.digicap.dcblock.caffeapiserver.store.ReceiptIdsMapper;
 import com.digicap.dcblock.caffeapiserver.store.UserMapper;
+import com.digicap.dcblock.caffeapiserver.util.ApplicationProperties;
 import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
 import java.sql.Date;
 import java.sql.Timestamp;
@@ -45,6 +48,8 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     private static final int MINUTES = 1;
     private static final int TEN_MINUTES = 10 * MINUTES;
 
+    private ApplicationProperties properties;
+    
     private UserMapper userMapper;
 
     private PurchaseMapper purchaseMapper;
@@ -57,7 +62,8 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
 
     @Autowired
     public PurchaseServiceImpl(UserMapper userMapper, PurchaseMapper purchaseMapper,
-        ReceiptIdsMapper receiptIdsMapper, MenuMapper menuMapper, MenuService menuService) {
+        ReceiptIdsMapper receiptIdsMapper, MenuMapper menuMapper, MenuService menuService, 
+        ApplicationProperties properties) {
         this.userMapper = userMapper;
 
         this.purchaseMapper = purchaseMapper;
@@ -67,19 +73,22 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         this.menuMapper = menuMapper;
 
         this.menuService = menuService;
+        
+        this.properties = properties;
     }
 
     public ReceiptIdDto getReceiptId(String rfid) {
-        UserVo userVo = null;
-
+//        UserVo userVo = null;
+        UserDto userDto = null;
+        
         try {
-            userVo = userMapper.selectUserByRfid(rfid);
+//            userVo = userMapper.selectUserByRfid(rfid);
+            userDto = new AdminServer(properties).getUserByRfid(rfid);
         } catch (Exception e) {
-            log.error(e.getMessage());
-            throw e;
+            throw new UnknownException(e.getMessage());
         }
 
-        if (userVo == null) {
+        if (userDto == null) {
             throw new NotFindException("not find user using rfid");
         }
 
@@ -96,7 +105,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         // receipts table에 insert
         int result = 0;
         try {
-           result = receiptMapper.insertReceiptId(userVo.getName(), userVo.getCompany(), receiptId, userVo.getIndex());
+           result = receiptMapper.insertReceiptId(userDto.getName(), userDto.getCompany(), receiptId, userDto.getIndex());
         } catch (Exception e) {
             log.error(e.getMessage());
             throw e;
@@ -108,7 +117,8 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
 
         ReceiptIdDto receiptIdDto = new ReceiptIdDto();
         receiptIdDto.setReceipt_id(insertZeroString(receiptId));
-        receiptIdDto.setName(userVo.getName());
+        receiptIdDto.setName(userDto.getName());
+        receiptIdDto.setCompany(userDto.getCompany());
         receiptIdDto.setDate(new TimeFormat().getCurrent());
 
         return receiptIdDto;

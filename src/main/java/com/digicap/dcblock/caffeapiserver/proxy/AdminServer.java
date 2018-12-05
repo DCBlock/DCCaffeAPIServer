@@ -22,7 +22,7 @@ public class AdminServer {
      * @throws Exception
      */
     public UserDto getUserByRfid(String rfid) throws Exception {
-        final String uri = String.format("%s/admin?rfid=%s", properties.getAdmin_server(), rfid);
+        final String uri = String.format("%s/users?rfid=%s", properties.getAdmin_server(), rfid);
         final String accept = properties.getApi_version();
 
         WebClient webClient = WebClient
