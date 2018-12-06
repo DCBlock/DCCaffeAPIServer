@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
-import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,7 +36,7 @@ public class MenuController {
 //        @ApiResponse(code = 200, message = "Success", response = LinkedHashMap.class),
 //        @ApiResponse(code = 500, message = "Failure", response = ApiError.class)})
     @GetMapping("/api/caffe/menus")
-    LinkedHashMap<String, LinkedList<MenuDto>> getAllMenus() throws MyBatisSystemException {
+    LinkedHashMap<String, LinkedList<MenuDto>> getAllMenus() {
         LinkedHashMap<String, LinkedList<MenuDto>> menus = service.getAllMenus();
         return menus;
     }

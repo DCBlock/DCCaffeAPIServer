@@ -19,14 +19,11 @@ import com.digicap.dcblock.caffeapiserver.service.MenuService;
 import com.digicap.dcblock.caffeapiserver.store.CategoryMapper;
 import com.digicap.dcblock.caffeapiserver.store.MenuMapper;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * menu business logic class.
  */
 @Service
 @Primary
-@Slf4j
 public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationConstants {
 
     private MenuMapper menuMapper;
@@ -39,11 +36,10 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
         this.categoryMapper = categoryMapper;
     }
 
-    public LinkedHashMap<String, LinkedList<MenuDto>> getAllMenus() throws MyBatisSystemException {
+    public LinkedHashMap<String, LinkedList<MenuDto>> getAllMenus() throws MyBatisSystemException, NotFindException, UnknownException {
         // category 테이블에서 목록을 조회.
         LinkedList<CategoryVo> categories = categoryMapper.selectAllCategory();
         if (categories == null || categories.size() == 0) {
-            log.error("category is null or 0.");
             throw new NotFindException("category is null or 0.");
         }
 
@@ -56,26 +52,16 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
                 menus.put(category.getName(), menusByCode);
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
             throw new UnknownException(e.getMessage());
         }
 
         return menus;
     }
 
-    public LinkedHashMap<Integer, LinkedList<MenuDto>> getAllMenusUsingCode() {
+    public LinkedHashMap<Integer, LinkedList<MenuDto>> getAllMenusUsingCode() throws MyBatisSystemException, NotFindException, UnknownException {
         // category 테이블에서 목록을 조회.
-        LinkedList<CategoryVo> categories = null;
-
-        try {
-            categories = categoryMapper.selectAllCategory();
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw new UnknownException(e.getMessage());
-        }
-
+        LinkedList<CategoryVo> categories = categoryMapper.selectAllCategory();
         if (categories == null || categories.size() == 0) {
-            log.error("category is null or 0.");
             throw new NotFindException("category is null or 0.");
         }
 
@@ -88,7 +74,6 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
                 menus.put(category.getCode(), menusByCode);
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
             throw new UnknownException(e.getMessage());
         }
 
@@ -96,7 +81,7 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
     }
 
     @Override
-    public void deleteMenu(int category, int code) throws MyBatisSystemException {
+    public void deleteMenu(int category, int code) throws MyBatisSystemException, NotFindException {
         Integer result = menuMapper.deleteCode(code, category);
         if (result == null || result == 0) {
             throw new NotFindException(String.format("not find menu for delete. Category(%d) Code(%d)", code, category));
@@ -104,7 +89,7 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
     }
 
     @Override
-    public MenuDto setMenu(MenuDto menuDto) throws MyBatisSystemException {
+    public MenuDto setMenu(MenuDto menuDto) throws MyBatisSystemException, NotFindException {
         // Check.
         if (!menuMapper.existCategory(menuDto.getCategory())) {
             throw new NotFindException(String.format("not find category(%d)", menuDto.getCategory()));
@@ -117,7 +102,7 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
     }
 
     @Override
-    public LinkedList<MenuDto> updateAllMenusInCategory(int category, LinkedList<MenuDto> menus) throws MyBatisSystemException {
+    public LinkedList<MenuDto> updateAllMenusInCategory(int category, LinkedList<MenuDto> menus) throws MyBatisSystemException, InvalidParameterException {
         // Check.
         int size = menuMapper.selectMenuInCategorySize(category);
         if (size != menus.size()) {
@@ -139,6 +124,9 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
         return null;
     }
 
+    // ---------------------------------------------------------------------------------------------
+    // Private Methods
+    
     /**
      *
      * @param code
