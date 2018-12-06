@@ -47,13 +47,13 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
 
     private PurchaseService service;
 
-    @Autowired
     private TemporaryUriService temporaryUriService;
 
     @Autowired
-    public PurchaseController(ApplicationProperties applicationProperties, PurchaseService service) {
+    public PurchaseController(ApplicationProperties applicationProperties, PurchaseService service, TemporaryUriService temporaryUriService) {
         this.applicationProperties = applicationProperties;
         this.service = service;
+        this.temporaryUriService = temporaryUriService;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -61,13 +61,11 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
 
     @PostMapping("/api/caffe/purchases/purchase/receipt/id")
     ReceiptIdDto createReceiptId(@RequestBody Map<String, Object> body) {
-        ReceiptIdDto receiptIdDto = null;
-
         String rfid = Optional.ofNullable(body.get(KEY_RFID))
             .map(Object::toString)
             .orElseThrow(() -> new InvalidParameterException("not find rfid"));
 
-        receiptIdDto = service.getReceiptId(rfid);
+        ReceiptIdDto receiptIdDto = service.getReceiptId(rfid);
         return receiptIdDto;
     }
 
@@ -90,7 +88,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
 
         List<PurchaseDto> cancels = service.cancelPurchases(receiptId);
 
-        List<Purchase2Dto> cancels2 = new ArrayList();
+        List<Purchase2Dto> cancels2 = new ArrayList<>();
         for (PurchaseDto p : cancels) {
             cancels2.add(toPurchaseDto(p));
         }
@@ -107,14 +105,13 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
 
         List<PurchaseDto> canceleds = service.cancelApprovalPurchases(receiptId);
 
-        List<Purchase2Dto> cancels2 = new ArrayList();
+        List<Purchase2Dto> cancels2 = new ArrayList<>();
         for (PurchaseDto p : canceleds) {
             cancels2.add(toPurchaseDto(p));
         }
 
         LinkedHashMap<String, List<Purchase2Dto>> result = new LinkedHashMap<>();
         result.put(KEY_PURCHASE_CANCELEDS, cancels2);
-
         return result;
     }
 
@@ -163,7 +160,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         // Get Purchased List.
         LinkedList<PurchaseVo> purchases = service.getPurchases(purchaseDto, from, to);
 
-        List<Purchase2Vo> cancels2 = new ArrayList();
+        List<Purchase2Vo> cancels2 = new ArrayList<>();
         for (PurchaseVo p : purchases) {
             cancels2.add(toPurchase2Vo(p));
         }
@@ -199,33 +196,25 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         return service.getBalanceByRfid(rfid, from, to);
     }
 
-    /**
-     *
-     * @param _value
-     * @return
-     */
-    private int getIntegerValueOf(String _value) {
-        int value = 0;
-
+    // ---------------------------------------------------------------------------------------------
+    // Private Methdos
+    
+    private int getIntegerValueOf(String _value) throws InvalidParameterException {
         try {
-            value = Integer.valueOf(_value);
+            int value = Integer.valueOf(_value);
+            return value;
         } catch (NumberFormatException e) {
             throw new InvalidParameterException(e.getMessage());
         }
-
-        return value;
     }
 
-    private long getLongValueOf(String _value) {
-        long value = 0;
-
+    private long getLongValueOf(String _value) throws InvalidParameterException {
         try {
-            value = Long.valueOf(_value);
+            long value = Long.valueOf(_value);
+            return value;
         } catch (NumberFormatException e) {
             throw new InvalidParameterException(e.getMessage());
         }
-
-        return value;
     }
 
     private Purchase2Dto toPurchaseDto(PurchaseDto purchaseDto) {

@@ -77,7 +77,8 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         this.properties = properties;
     }
 
-    public ReceiptIdDto getReceiptId(String rfid) {
+    @Override
+    public ReceiptIdDto getReceiptId(String rfid) throws UnknownException, MyBatisSystemException, NotFindException {
 //        UserVo userVo = null;
         UserDto userDto = null;
         
@@ -93,24 +94,10 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         }
 
         // ReceiptId 생성.
-        int receiptId = 0;
-
-        try {
-            receiptId = purchaseMapper.selectReceiptId();
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw e;
-        }
+        int receiptId = purchaseMapper.selectReceiptId();
 
         // receipts table에 insert
-        int result = 0;
-        try {
-           result = receiptMapper.insertReceiptId(userDto.getName(), userDto.getCompany(), receiptId, userDto.getIndex());
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw e;
-        }
-
+        int result = receiptMapper.insertReceiptId(userDto.getName(), userDto.getCompany(), receiptId, userDto.getIndex());
         if (result == 0) {
             throw new UnknownException("db error");
         }
@@ -131,7 +118,9 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
      * @param _purchases 구매목록.
      * @return
      */
-    public PurchasedDto requestPurchases(int receiptId, List<LinkedHashMap<String, Object>> _purchases) throws MyBatisSystemException {
+    @Override
+    public PurchasedDto requestPurchases(int receiptId, List<LinkedHashMap<String, Object>> _purchases) 
+            throws MyBatisSystemException, NotFindException, InvalidParameterException, UnknownException {
         // parameter 확인
         ReceiptIdVo receiptIdVo = receiptMapper.selectByReceiptId(receiptId);
 
@@ -212,7 +201,8 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
      * @param receiptId
      * @return
      */
-    public List<PurchaseDto> cancelPurchases(int receiptId) throws MyBatisSystemException {
+    @Override
+    public List<PurchaseDto> cancelPurchases(int receiptId) throws MyBatisSystemException, NotFindException, ExpiredTimeException {
         LinkedList<Timestamp> updateDatePurchases = purchaseMapper.selectByReceiptId(receiptId);
         if (updateDatePurchases == null || updateDatePurchases.size() == 0) {
             throw new NotFindException("not find purchases using receipt_id");
@@ -237,7 +227,8 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
      * @param receiptId receipt id
      * @return
      */
-    public List<PurchaseDto> cancelApprovalPurchases(int receiptId) throws MyBatisSystemException {
+    @Override
+    public List<PurchaseDto> cancelApprovalPurchases(int receiptId) throws MyBatisSystemException, NotFindException {
         if (!purchaseMapper.existReceiptId(receiptId)) {
             throw new NotFindException("not find receipt_id");
         }
@@ -258,7 +249,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     }
 
     @Override
-    public PurchaseBalanceDto getBalanceByRfid(String rfid, Date fromDate, Date toDate) throws MyBatisSystemException {
+    public PurchaseBalanceDto getBalanceByRfid(String rfid, Date fromDate, Date toDate) throws MyBatisSystemException, NotFindException {
         // TODO Admin API
         UserVo userVo = Optional.ofNullable(userMapper.selectUserByRfid(rfid))
             .orElseThrow(() -> new NotFindException(String.format("not find rfid(%s)", rfid)));
@@ -293,8 +284,8 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         return balanceDto;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    // private methods
+    // --------------------------------------------------------------------------------------------
+    // Private Methods
 
     /**
      * 숫자를 네자리 문자열로 변경. 공백은 0으로 채움.

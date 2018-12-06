@@ -1,5 +1,14 @@
 package com.digicap.dcblock.caffeapiserver.service.impl;
 
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.Optional;
+
+import org.mybatis.spring.MyBatisSystemException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
+
 import com.digicap.dcblock.caffeapiserver.dto.TemporaryUriDto;
 import com.digicap.dcblock.caffeapiserver.dto.TemporaryUriVo;
 import com.digicap.dcblock.caffeapiserver.dto.UserVo;
@@ -9,21 +18,16 @@ import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
 import com.digicap.dcblock.caffeapiserver.service.TemporaryUriService;
 import com.digicap.dcblock.caffeapiserver.store.TemporaryUriMapper;
 import com.digicap.dcblock.caffeapiserver.store.UserMapper;
-
 import com.digicap.dcblock.caffeapiserver.util.ApplicationProperties;
 import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
-import java.sql.Timestamp;
-import java.util.Date;
-import java.util.Optional;
-import lombok.extern.slf4j.Slf4j;
-import org.mybatis.spring.MyBatisSystemException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Service;
 
+/**
+ * 임시 URI 관련 기능 Class.
+ * 
+ * @author DigiCAP
+ */
 @Service
 @Primary
-@Slf4j
 public class TemporaryUriServiceImpl implements TemporaryUriService {
 
     private TemporaryUriMapper temporaryUriMapper;
@@ -42,7 +46,8 @@ public class TemporaryUriServiceImpl implements TemporaryUriService {
     }
 
     @Override
-    public String createTemporaryUri(String rfid, Timestamp after, Timestamp before) throws MyBatisSystemException {
+    public String createTemporaryUri(String rfid, Timestamp after, Timestamp before)
+            throws MyBatisSystemException, NotFindException, UnknownException {
         UserVo userVo = Optional.ofNullable(userMapper.selectUserByRfid(rfid))
             .orElseThrow(() -> new NotFindException("not find rfid' user"));
 
@@ -61,7 +66,7 @@ public class TemporaryUriServiceImpl implements TemporaryUriService {
     }
 
     @Override
-    public TemporaryUriVo existTemporary(String uuid) {
+    public TemporaryUriVo existTemporary(String uuid) throws ExpiredTimeException {
         TemporaryUriDto temporaryUriDto = new TemporaryUriDto();
         temporaryUriDto.setRandom_uri(uuid);
 
