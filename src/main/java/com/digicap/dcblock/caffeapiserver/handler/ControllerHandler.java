@@ -24,14 +24,14 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Component
 @Slf4j
-public class ControllerFilter implements HandlerInterceptor {
+public class ControllerHandler implements HandlerInterceptor {
 
     private static final String ACCEPT = "Accept";
 
     private ApplicationProperties properties;
 
     @Autowired
-    public ControllerFilter(ApplicationProperties properties) {
+    public ControllerHandler(ApplicationProperties properties) {
         this.properties = properties;
     }
 
