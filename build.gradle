@@ -49,11 +49,6 @@ dependencies {
     // https://mvnrepository.com/artifact/org.mybatis.spring.boot/mybatis-spring-boot-starter
     compile group: 'org.mybatis.spring.boot', name: 'mybatis-spring-boot-starter', version: '1.3.2' 
     
-    // https://mvnrepository.com/artifact/io.springfox/springfox-swagger2
-    compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
-    // https://mvnrepository.com/artifact/io.springfox/springfox-swagger-ui
-    compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2'
-
     // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
     testCompile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
     // https://mvnrepository.com/artifact/ch.qos.logback/logback-core
@@ -62,15 +57,27 @@ dependencies {
     // https://mvnrepository.com/artifact/commons-io/commons-io
     compile group: 'commons-io', name: 'commons-io', version: '2.6'
 
-    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-thymeleaf
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf', version: '2.1.0.RELEASE'
-   
+    // error java.lang.ClassNotFoundException: com.sun.xml.internal.bind.v2.ContextFactory
     // https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api
     compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
+    // https://mvnrepository.com/artifact/com.sun.xml.bind/jaxb-impl
+    compile group: 'com.sun.xml.bind', name: 'jaxb-impl', version: '2.3.1'
     
+    // for WebClient
     compile 'org.springframework.boot:spring-boot-starter-webflux'
     compile 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
     
     // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
     compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
+    
+    // https://mvnrepository.com/artifact/org.springframework.security.oauth/spring-security-oauth2
+    compile group: 'org.springframework.security.oauth', name: 'spring-security-oauth2', version: '2.3.4.RELEASE'
+    
+    // https://mvnrepository.com/artifact/org.springframework.security/spring-security-jwt
+    compile group: 'org.springframework.security', name: 'spring-security-jwt', version: '1.0.9.RELEASE'
+    
+    // error java.lang.NoClassDefFoundError: com/sun/istack/Pool
+    // https://mvnrepository.com/artifact/com.sun.istack/istack-commons-runtime
+    compile group: 'com.sun.istack', name: 'istack-commons-runtime', version: '3.0.7'
+    
 }

@@ -4,31 +4,17 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 @SpringBootApplication
 @EnableAutoConfiguration
 @EnableScheduling
-//@EnableSwagger2
+@EnableWebSecurity // for JWT
+@EnableGlobalMethodSecurity(prePostEnabled = true) // for JWT
 public class CaffeApiServerApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(CaffeApiServerApplication.class, args);
 	}
-
-//    @Bean
-//    public Docket newsApi() {
-//        return new Docket(DocumentationType.SWAGGER_2)
-//            .groupName("greetings")
-//            .apiInfo(apiInfo())
-//            .select()
-//            .paths(regex("/api/caffe.*"))
-//            .build();
-//    }
-//
-//    private ApiInfo apiInfo() {
-//        return new ApiInfoBuilder()
-//            .title("DcBlock Caffe API Server")
-//            .version("1.0")
-//            .build();
-//    }
 }
