@@ -1,5 +1,13 @@
 package com.digicap.dcblock.caffeapiserver.service.impl;
 
+import java.util.LinkedList;
+
+import org.mybatis.spring.MyBatisSystemException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.digicap.dcblock.caffeapiserver.dto.CategoryVo;
 import com.digicap.dcblock.caffeapiserver.dto.MenuVo;
 import com.digicap.dcblock.caffeapiserver.dto.MenusInCategoryDto;
@@ -9,17 +17,9 @@ import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
 import com.digicap.dcblock.caffeapiserver.service.CategoryService;
 import com.digicap.dcblock.caffeapiserver.store.CategoryMapper;
 import com.digicap.dcblock.caffeapiserver.store.MenuMapper;
-import java.util.LinkedList;
-import lombok.extern.slf4j.Slf4j;
-import org.mybatis.spring.MyBatisSystemException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Primary
-@Slf4j
 @Transactional
 public class CategoryServiceImpl implements CategoryService {
 
@@ -35,16 +35,10 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public LinkedList<CategoryVo> getAllCategories() throws MyBatisSystemException {
-        LinkedList<CategoryVo> categoriesVo = null;
-
-        try {
-            categoriesVo = categoryMapper.selectAllCategory();
-            if (categoriesVo == null || categoriesVo.size() == 0) {
-                throw new NotFindException("not find resource");
-            }
-        } catch (NotFindException e) {
-            throw e;
+    public LinkedList<CategoryVo> getAllCategories() throws MyBatisSystemException, NotFindException {
+        LinkedList<CategoryVo> categoriesVo = categoryMapper.selectAllCategory();
+        if (categoriesVo == null || categoriesVo.size() == 0) {
+            throw new NotFindException("not find resource");
         }
 
         return categoriesVo;
@@ -57,8 +51,8 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public MenusInCategoryDto deleteCategory(int code) throws MyBatisSystemException {
-        MenusInCategoryDto menusInCategoryDto = null;
+    public MenusInCategoryDto deleteCategory(int code) throws MyBatisSystemException, UnknownException, NotFindException {
+        MenusInCategoryDto menusInCategoryDto = new MenusInCategoryDto();
 
         // 카테고리 삭제하고 하위 메뉴도 삭제.
 //        try {
@@ -75,8 +69,7 @@ public class CategoryServiceImpl implements CategoryService {
         try {
             LinkedList<MenuVo> menus = menuMapper.deleteByCategory(code);
             if (menus == null) {
-                throw new UnknownException(
-                    String.format("fail delete menus by category(%d)", code));
+                throw new UnknownException(String.format("fail delete menus by category(%d)", code));
             }
 
             menusInCategoryDto.setMenus(menus);
@@ -102,7 +95,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void updateAll(LinkedList<CategoryVo> categories) throws MyBatisSystemException {
+    public void updateAll(LinkedList<CategoryVo> categories) throws MyBatisSystemException, InvalidParameterException {
         // Check.
         int size = categoryMapper.selectAllCategorySize();
         if (size != categories.size()) {
