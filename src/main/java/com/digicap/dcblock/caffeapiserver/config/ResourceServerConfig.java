@@ -50,8 +50,8 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-//        .antMatchers("/api/caffe/menus/**").hasRole("admin")
-//        .antMatchers("/api/caffe/menus/**").hasAuthority("company")
+        .antMatchers("/api/caffe/menus/**").hasRole("admin")
+        .antMatchers("/api/caffe/menus/**").hasAuthority("company")
         ;
     }
 

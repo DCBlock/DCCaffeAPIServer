@@ -1,5 +1,25 @@
 package com.digicap.dcblock.caffeapiserver.controller;
 
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
 import com.digicap.dcblock.caffeapiserver.dto.Purchase2Dto;
 import com.digicap.dcblock.caffeapiserver.dto.Purchase2Vo;
@@ -14,28 +34,13 @@ import com.digicap.dcblock.caffeapiserver.service.PurchaseService;
 import com.digicap.dcblock.caffeapiserver.service.TemporaryUriService;
 import com.digicap.dcblock.caffeapiserver.util.ApplicationProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.sql.Date;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * 구매 관련 Controller
+ * 
+ * @author DigiCAP
+ */
 @RestController
-@Slf4j
 public class PurchaseController implements CaffeApiServerApplicationConstants {
 
     private ApplicationProperties applicationProperties;

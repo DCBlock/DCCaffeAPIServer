@@ -1,6 +1,5 @@
 package com.digicap.dcblock.caffeapiserver.controller;
 
-import com.digicap.dcblock.caffeapiserver.dto.MenuVo;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -18,10 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.digicap.dcblock.caffeapiserver.dto.MenuDto;
 import com.digicap.dcblock.caffeapiserver.service.MenuService;
 
-import lombok.extern.slf4j.Slf4j;
-
+/**
+ * 카페에서 사용하는 메뉴 Controller Class.
+ * 
+ * @author DigiCAP
+ */
 @RestController
-@Slf4j
 public class MenuController {
 
     private MenuService service;

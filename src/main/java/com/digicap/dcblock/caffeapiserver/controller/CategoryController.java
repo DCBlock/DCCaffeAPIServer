@@ -17,6 +17,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * 카페에서 사용하는 카테고리 관련 Controller Class
+ * 
+ * @author DigiCAP
+ */
 @RestController
 @Slf4j
 public class CategoryController {

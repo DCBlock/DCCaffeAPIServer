@@ -6,6 +6,11 @@ import com.digicap.dcblock.caffeapiserver.util.ApplicationProperties;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+/**
+ * AdminServer Request 관련 Class.
+ * 
+ * @author DigiCAP
+ */
 public class AdminServer {
 
     private ApplicationProperties properties;

@@ -1,7 +1,6 @@
 package com.digicap.dcblock.caffeapiserver.util;
 
 import java.security.InvalidParameterException;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
@@ -14,7 +13,7 @@ public class Rfid {
 
     private String rfid;
 
-    public Rfid(String rfid) throws InvalidParameterException {
+    public Rfid(String rfid) {
         if (rfid.length() != LENGTH) {
             throw new InvalidParameterException("RFID length is 10.");
         }

@@ -1,6 +1,5 @@
 package com.digicap.dcblock.caffeapiserver.config;
 
-import com.digicap.dcblock.caffeapiserver.util.ApplicationProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,16 +8,19 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * Set Logging Config for All Request. 
+ * 
+ * @author DigiCAP
+ *
+ */
 @Configuration
 public class ControllerHandlerConfig implements WebMvcConfigurer {
-
-    private ApplicationProperties properties;
 
     private HandlerInterceptor interceptor;
 
     @Autowired
-    public ControllerHandlerConfig(ApplicationProperties properties, HandlerInterceptor interceptor) {
-        this.properties = properties;
+    public ControllerHandlerConfig(HandlerInterceptor interceptor) {
         this.interceptor = interceptor;
     }
 
@@ -28,14 +30,6 @@ public class ControllerHandlerConfig implements WebMvcConfigurer {
             .addPathPatterns("/api/caffe/**");
 //            .excludePathPatterns("/public/**");
     }
-
-//    @Bean
-//    public FilterRegistrationBean<ControllerFilter> getFilterRegistrationBean() {
-//        FilterRegistrationBean<ControllerFilter> registrationBean = new FilterRegistrationBean();
-//        registrationBean.setFilter(new ControllerFilter(properties));
-//        registrationBean.addUrlPatterns("/api/caffe/*");
-//        return registrationBean;
-//    }
 
     @Bean
     public CommonsRequestLoggingFilter requestLoggingFilter() {
