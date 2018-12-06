@@ -18,6 +18,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+/**
+ * Global Exception Handler Class.
+ * exclude Authentication Exception(AuthenticationFailureHandler.java). 
+ * 
+ * @author DigiCAP
+ */
 @ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
@@ -26,6 +32,8 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public ApiError handleException(UnknownException e) {
+        log.error(e.getReason());
+        e.printStackTrace();
         return new ApiError(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getReason());
     }
 
@@ -33,6 +41,8 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     @ResponseBody
     public ApiError handleException(NotFindException e) {
+        e.printStackTrace();
+        log.error(e.getReason());
         return new ApiError(HttpStatus.NOT_FOUND.value(), e.getReason());
     }
 
@@ -40,6 +50,8 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ApiError handleException(InvalidParameterException e) {
+        log.error(e.getReason());
+        e.printStackTrace();
         return new ApiError(HttpStatus.BAD_REQUEST.value(), e.getReason());
     }
 
@@ -47,6 +59,8 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     @ResponseBody
     public ApiError handleException(ForbiddenException e) {
+        log.error(e.getReason());
+        e.printStackTrace();
         return new ApiError(HttpStatus.FORBIDDEN.value(), e.getReason());
     }
 
@@ -54,6 +68,8 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.NOT_ACCEPTABLE)
     @ResponseBody
     public ApiError handleException(ExpiredTimeException e) {
+        log.error(e.getReason());
+        e.printStackTrace();
         return new ApiError(HttpStatus.NOT_ACCEPTABLE.value(), e.getReason());
     }
 
@@ -61,6 +77,8 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ApiError handleException(NotSupportedException e) {
+        log.error(e.getReason());
+        e.printStackTrace();
         return new ApiError(HttpStatus.BAD_REQUEST.value(), e.getReason());
     }
 
@@ -68,6 +86,8 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.NOT_ACCEPTABLE)
     @ResponseBody
     public ApiError handleException(IncludedMenusException e) {
+        log.error(e.getReason());
+        e.printStackTrace();
         return new ApiError(HttpStatus.NOT_ACCEPTABLE.value(), e.getReason());
     }
 
