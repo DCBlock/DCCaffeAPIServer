@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digicap.dcblock.caffeapiserver.dao.TemporaryUriDao">
+    <insert id="insert">
+        <selectKey keyProperty="randomUri" resultType="string" order="BEFORE">
+            SELECT uuid_generate_v1()
+        </selectKey>
+        INSERT 
+        INTO 
+            temporary_uri (
+                user_record_index, name, random_uri, search_date_after, search_date_before
+        )
+        VALUES (
+            #{userRecordIndex}, #{name}, #{randomUri}, #{searchDateAfter}, #{searchDateBefore}
+        )
+    </insert>
+    
+    <select id="selectAndDelete" resultType="com.digicap.dcblock.caffeapiserver.dto.TemporaryUriDto">
+        DELETE
+        FROM
+            temporary_uri
+        WHERE random_uri = #{randomUri}
+        RETURNING 
+            random_uri, 
+            user_record_index AS userRecordIndex, 
+            name, 
+            reg_date AS regDate,
+            search_date_after AS searchDateAfter, 
+            search_date_before AS searchDateBefore
+    </select>
+</mapper>

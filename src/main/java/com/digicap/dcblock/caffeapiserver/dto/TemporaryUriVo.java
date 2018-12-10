@@ -1,15 +1,14 @@
 package com.digicap.dcblock.caffeapiserver.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import java.sql.Timestamp;
-import lombok.AllArgsConstructor;
+
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
+@Setter
 @Getter
 @ToString
-@AllArgsConstructor
 public class TemporaryUriVo {
 
     private String randomUri;
@@ -18,12 +17,9 @@ public class TemporaryUriVo {
 
     private String name;
 
-    @JsonProperty(access = Access.WRITE_ONLY)
     private Timestamp regDate;
 
-    @JsonProperty(access = Access.WRITE_ONLY)
     private Timestamp searchDateAfter;
 
-    @JsonProperty(access = Access.WRITE_ONLY)
     private Timestamp searchDateBefore;
 }

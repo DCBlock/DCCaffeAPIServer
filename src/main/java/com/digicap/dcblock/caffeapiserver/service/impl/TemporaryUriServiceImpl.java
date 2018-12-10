@@ -6,9 +6,11 @@ import java.util.Optional;
 
 import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import com.digicap.dcblock.caffeapiserver.dao.TemporaryUriDao;
 import com.digicap.dcblock.caffeapiserver.dto.TemporaryUriDto;
 import com.digicap.dcblock.caffeapiserver.dto.TemporaryUriVo;
 import com.digicap.dcblock.caffeapiserver.dto.UserVo;
@@ -16,9 +18,7 @@ import com.digicap.dcblock.caffeapiserver.exception.ExpiredTimeException;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
 import com.digicap.dcblock.caffeapiserver.service.TemporaryUriService;
-import com.digicap.dcblock.caffeapiserver.store.TemporaryUriMapper;
 import com.digicap.dcblock.caffeapiserver.store.UserMapper;
-import com.digicap.dcblock.caffeapiserver.util.ApplicationProperties;
 import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
 
 /**
@@ -30,19 +30,18 @@ import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
 @Primary
 public class TemporaryUriServiceImpl implements TemporaryUriService {
 
-    private TemporaryUriMapper temporaryUriMapper;
+    private TemporaryUriDao temporaryUriDao;
     
     private UserMapper userMapper;
 
-    private ApplicationProperties applicationProperties;
-
+    @Value("${random-uri-expired-minute}")
+    private int randomUriExpired;
+    
     @Autowired
-    public TemporaryUriServiceImpl(TemporaryUriMapper temporaryUriMapper, UserMapper userMapper,
-        ApplicationProperties applicationProperties) {
-        this.temporaryUriMapper = temporaryUriMapper;
+    public TemporaryUriServiceImpl(TemporaryUriDao temporaryUriDao,UserMapper userMapper) {
         this.userMapper = userMapper;
 
-        this.applicationProperties = applicationProperties;
+        this.temporaryUriDao = temporaryUriDao;
     }
 
     @Override
@@ -51,35 +50,49 @@ public class TemporaryUriServiceImpl implements TemporaryUriService {
         UserVo userVo = Optional.ofNullable(userMapper.selectUserByRfid(rfid))
             .orElseThrow(() -> new NotFindException("not find rfid' user"));
 
+//        TemporaryUriDto temporaryUriDto = new TemporaryUriDto();
+//        temporaryUriDto.setName(userVo.getName());
+//        temporaryUriDto.setUserRecordIndex(userVo.getIndex());
+//        temporaryUriDto.setSearchDateAfter(after);
+//        temporaryUriDto.setSearchDateBefore(before);
+        
         // Instance
-        TemporaryUriDto temporaryUriDto = new TemporaryUriDto();
-        temporaryUriDto.setName(userVo.getName());
-        temporaryUriDto.setUserRecordIndex(userVo.getIndex());
+        TemporaryUriVo vo = new TemporaryUriVo(); 
+        vo.setUserRecordIndex(userVo.getIndex());
+        vo.setName(userVo.getName());
+        vo.setSearchDateAfter(after);
+        vo.setSearchDateBefore(before);
 
-        temporaryUriDto.setSearchDateAfter(after);
-
-        temporaryUriDto.setSearchDateBefore(before);
-
-        Optional.ofNullable(temporaryUriMapper.insertUri(temporaryUriDto))
-                .orElseThrow(() -> new UnknownException("DB Error. insert Random URI."));
-        return temporaryUriDto.getRandom_uri();
+        // Insert
+        if(temporaryUriDao.insert(vo) == 0) {
+            throw new UnknownException("DB Error. insert Random URI.");
+        }
+        
+        return vo.getRandomUri();
     }
 
     @Override
-    public TemporaryUriVo existTemporary(String uuid) throws ExpiredTimeException {
-        TemporaryUriDto temporaryUriDto = new TemporaryUriDto();
-        temporaryUriDto.setRandom_uri(uuid);
+    public TemporaryUriDto existTemporary(String uuid) throws ExpiredTimeException {
+//        TemporaryUriDto temporaryUriDto = new TemporaryUriDto();
+//        temporaryUriDto.setRandom_uri(uuid);
+//        TemporaryUriVo temporaryUriVo = Optional
+//            .ofNullable(temporaryUriMapper.deleteAndSelectUri(temporaryUriDto))
+//            .orElseThrow(() -> new ExpiredTimeException("expired random uri"));
 
-        TemporaryUriVo temporaryUriVo = Optional
-            .ofNullable(temporaryUriMapper.deleteAndSelectUri(temporaryUriDto))
-            .orElseThrow(() -> new ExpiredTimeException("expired random uri"));
 
-        Date expired = new TimeFormat().getAddMinute(temporaryUriVo.getRegDate().getTime(),
-            applicationProperties.getRandom_uri_expired_minute());
+        TemporaryUriVo vo = new TemporaryUriVo();
+        vo.setRandomUri(uuid);
+
+        // Execute Query.
+        TemporaryUriDto uriDto = Optional.ofNullable(temporaryUriDao.selectAndDelete(vo))
+                .orElseThrow(() -> new ExpiredTimeException("expired random uri"));
+                
+        // Compare expired Date.
+        Date expired = new TimeFormat().getAddMinute(uriDto.getRegDate().getTime(), randomUriExpired);
         if (expired.before(new Date(System.currentTimeMillis()))) {
             throw new ExpiredTimeException("expired random uri");
         }
 
-        return temporaryUriVo;
+        return uriDto;
     }
 }

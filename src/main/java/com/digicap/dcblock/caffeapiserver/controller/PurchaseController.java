@@ -28,6 +28,7 @@ import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
 import com.digicap.dcblock.caffeapiserver.dto.PurchasedDto;
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
+import com.digicap.dcblock.caffeapiserver.dto.TemporaryUriDto;
 import com.digicap.dcblock.caffeapiserver.dto.TemporaryUriVo;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.service.PurchaseService;
@@ -147,7 +148,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
     @GetMapping("/api/caffe/purchases/temporary/{randomUri}")
     LinkedHashMap<String, Object> getPurchasesByUri(@PathVariable("randomUri") String uri) {
         // Get registered user_record_index and name by random uri.
-        TemporaryUriVo temporaryUriVo = temporaryUriService.existTemporary(uri);
+        TemporaryUriDto temporaryUriVo = temporaryUriService.existTemporary(uri);
 
         Date from = new Date(temporaryUriVo.getSearchDateAfter().getTime());
         Date to = new Date(temporaryUriVo.getSearchDateBefore().getTime());
