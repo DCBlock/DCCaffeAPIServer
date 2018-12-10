@@ -27,4 +27,21 @@ public interface CaffeApiServerApplicationConstants {
     String OPT_TYPE_HOT = "HOT";
     String OPT_TYPE_ICED = "ICED";
     String OPT_TYPE_BOTH = "BOTH";
+    
+    // for JWT ------------------------------------------------------------------------------------
+    
+    // SCOPE in JWT.
+    String SCOPE_ADMIN = "admin";
+    String SCOPE_OPERATOR = "operator";
+    String SCOPE_USER = "user";
+    
+    // AUTHRORIES in JWT.
+    String AUTHORITY_MANAGEUSER = "ROLE_MANAGEUSER";
+    String AUTHORITY_MANAGEMENT = "ROLE_MANAGEMENT";
+    String AUTHORITY_VIEWSTATISTICS = "ROLE_VIEWSTATISTICS";
+    String AUTHORITY_MANAGEADMIN = "ROLE_MANAGEADMIN";
+
+    // COMPANY in JWT.
+    String COMPANY_DIGICAP = "digicap";
+    String COMPANY_COVISION = "covision";
 }

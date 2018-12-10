@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
-public class ForbiddenException extends RuntimeException {
+public class JwtException extends RuntimeException {
 
     /**
      * 

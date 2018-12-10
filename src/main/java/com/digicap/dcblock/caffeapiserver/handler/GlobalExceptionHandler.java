@@ -5,6 +5,7 @@ import com.digicap.dcblock.caffeapiserver.exception.ExpiredTimeException;
 import com.digicap.dcblock.caffeapiserver.exception.ForbiddenException;
 import com.digicap.dcblock.caffeapiserver.exception.IncludedMenusException;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
+import com.digicap.dcblock.caffeapiserver.exception.JwtException;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.exception.NotImplementedException;
 import com.digicap.dcblock.caffeapiserver.exception.NotSupportedException;
@@ -114,5 +115,14 @@ public class GlobalExceptionHandler {
         e.printStackTrace();
         log.error(e.getMessage());
         return new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+    }
+
+    @ExceptionHandler(JwtException.class)
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public ApiError handleException(JwtException e) {
+        e.printStackTrace();
+        log.error(e.getMessage());
+        return new ApiError(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
     }
 }
