@@ -12,6 +12,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,11 +30,9 @@ import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
 import com.digicap.dcblock.caffeapiserver.dto.PurchasedDto;
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
 import com.digicap.dcblock.caffeapiserver.dto.TemporaryUriDto;
-import com.digicap.dcblock.caffeapiserver.dto.TemporaryUriVo;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.service.PurchaseService;
 import com.digicap.dcblock.caffeapiserver.service.TemporaryUriService;
-import com.digicap.dcblock.caffeapiserver.util.ApplicationProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -44,15 +43,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RestController
 public class PurchaseController implements CaffeApiServerApplicationConstants {
 
-    private ApplicationProperties applicationProperties;
-
     private PurchaseService service;
 
     private TemporaryUriService temporaryUriService;
 
+    @Value("${purchase-list-viewer-server}")
+    private String viewerServer;
+
     @Autowired
-    public PurchaseController(ApplicationProperties applicationProperties, PurchaseService service, TemporaryUriService temporaryUriService) {
-        this.applicationProperties = applicationProperties;
+    public PurchaseController(PurchaseService service, TemporaryUriService temporaryUriService) {
         this.service = service;
         this.temporaryUriService = temporaryUriService;
     }
@@ -141,7 +140,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         String randomUri = temporaryUriService.createTemporaryUri(rfid, after, before);
 
         HashMap<String, String> result = new HashMap<>();
-        result.put("uri", String.format("%s/%s",applicationProperties.getPurchase_list_viewer_server(), randomUri));
+        result.put("uri", String.format("%s/%s", viewerServer, randomUri));
         return result;
     }
 

@@ -1,15 +1,30 @@
 package com.digicap.dcblock.caffeapiserver.service.impl;
 
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+
+import org.mybatis.spring.MyBatisSystemException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
+
 import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
 import com.digicap.dcblock.caffeapiserver.dto.MenuDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseBalanceDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
 import com.digicap.dcblock.caffeapiserver.dto.PurchasedDto;
+import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo;
 import com.digicap.dcblock.caffeapiserver.dto.UserDto;
 import com.digicap.dcblock.caffeapiserver.dto.UserVo;
-import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
 import com.digicap.dcblock.caffeapiserver.exception.ExpiredTimeException;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
@@ -23,19 +38,8 @@ import com.digicap.dcblock.caffeapiserver.store.ReceiptIdsMapper;
 import com.digicap.dcblock.caffeapiserver.store.UserMapper;
 import com.digicap.dcblock.caffeapiserver.util.ApplicationProperties;
 import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
-import java.sql.Date;
-import java.sql.Timestamp;
-import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+
 import lombok.extern.slf4j.Slf4j;
-import org.mybatis.spring.MyBatisSystemException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Service;
 
 @Service
 @Primary
@@ -48,8 +52,6 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     private static final int MINUTES = 1;
     private static final int TEN_MINUTES = 10 * MINUTES;
 
-    private ApplicationProperties properties;
-    
     private UserMapper userMapper;
 
     private PurchaseMapper purchaseMapper;
@@ -60,10 +62,15 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
 
     private MenuService menuService;
 
+    @Value("${api-version}")
+    private String apiVersion;
+    
+    @Value("${admin-server}")
+    private String adminServer;
+    
     @Autowired
     public PurchaseServiceImpl(UserMapper userMapper, PurchaseMapper purchaseMapper,
-        ReceiptIdsMapper receiptIdsMapper, MenuMapper menuMapper, MenuService menuService, 
-        ApplicationProperties properties) {
+        ReceiptIdsMapper receiptIdsMapper, MenuMapper menuMapper, MenuService menuService) {
         this.userMapper = userMapper;
 
         this.purchaseMapper = purchaseMapper;
@@ -73,8 +80,6 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         this.menuMapper = menuMapper;
 
         this.menuService = menuService;
-        
-        this.properties = properties;
     }
 
     @Override
@@ -84,7 +89,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         
         try {
 //            userVo = userMapper.selectUserByRfid(rfid);
-            userDto = new AdminServer(properties).getUserByRfid(rfid);
+            userDto = new AdminServer(adminServer, apiVersion).getUserByRfid(rfid);
         } catch (Exception e) {
             throw new UnknownException(e.getMessage());
         }

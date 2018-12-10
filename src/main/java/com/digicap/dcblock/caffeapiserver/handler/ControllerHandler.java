@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -38,6 +39,12 @@ public class ControllerHandler implements HandlerInterceptor, CaffeApiServerAppl
 
     private static final String ACCEPT = "Accept";
 
+    @Value("${api-version}")
+    private String apiVersion;
+    
+    @Value("${admin-server}")
+    private String adminServer;
+    
     private ApplicationProperties properties;
 
     @Autowired
@@ -57,7 +64,7 @@ public class ControllerHandler implements HandlerInterceptor, CaffeApiServerAppl
 
         // API Version Check
         String apiVersion = request.getHeader(ACCEPT);
-        if (!apiVersion.equals(properties.getApi_version())) {
+        if (!apiVersion.equals(apiVersion)) {
             String message = String.format("not support API Version(%s)", apiVersion);
             throw new NotSupportedException(message);
         }
