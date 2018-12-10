@@ -26,3 +26,4 @@
 /.nb-gradle/
 settings.gradle
 /bin/
+src/main/resources/application.yml
