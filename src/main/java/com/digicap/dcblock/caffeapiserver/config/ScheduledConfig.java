@@ -1,7 +1,7 @@
 package com.digicap.dcblock.caffeapiserver.config;
 
+import com.digicap.dcblock.caffeapiserver.dao.ReceiptIdDao;
 import com.digicap.dcblock.caffeapiserver.store.PurchaseMapper;
-import com.digicap.dcblock.caffeapiserver.store.ReceiptIdsMapper;
 import java.sql.Timestamp;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,20 +17,20 @@ public class ScheduledConfig {
 
     private PurchaseMapper purchaseMapper;
 
-    private ReceiptIdsMapper receiptIdsMapper;
+    private ReceiptIdDao receiptIdDao;
 
     @Autowired
-    public ScheduledConfig(PurchaseMapper mapper, ReceiptIdsMapper receiptIdsMapper) {
+    public ScheduledConfig(PurchaseMapper mapper, ReceiptIdDao receiptIdDao) {
         this.purchaseMapper = mapper;
 
-        this.receiptIdsMapper = receiptIdsMapper;
+        this.receiptIdDao = receiptIdDao;
     }
 
     /**
      * 매일 0시 0분에 동작.
      */
     @Scheduled(cron="0 0 * * * *")
-//    @Scheduled(cron="*/10 * * * * *")
+//    @Scheduled(cron="*/10 * * * * *") // for test
     public void initializeReceiptIdSequence() {
         log.info("initialize ReceiptId Sequence");
 
@@ -43,7 +43,7 @@ public class ScheduledConfig {
 
         try {
             // 어제 발급만 하고 사용하지 않은 영수증 테이블 삭제.
-            receiptIdsMapper.deleteAll(new Timestamp(System.currentTimeMillis()));
+            receiptIdDao.deleteByRegdate(new Timestamp(System.currentTimeMillis()));
         } catch (Exception e) {
             log.error(e.getMessage());
         }

@@ -1,7 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.digicap.dcblock.caffeapiserver.store.ReceiptIdsMapper">
-    <delete id="deleteAll">
+<mapper namespace="com.digicap.dcblock.caffeapiserver.dao.ReceiptIdDao">
+    <insert id="insertByReceipt" parameterType="com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo">
+        INSERT
+        INTO
+            receipt_ids (
+                name,
+                company,
+                receipt_id,
+                user_record_index
+            )
+        VALUES (
+            #{name},
+            #{company},
+            #{receiptId},
+            #{userRecordIndex}
+        )
+    </insert>
+
+    <select id="selectByReceipt" resultType="com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto">
+        SELECT
+            name,
+            company,
+            user_record_index AS userRecordIndex,
+            regdate AS date
+        FROM
+            receipt_ids
+        WHERE
+            receipt_id = #{receiptId}
+        AND
+            regdate BETWEEN (SELECT TIMESTAMP 'today') AND (SELECT TIMESTAMP 'tomorrow')
+    </select>
+
+    <delete id="deleteByReceiptId">
+        DELETE
+        FROM
+            receipt_ids
+        WHERE
+            receipt_id = #{receiptId}
+    </delete>
+
+    <delete id="deleteByRegdate">
         <![CDATA[
         DELETE
         FROM

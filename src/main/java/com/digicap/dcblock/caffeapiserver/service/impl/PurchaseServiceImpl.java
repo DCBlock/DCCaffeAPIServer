@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+import com.digicap.dcblock.caffeapiserver.dao.ReceiptIdDao;
 import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,7 +57,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
 
     private PurchaseMapper purchaseMapper;
 
-    private ReceiptIdsMapper receiptMapper;
+    private ReceiptIdDao receiptIdDao;
 
     private MenuMapper menuMapper;
 
@@ -69,13 +70,14 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     private String adminServer;
     
     @Autowired
-    public PurchaseServiceImpl(UserMapper userMapper, PurchaseMapper purchaseMapper,
-        ReceiptIdsMapper receiptIdsMapper, MenuMapper menuMapper, MenuService menuService) {
+    public PurchaseServiceImpl(UserMapper userMapper, PurchaseMapper purchaseMapper, ReceiptIdDao receiptIdDao,
+                               MenuMapper menuMapper, MenuService menuService) {
         this.userMapper = userMapper;
 
         this.purchaseMapper = purchaseMapper;
 
-        this.receiptMapper = receiptIdsMapper;
+//        this.receiptMapper = receiptIdsMapper;
+        this.receiptIdDao = receiptIdDao;
 
         this.menuMapper = menuMapper;
 
@@ -101,8 +103,15 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         // ReceiptId 생성.
         int receiptId = purchaseMapper.selectReceiptId();
 
+        // instance ReceiptIdVo
+        ReceiptIdVo receiptIdVo = new ReceiptIdVo();
+        receiptIdVo.setName(userDto.getName());
+        receiptIdVo.setCompany(userDto.getCompany().toLowerCase());
+        receiptIdVo.setReceiptId(receiptId);
+        receiptIdVo.setUserRecordIndex(userDto.getIndex());
+
         // receipts table에 insert
-        int result = receiptMapper.insertReceiptId(userDto.getName(), userDto.getCompany(), receiptId, userDto.getIndex());
+        int result = receiptIdDao.insertByReceipt(receiptIdVo);
         if (result == 0) {
             throw new UnknownException("db error");
         }
@@ -127,15 +136,15 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     public PurchasedDto requestPurchases(int receiptId, List<LinkedHashMap<String, Object>> _purchases) 
             throws MyBatisSystemException, NotFindException, InvalidParameterException, UnknownException {
         // parameter 확인
-        ReceiptIdVo receiptIdVo = receiptMapper.selectByReceiptId(receiptId);
-
-        if (receiptIdVo == null) {
+//        ReceiptIdVo receiptIdVo = receiptMapper.selectByReceiptId(receiptId);
+        ReceiptIdDto receiptIdDto = receiptIdDao.selectByReceipt(receiptId);
+        if (receiptIdDto == null) {
             throw new NotFindException("not find receipt_id");
         }
 
         // receiptId는 구매 API 성공과 상관없이 일회용.
         try {
-            receiptMapper.deleteByReceiptId(receiptId);
+            receiptIdDao.deleteByReceiptId(receiptId);
         } catch (MyBatisSystemException e) {
             e.printStackTrace();
             log.error(e.getMessage());
@@ -158,8 +167,8 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
 
             for (MenuDto menu : menusInCategory.get(category)) {
                 // 사용자 정보.
-                purchaseDto.setName(receiptIdVo.getName());
-                purchaseDto.setUser_record_index(receiptIdVo.getUser_record_index());
+                purchaseDto.setName(receiptIdDto.getName());
+                purchaseDto.setUser_record_index(receiptIdDto.getUserRecordIndex());
 
                 // 구매 정보.
                 purchaseDto.setPrice(menu.getPrice());
@@ -167,7 +176,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
                 purchaseDto.setReceipt_id(receiptId);
 
                 // DC 가격
-                String company = receiptIdVo.getCompany();
+                String company = receiptIdDto.getCompany();
                 if (company.equals(COMPANY_DIGICAP)) {
                     purchaseDto.setDc_price(menu.getDc_digicap());
                 } else if (company.equals(COMPANY_COVISION)) {
