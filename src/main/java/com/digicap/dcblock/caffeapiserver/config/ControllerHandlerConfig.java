@@ -17,6 +17,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class ControllerHandlerConfig implements WebMvcConfigurer {
 
+    private final static int MAX_PAYLOAD = 10000;
+
     private HandlerInterceptor interceptor;
 
     @Autowired
@@ -35,8 +37,10 @@ public class ControllerHandlerConfig implements WebMvcConfigurer {
     public CommonsRequestLoggingFilter requestLoggingFilter() {
         CommonsRequestLoggingFilter filter = new CommonsRequestLoggingFilter();
         filter.setIncludeClientInfo(true);
+        filter.setIncludeHeaders(true);
         filter.setIncludePayload(true);
         filter.setIncludeQueryString(true);
+        filter.setMaxPayloadLength(MAX_PAYLOAD);
         return filter;
     }
 }

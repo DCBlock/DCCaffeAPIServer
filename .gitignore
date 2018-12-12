@@ -27,3 +27,4 @@
 settings.gradle
 /bin/
 src/main/resources/application.yml
+src/main/resources/config/application.yml
