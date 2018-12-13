@@ -214,7 +214,7 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
         v.setCategory(t.getCategory());
         v.setCode(t.getCode());
         v.setOrder(t.getOrder());
-        v.setName_en(t.getName_en());
+        v.setName_en(t.getName_kr());
         v.setName_kr(t.getName_en());
         v.setPrice(t.getPrice());
         v.setDc_digicap(t.getDc_digicap());
@@ -232,6 +232,8 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
             case OPT_TYPE_BOTH:
                 v.setOpt_type(2);
                 break;
+            default:
+                throw new InvalidParameterException(String.format("unknown opt_type value(%s)", t.getOpt_type()));
         }
 
         switch (t.getOpt_size()) {
@@ -241,6 +243,8 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
             case OPT_SIZE_SMALL:
                 v.setOpt_size(1);
                 break;
+            default:
+                throw new InvalidParameterException(String.format("unknown opt_size value(%s)", t.getOpt_size()));
         }
 
         return v;
