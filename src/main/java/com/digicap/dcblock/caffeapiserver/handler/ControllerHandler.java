@@ -73,11 +73,17 @@ public class ControllerHandler implements HandlerInterceptor, CaffeApiServerAppl
 //            throw new NotSupportedException(message);
         }
 
-        // content
-        String type = request.getContentType();
-        if (!type.equals("application/json")) {
-            String message = String.format("not support content type(%s)", type);
-            throw new NotSupportedException(message);
+        // Get Method
+        String method = Optional.ofNullable(request.getMethod())
+                .orElse("");
+        if (!method.toUpperCase().equals("GET")) {
+            // Get Content-type.
+            String type = Optional.ofNullable(request.getContentType())
+                    .orElse("");
+            if (!type.equals("application/json")) {
+                String message = String.format("not support content type(%s)", type);
+                throw new NotSupportedException(message);
+            }
         }
 
         // Validate JWT
