@@ -4,6 +4,8 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Optional;
 
+import com.digicap.dcblock.caffeapiserver.dto.UserDto;
+import com.digicap.dcblock.caffeapiserver.proxy.AdminServer;
 import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,7 +38,13 @@ public class TemporaryUriServiceImpl implements TemporaryUriService {
 
     @Value("${random-uri-expired-minute}")
     private int randomUriExpired;
-    
+
+    @Value("${admin-server}")
+    private String adminServer;
+
+    @Value("${api-version}")
+    private String apiVersion;
+
     @Autowired
     public TemporaryUriServiceImpl(TemporaryUriDao temporaryUriDao,UserMapper userMapper) {
         this.userMapper = userMapper;
@@ -47,9 +55,17 @@ public class TemporaryUriServiceImpl implements TemporaryUriService {
     @Override
     public String createTemporaryUri(String rfid, Timestamp after, Timestamp before)
             throws MyBatisSystemException, NotFindException, UnknownException {
-        UserVo userVo = Optional.ofNullable(userMapper.selectUserByRfid(rfid))
-            .orElseThrow(() -> new NotFindException("not find rfid' user"));
+        // Get user from AdminServer.
+        UserDto userDto = null;
 
+        try {
+            userDto = new AdminServer(adminServer, apiVersion).getUserByRfid(rfid);
+            if (userDto == null) {
+                throw new UnknownException("not find user");
+            }
+        } catch (Exception e) {
+            throw new UnknownException(e.getMessage());
+        }
 //        TemporaryUriDto temporaryUriDto = new TemporaryUriDto();
 //        temporaryUriDto.setName(userVo.getName());
 //        temporaryUriDto.setUserRecordIndex(userVo.getIndex());
@@ -58,8 +74,8 @@ public class TemporaryUriServiceImpl implements TemporaryUriService {
         
         // Instance
         TemporaryUriVo vo = new TemporaryUriVo(); 
-        vo.setUserRecordIndex(userVo.getIndex());
-        vo.setName(userVo.getName());
+        vo.setUserRecordIndex(userDto.getIndex());
+        vo.setName(userDto.getName());
         vo.setSearchDateAfter(after);
         vo.setSearchDateBefore(before);
 

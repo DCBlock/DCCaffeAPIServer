@@ -84,12 +84,11 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     }
 
     @Override
-    public ReceiptIdDto getReceiptId(String rfid) throws UnknownException, MyBatisSystemException, NotFindException {
-//        UserVo userVo = null;
+    public ReceiptIdDto getReceiptId(String rfid) throws UnknownException,
+            MyBatisSystemException, NotFindException {
         UserDto userDto = null;
         
         try {
-//            userVo = userMapper.selectUserByRfid(rfid);
             userDto = new AdminServer(adminServer, apiVersion).getUserByRfid(rfid);
         } catch (Exception e) {
             throw new UnknownException(e.getMessage());
@@ -263,17 +262,22 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
 
     @Override
     public PurchaseBalanceDto getBalanceByRfid(String rfid, Date fromDate, Date toDate) throws MyBatisSystemException, NotFindException {
-        // TODO Admin API
-        UserVo userVo = Optional.ofNullable(userMapper.selectUserByRfid(rfid))
-            .orElseThrow(() -> new NotFindException(String.format("not find rfid(%s)", rfid)));
+        // Get user from AdminServer.
+        UserDto userDto = null;
 
-        if (userVo.getName() == null) {
-            throw new NotFindException(String.format("not find rfid(%s)", rfid));
+        try {
+            userDto = new AdminServer(adminServer, apiVersion).getUserByRfid(rfid);
+        } catch (Exception e) {
+            throw new UnknownException(e.getMessage());
+        }
+
+        if (userDto == null) {
+            throw new NotFindException(String.format("not find user using rfid(%s)", rfid));
         }
 
         //
         PurchaseDto purchaseDto = new PurchaseDto();
-        purchaseDto.setUser_record_index(userVo.getIndex());
+        purchaseDto.setUser_record_index(userDto.getIndex());
         purchaseDto.setReceipt_status(RECEIPT_STATUS_PURCHASE);
 
         // Get Purchases.
@@ -292,7 +296,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         PurchaseBalanceDto balanceDto = new PurchaseBalanceDto();
         balanceDto.setTotal_price(total);
         balanceDto.setTotal_dc_price(dc_total);
-        balanceDto.setName(userVo.getName());
+        balanceDto.setName(userDto.getName());
 
         return balanceDto;
     }
