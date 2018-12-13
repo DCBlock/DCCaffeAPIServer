@@ -35,7 +35,6 @@ import com.digicap.dcblock.caffeapiserver.service.MenuService;
 import com.digicap.dcblock.caffeapiserver.service.PurchaseService;
 import com.digicap.dcblock.caffeapiserver.store.MenuMapper;
 import com.digicap.dcblock.caffeapiserver.store.PurchaseMapper;
-import com.digicap.dcblock.caffeapiserver.store.ReceiptIdsMapper;
 import com.digicap.dcblock.caffeapiserver.store.UserMapper;
 import com.digicap.dcblock.caffeapiserver.util.ApplicationProperties;
 import com.digicap.dcblock.caffeapiserver.util.TimeFormat;

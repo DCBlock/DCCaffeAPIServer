@@ -11,8 +11,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.digicap.dcblock.caffeapiserver.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,18 +26,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
-import com.digicap.dcblock.caffeapiserver.dto.Purchase2Dto;
-import com.digicap.dcblock.caffeapiserver.dto.Purchase2Vo;
-import com.digicap.dcblock.caffeapiserver.dto.PurchaseBalanceDto;
-import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
-import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
-import com.digicap.dcblock.caffeapiserver.dto.PurchasedDto;
-import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
-import com.digicap.dcblock.caffeapiserver.dto.TemporaryUriDto;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.service.PurchaseService;
 import com.digicap.dcblock.caffeapiserver.service.TemporaryUriService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import javax.validation.Valid;
 
 /**
  * 구매 관련 Controller
@@ -60,12 +58,12 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
     // 구매 관련 API
 
     @PostMapping("/api/caffe/purchases/purchase/receipt/id")
-    ReceiptIdDto createReceiptId(@RequestBody Map<String, Object> body) {
-        String rfid = Optional.ofNullable(body.get(KEY_RFID))
-            .map(Object::toString)
-            .orElseThrow(() -> new InvalidParameterException("not find rfid"));
+    ReceiptIdDto createReceiptId(@Valid @RequestBody RfidDto rfidDto) { // Map<String, Object> body) {
+//        String rfid = Optional.ofNullable(body.get(KEY_RFID))
+//            .map(Object::toString)
+//            .orElseThrow(() -> new InvalidParameterException("not find rfid"));
 
-        ReceiptIdDto receiptIdDto = service.getReceiptId(rfid);
+        ReceiptIdDto receiptIdDto = service.getReceiptId(rfidDto.getRfid());
         return receiptIdDto;
     }
 

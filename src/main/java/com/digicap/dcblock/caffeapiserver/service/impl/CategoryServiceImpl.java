@@ -1,5 +1,7 @@
 package com.digicap.dcblock.caffeapiserver.service.impl;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 
 import org.mybatis.spring.MyBatisSystemException;
@@ -95,11 +97,27 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void updateAll(LinkedList<CategoryVo> categories) throws MyBatisSystemException, InvalidParameterException {
+    @Transactional
+    public void updateAll(LinkedList<CategoryVo> categories)
+            throws MyBatisSystemException, InvalidParameterException {
         // Check.
         int size = categoryMapper.selectAllCategorySize();
         if (size != categories.size()) {
             throw new InvalidParameterException("invalid update count");
+        }
+
+        // Sort By Order.
+        Collections.sort(categories, new Comparator<CategoryVo>() {
+
+            @Override
+            public int compare(CategoryVo o1, CategoryVo o2) {
+                return o1.getOrder() - o2.getOrder();
+            }
+        });
+
+        // Reset Order value
+        for (int index = 0; index < categories.size(); index++) {
+            categories.get(index).setOrder(index);
         }
 
         // Update.

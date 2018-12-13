@@ -4,17 +4,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-/**
- * category table VO.
- */
 @Setter
 @Getter
 @ToString
-public class CategoryVo {
+public class RfidDto {
 
-    private String name;
-
-    private int code;
-
-    private int order;
+    private String rfid;
 }

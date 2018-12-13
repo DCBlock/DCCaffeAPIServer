@@ -7,6 +7,7 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -35,6 +36,7 @@ import io.jsonwebtoken.Jwts;
  *
  */
 @Component
+@Slf4j
 public class ControllerHandler implements HandlerInterceptor, CaffeApiServerApplicationConstants {
 
     private static final String ACCEPT = "Accept";
@@ -63,53 +65,62 @@ public class ControllerHandler implements HandlerInterceptor, CaffeApiServerAppl
         }
 
         // API Version Check
-        String apiVersion = request.getHeader(ACCEPT);
-        if (!apiVersion.equals(apiVersion)) {
+        String version = request.getHeader(ACCEPT);
+        if (!version.equals(apiVersion)) {
             String message = String.format("not support API Version(%s)", apiVersion);
+            log.error(message);
+            // 로그만 남기고 에러 처리 하지 않음. 현 시점에서 version은 중요하지 않음.
+//            throw new NotSupportedException(message);
+        }
+
+        // content
+        String type = request.getContentType();
+        if (!type.equals("application/json")) {
+            String message = String.format("not support content type(%s)", type);
             throw new NotSupportedException(message);
         }
 
         // Validate JWT
         String url = request.getRequestURI();
         String domain = getAuthoritiesByUri(url);
-        if (domain.equals("MENU")) {
-            // Remove 'Bearer' Key.
-            String jwt = getJwtFromHeader(request);
-            
-            // Request Token Valid to AdminServer
-            try {
-                ApiError error = new AdminServer(properties).validToken(jwt);
-                if (error.getCode() != 200) {
-                    throw new ForbiddenException(error.getReason());
-                }
-            } catch (Exception e) {
-                throw new UnknownException(e.getMessage());
-            }
-
-            // Remove Signature.
-            String withoutSignature = removeSignatureJwt(jwt);
-            
-            // Pairing JWT.
-            JwtDto jwtDto = parsingJwt(withoutSignature);
-            
-            // Check Scope
-            if (jwtDto.getScope().equals(SCOPE_ADMIN)) {
-                return true;
-            } else if (jwtDto.getScope().equals(SCOPE_OPERATOR)) {
-                if (jwtDto.getCompany().equals(COMPANY_DIGICAP)) {
-                    return true;
-                }
-            }
-
-            // Check Authority
-            if (jwtDto.getAuthroties().contains(AUTHORITY_MANAGEMENT)) {
-                return true;
-            }
-            
-            // All extra Error.
-            throw new ForbiddenException(String.format("access denied. Scope(%s), Authrotiy(%s), "
-                    + "Company(%s)", jwtDto.getScope(), jwtDto.getAuthroties().toString(),jwtDto.getCompany()));
-        } //  if (domain.equals("MENU")) {
+//        if (domain.equals("MENU")) {
+//            // Remove 'Bearer' Key.
+//            String jwt = getJwtFromHeader(request);
+//            
+//            // Request Token Valid to AdminServer
+//            try {
+//                ApiError error = new AdminServer(adminServer, apiVersion).validToken(jwt);
+//                if (error.getCode() != 200) {
+//                    throw new ForbiddenException(error.getReason());
+//                }
+//            } catch (Exception e) {
+//                throw new UnknownException(e.getMessage());
+//            }
+//
+//            // Remove Signature.
+//            String withoutSignature = removeSignatureJwt(jwt);
+//            
+//            // Pairing JWT.
+//            JwtDto jwtDto = parsingJwt(withoutSignature);
+//            
+//            // Check Scope
+//            if (jwtDto.getScope().equals(SCOPE_ADMIN)) {
+//                return true;
+//            } else if (jwtDto.getScope().equals(SCOPE_OPERATOR)) {
+//                if (jwtDto.getCompany().equals(COMPANY_DIGICAP)) {
+//                    return true;
+//                }
+//            }
+//
+//            // Check Authority
+//            if (jwtDto.getAuthroties().contains(AUTHORITY_MANAGEMENT)) {
+//                return true;
+//            }
+//            
+//            // All extra Error.
+//            throw new ForbiddenException(String.format("access denied. Scope(%s), Authrotiy(%s), "
+//                    + "Company(%s)", jwtDto.getScope(), jwtDto.getAuthroties().toString(),jwtDto.getCompany()));
+//        } //  if (domain.equals("MENU")) {
                 
         return true;
     }
