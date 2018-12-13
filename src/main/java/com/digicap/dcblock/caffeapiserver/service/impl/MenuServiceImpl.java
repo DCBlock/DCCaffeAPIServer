@@ -214,8 +214,8 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
         v.setCategory(t.getCategory());
         v.setCode(t.getCode());
         v.setOrder(t.getOrder());
-        v.setName_en(t.getName_kr());
-        v.setName_kr(t.getName_en());
+        v.setName_en(t.getName_en());
+        v.setName_kr(t.getName_kr());
         v.setPrice(t.getPrice());
         v.setDc_digicap(t.getDc_digicap());
         v.setDc_covision(t.getDc_covision());
