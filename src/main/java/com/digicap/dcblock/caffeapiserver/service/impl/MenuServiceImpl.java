@@ -155,6 +155,8 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
                 case "1":
                     m.setOpt_size(OPT_SIZE_SMALL);
                     break;
+                default:
+                    throw new InvalidParameterException(String.format("unknown opt_size(%s)", m.getOpt_size()));
             }
 
             switch (m.getOpt_type()) {
@@ -167,6 +169,8 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
                 case "2":
                     m.setOpt_type(OPT_TYPE_BOTH);
                     break;
+                    default:
+                        throw new InvalidParameterException(String.format("unknown opt_type(%s)", m.getOpt_type()));
             }
         }
         return menus;

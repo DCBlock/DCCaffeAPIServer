@@ -25,7 +25,6 @@ import com.digicap.dcblock.caffeapiserver.dto.PurchasedDto;
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo;
 import com.digicap.dcblock.caffeapiserver.dto.UserDto;
-import com.digicap.dcblock.caffeapiserver.dto.UserVo;
 import com.digicap.dcblock.caffeapiserver.exception.ExpiredTimeException;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
@@ -35,8 +34,6 @@ import com.digicap.dcblock.caffeapiserver.service.MenuService;
 import com.digicap.dcblock.caffeapiserver.service.PurchaseService;
 import com.digicap.dcblock.caffeapiserver.store.MenuMapper;
 import com.digicap.dcblock.caffeapiserver.store.PurchaseMapper;
-import com.digicap.dcblock.caffeapiserver.store.UserMapper;
-import com.digicap.dcblock.caffeapiserver.util.ApplicationProperties;
 import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
 
 import lombok.extern.slf4j.Slf4j;
@@ -51,8 +48,6 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
 
     private static final int MINUTES = 1;
     private static final int TEN_MINUTES = 10 * MINUTES;
-
-    private UserMapper userMapper;
 
     private PurchaseMapper purchaseMapper;
 
@@ -69,10 +64,8 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     private String adminServer;
     
     @Autowired
-    public PurchaseServiceImpl(UserMapper userMapper, PurchaseMapper purchaseMapper, ReceiptIdDao receiptIdDao,
+    public PurchaseServiceImpl(PurchaseMapper purchaseMapper, ReceiptIdDao receiptIdDao,
                                MenuMapper menuMapper, MenuService menuService) {
-        this.userMapper = userMapper;
-
         this.purchaseMapper = purchaseMapper;
 
 //        this.receiptMapper = receiptIdsMapper;
@@ -355,6 +348,8 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
                 case OPT_TYPE_ICED:
                     pp.setOpt_type(1);
                     break;
+                case OPT_TYPE_BOTH:
+                    pp.setOpt_type(2);
                 default:
                     throw new InvalidParameterException(String.format("unknown type(%s)", type));
             }
