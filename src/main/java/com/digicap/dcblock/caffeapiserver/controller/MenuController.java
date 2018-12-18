@@ -41,13 +41,15 @@ public class MenuController {
         return menus;
     }
 
-    @PostMapping("/api/caffe/menus")
+    @PostMapping(value = "/api/caffe/menus",
+            consumes = "application/json; charset=utf-8")
     MenuDto insertMenu(@RequestBody MenuDto body) {
         MenuDto result = service.setMenu(body);
         return result;
     }
 
-    @PatchMapping("/api/caffe/menus/{category}")
+    @PatchMapping(value = "/api/caffe/menus/{category}",
+            consumes = "application/json; charset=utf-8")
     LinkedList<MenuDto> updateMenuInCategory(@PathVariable("category") int category,@RequestBody LinkedList<MenuDto> body) {
         return service.updateAllMenusInCategory(category, body);
     }

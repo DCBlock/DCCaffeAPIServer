@@ -12,6 +12,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.digicap.dcblock.caffeapiserver.dto.*;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.BindingResult;
@@ -54,33 +55,44 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         this.temporaryUriService = temporaryUriService;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------------------------------------------
     // 구매 관련 API
 
-    @PostMapping("/api/caffe/purchases/purchase/receipt/id")
-    ReceiptIdDto createReceiptId(@Valid @RequestBody RfidDto rfidDto) { // Map<String, Object> body) {
-//        String rfid = Optional.ofNullable(body.get(KEY_RFID))
-//            .map(Object::toString)
-//            .orElseThrow(() -> new InvalidParameterException("not find rfid"));
-
+    @PostMapping(value = "/api/caffe/purchases/purchase/receipt/id",
+            consumes = "application/json; charset=utf-8")
+    ReceiptIdDto createReceiptId(@Valid @RequestBody RfidDto rfidDto) {
         ReceiptIdDto receiptIdDto = service.getReceiptId(rfidDto.getRfid());
         return receiptIdDto;
     }
 
-    @PostMapping("/api/caffe/purchases/purchase/receipt/{receiptId}")
-    PurchasedDto createPurchasesByReceiptId(@PathVariable("receiptId") String _receiptId, @RequestBody HashMap<String, Object> body) {
+    @PostMapping(value = "/api/caffe/purchases/purchase/receipt/{receiptId}",
+            consumes = "application/json; charset=utf-8")
+    PurchasedDto createPurchasesByReceiptId(
+            @PathVariable("receiptId") String _receiptId,
+            @RequestBody HashMap<String, Object> body) {
+        // Check is integer.
         int receiptId = getIntegerValueOf(_receiptId);
 
-        // TODO unsafe code to safe code
-        List<LinkedHashMap<String, Object>> purchases = Optional.ofNullable(body.get(KEY_PURCHASES))
-            .map(s -> new ObjectMapper().convertValue(s, List.class))
-            .orElseThrow(() -> new InvalidParameterException("not find purchases."));
+        // Casting
+        List<LinkedHashMap<String, Object>> purchases = null;
+
+        try {
+            List temp = Optional.ofNullable(body.get(KEY_PURCHASES))
+                    .map(s -> new ObjectMapper().convertValue(s, List.class))
+                    .orElseThrow(() -> new InvalidParameterException("not find purchases."));
+
+            purchases = new ObjectMapper().convertValue(temp,
+                    new TypeReference<List<LinkedHashMap<String, Object>>>() {});
+        } catch (Exception e) {
+            throw new InvalidParameterException("fail casting purchases");
+        }
 
         PurchasedDto purchasedDto = service.requestPurchases(receiptId, purchases);
         return purchasedDto;
     }
 
-    @PatchMapping("/api/caffe/purchases/purchase/receipt/{receiptId}/cancel")
+    @PatchMapping(value = "/api/caffe/purchases/purchase/receipt/{receiptId}/cancel",
+            consumes = "application/json; charset=utf-8")
     HashMap<String, List<Purchase2Dto>> cancelPurchaseByReceiptId(@PathVariable("receiptId") String _receiptId) {
         int receiptId = getIntegerValueOf(_receiptId);
 
@@ -97,7 +109,8 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         return result;
     }
 
-    @PatchMapping("/api/caffe/purchases/purchase/receipt/{receiptId}/cancel-approval")
+    @PatchMapping(value = "/api/caffe/purchases/purchase/receipt/{receiptId}/cancel-approval",
+            consumes = "application/json; charset=utf-8")
     HashMap<String, List<Purchase2Dto>> canceledPurchaseByReceiptId(@PathVariable("receiptId") String _receiptId) {
         int receiptId = getIntegerValueOf(_receiptId);
 
@@ -116,7 +129,8 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // 구매 token API
 
-    @PostMapping("/api/caffe/purchases/temporary")
+    @PostMapping(value = "/api/caffe/purchases/temporary",
+            consumes = "application/json; charset=utf-8")
     HashMap<String, String> getTemporaryUri(@RequestBody Map<String, Object> body) {
         // Validation.
         String rfid = Optional.ofNullable(body.get(KEY_RFID))
