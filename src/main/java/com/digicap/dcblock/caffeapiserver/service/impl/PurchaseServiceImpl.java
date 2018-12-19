@@ -2,6 +2,8 @@ package com.digicap.dcblock.caffeapiserver.service.impl;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashMap;
@@ -223,14 +225,17 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
    * @param receiptId receipt id
    */
   @Override
-  public List<PurchaseDto> cancelApprovalPurchases(int receiptId, Date purchaseDate)
+  public List<PurchaseDto> cancelApprovalPurchases(int receiptId, Date today)
       throws MyBatisSystemException, NotFindException {
-    if (!purchaseMapper.existReceiptId(receiptId, purchaseDate)) {
+    // Get Tomorrow
+    Date tomorrow = toTomorrow(today);
+
+    if (!purchaseMapper.existReceiptId(receiptId, today, tomorrow)) {
       throw new NotFindException("not find receipt_id");
     }
 
     LinkedList<PurchaseDto> results = purchaseMapper
-        .updateReceiptCancelApprovalStatus(receiptId, purchaseDate);
+        .updateReceiptCancelApprovalStatus(receiptId, today, tomorrow);
     if (results == null || results.size() == 0) {
       throw new NotFindException("not find cancel' purchase using receipt_id");
     }
@@ -413,5 +418,17 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     }
 
     return false;
+  }
+
+  /**
+   * java.sql.Date에서 시/분/초를 제거하고 내일을 Get.
+   *
+   * @param d
+   * @return
+   */
+  private Date toTomorrow(Date d) {
+    LocalDate l = d.toLocalDate();
+    LocalDate tomorrow = l.plus(1, ChronoUnit.DAYS);
+    return Date.valueOf(tomorrow);
   }
 }

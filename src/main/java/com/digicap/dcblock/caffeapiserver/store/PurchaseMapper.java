@@ -26,15 +26,16 @@ public interface PurchaseMapper {
 
     int insertPurchase(PurchaseDto purchaseDto);
 
-    @Select("SELECT EXISTS(select 1 FROM purchases WHERE receipt_id = #{receiptId} AND purchase_date = #{purchaseDate})")
-    boolean existReceiptId(@Param("receiptId") int receiptId, @Param("purchaseDate") Date date);
+    boolean existReceiptId(@Param("receiptId") int receiptId, @Param("from") Date from,
+        @Param("to") Date to);
 
     LinkedList<Timestamp> selectByReceiptId(@Param("receiptId") int receiptId);
 
     LinkedList<PurchaseDto> updateReceiptCancelStatus(@Param("receiptId") int receiptId);
 
     LinkedList<PurchaseDto> updateReceiptCancelApprovalStatus(@Param("receiptId") int receiptId,
-                                                              @Param("purchaseDate") Date date);
+                                                              @Param("from") Date date,
+                                                              @Param("to") Date to);
 
     LinkedList<PurchaseVo> selectAllByUser(@Param("_from") Date from, @Param("_to") Date to, @Param("userRecordIndex") long userRecordIndex, @Param("receiptStatus") int receiptStatus);
 

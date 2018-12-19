@@ -109,7 +109,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
     return result;
   }
 
-  @PatchMapping(value = "/api/caffe/purchases/purchase/receipt/{receiptId}/cancel-approval", consumes = "application/json; charset=utf-8")
+  @PatchMapping("/api/caffe/purchases/purchase/receipt/{receiptId}/cancel-approval")
   HashMap<String, List<Purchase2Dto>> canceledPurchaseByReceiptId(
       @PathVariable("receiptId") String _receiptId,
       @RequestParam("purchaseDate") String _purchaseDate) {
@@ -341,6 +341,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         break;
     }
 
+    // TODO Warning
     return new Purchase2Vo(p.getCode(), p.getPrice(), p.getDcPrice(), type, size, p.getCount(),
         p.getMenuNameKr());
   }
