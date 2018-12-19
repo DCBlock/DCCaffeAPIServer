@@ -9,25 +9,18 @@ import lombok.Setter;
 @Getter
 public class PurchaseDto {
 
-    @NonNull
     private int category;
 
-    @NonNull
     private int code;
 
-    @NonNull
     private int price;
 
-    @NonNull
     private int dc_price;
 
-    @NonNull
     private int opt_type;
 
-    @NonNull
     private int opt_size;
 
-    @NonNull
     private int count;
 
     @NonNull
@@ -36,12 +29,10 @@ public class PurchaseDto {
     @JsonIgnore
     private String name;
 
-    @NonNull
     private long user_record_index;
 
     @JsonIgnore
     private int receipt_id;
 
-    @NonNull
     private int receipt_status;
 }

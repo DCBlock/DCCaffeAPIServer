@@ -1,6 +1,7 @@
 package com.digicap.dcblock.caffeapiserver.store;
 
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseNewDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
 import java.sql.Date;
 import java.sql.Timestamp;
@@ -25,15 +26,18 @@ public interface PurchaseMapper {
 
     int insertPurchase(PurchaseDto purchaseDto);
 
-    @Select("SELECT EXISTS(select 1 FROM purchases WHERE receipt_id = #{receiptId})")
-    boolean existReceiptId(@Param("receiptId") int receiptId);
+    @Select("SELECT EXISTS(select 1 FROM purchases WHERE receipt_id = #{receiptId} AND purchase_date = #{purchaseDate})")
+    boolean existReceiptId(@Param("receiptId") int receiptId, @Param("purchaseDate") Date date);
 
-    @Select("SELECT update_date FROM purchases WHERE receipt_id = #{receiptId} AND receipt_status = '0' ORDER BY update_date")
     LinkedList<Timestamp> selectByReceiptId(@Param("receiptId") int receiptId);
 
     LinkedList<PurchaseDto> updateReceiptCancelStatus(@Param("receiptId") int receiptId);
 
-    LinkedList<PurchaseDto> updateReceiptCancelApprovalStatus(@Param("receiptId") int receiptId);
+    LinkedList<PurchaseDto> updateReceiptCancelApprovalStatus(@Param("receiptId") int receiptId,
+                                                              @Param("purchaseDate") Date date);
 
     LinkedList<PurchaseVo> selectAllByUser(@Param("_from") Date from, @Param("_to") Date to, @Param("userRecordIndex") long userRecordIndex, @Param("receiptStatus") int receiptStatus);
+
+    LinkedList<PurchaseNewDto> selectAllCancel(@Param("from") Date from,
+                                               @Param("to") Date to);
 }

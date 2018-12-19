@@ -70,4 +70,57 @@
             purchase_date <= #{_to}
         ]]>
     </select>
+    <select id="selectAllCancel" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseNewDto">
+        <![CDATA[
+        SELECT
+            count,
+            price,
+            dc_price,
+            name,
+            user_record_index,
+            code,
+            menu_name_kr,
+            receipt_status,
+            opt_size,
+            opt_type,
+            update_date,
+            cancel_date,
+            purchase_date,
+            canceled_date,
+            index,
+            receipt_id
+        FROM
+            purchases
+        WHERE
+            receipt_status = '1'
+        OR
+            receipt_status = '2'
+        AND
+            cancel_date >= #{from}
+        AND
+            cancel_date <= #{to}
+        ORDER BY
+            cancel_date
+        DESC
+        ]]>
+    </select>
+    <select id="selectByReceiptId" resultType="java.sql.Timestamp">
+        <![CDATA[
+        SELECT
+            update_date
+        FROM
+            purchases
+        WHERE
+            receipt_id = #{receiptId}
+        AND
+            receipt_status = '0'
+        AND
+            (SELECT CURRENT_DATE) <= update_date
+        AND
+            update_date < (SELECT CURRENT_DATE + 1)
+        ORDER BY
+            update_date
+        DESC
+        ]]>
+    </select>
 </mapper>

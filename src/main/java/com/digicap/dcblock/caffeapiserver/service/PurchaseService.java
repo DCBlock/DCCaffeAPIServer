@@ -1,10 +1,6 @@
 package com.digicap.dcblock.caffeapiserver.service;
 
-import com.digicap.dcblock.caffeapiserver.dto.PurchaseBalanceDto;
-import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
-import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
-import com.digicap.dcblock.caffeapiserver.dto.PurchasedDto;
-import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
+import com.digicap.dcblock.caffeapiserver.dto.*;
 import com.digicap.dcblock.caffeapiserver.exception.ExpiredTimeException;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
@@ -19,16 +15,20 @@ import org.mybatis.spring.MyBatisSystemException;
 
 public interface PurchaseService {
 
-    ReceiptIdDto getReceiptId(String rfid) throws UnknownException, MyBatisSystemException, NotFindException;
+    ReceiptIdDto getReceiptId(String rfid);
 
-    PurchasedDto requestPurchases(int receiptId, List<LinkedHashMap<String, Object>> purchases) 
-            throws MyBatisSystemException, NotFindException, InvalidParameterException, UnknownException;
+    PurchasedDto requestPurchases(int receiptId,
+                                  List<LinkedHashMap<String, Object>> purchases);
 
-    List<PurchaseDto> cancelPurchases(int receiptId) throws MyBatisSystemException, NotFindException, ExpiredTimeException;
+    List<PurchaseDto> cancelPurchases(int receiptId);
 
-    List<PurchaseDto> cancelApprovalPurchases(int receiptId) throws MyBatisSystemException, NotFindException;
+    List<PurchaseDto> cancelApprovalPurchases(int receiptId, Date purchaseDate);
 
-    LinkedList<PurchaseVo> getPurchases(PurchaseDto purchaseDto, Date from, Date to) throws MyBatisSystemException;
+    LinkedList<PurchaseVo> getPurchases(PurchaseDto purchaseDto, Date from,
+                                        Date to);
 
-    PurchaseBalanceDto getBalanceByRfid(String rfid, Date fromDate, Date toDate) throws MyBatisSystemException, NotFindException;
+    PurchaseBalanceDto getBalanceByRfid(String rfid, Date fromDate, Date toDate);
+
+    LinkedHashMap<String, LinkedHashMap<String, LinkedList<PurchaseSearchDto>>>
+    getPurchases(Date after, Date before, int filter, int userRecordIndex);
 }

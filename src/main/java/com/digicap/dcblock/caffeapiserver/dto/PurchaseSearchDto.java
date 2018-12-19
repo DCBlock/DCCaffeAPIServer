@@ -5,13 +5,14 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
+import java.sql.Timestamp;
+
 @Setter
 @Getter
-public class Purchase2Dto {
+public class PurchaseSearchDto {
 
-    private int category;
-
-    private int code;
+    @NonNull
+    private String menu_name_kr;
 
     private int price;
 
@@ -25,15 +26,9 @@ public class Purchase2Dto {
 
     private int count;
 
-    @NonNull
-    private String menu_name_kr;
-
-    @JsonIgnore
-    private String name;
-
-    private long user_record_index;
-
-    private int receipt_id;
-
     private int receipt_status;
+
+    private long purchase_date;
+
+    private long cancel_date;
 }
