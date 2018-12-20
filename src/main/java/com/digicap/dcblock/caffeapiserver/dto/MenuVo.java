@@ -28,4 +28,6 @@ public class MenuVo {
     private int opt_size = -1;
 
     private int opt_type = -1;
+
+    private String event_name;
 }

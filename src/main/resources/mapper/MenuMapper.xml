@@ -14,7 +14,8 @@
                 dc_covision,
                 opt_type,
                 opt_size,
-                "order"
+                "order",
+                event_name
             )
         VALUES
         (
@@ -26,7 +27,8 @@
             #{dc_covision},
             #{opt_type},
             #{opt_size},
-            (SELECT MAX("order") + 1 FROM menus WHERE category = #{category})
+            (SELECT MAX("order") + 1 FROM menus WHERE category = #{category}),
+            #{event_name}
         )
         RETURNING *
     </select>
@@ -42,7 +44,8 @@
                 <if test="item.dc_digicap > -1">dc_digicap = #{item.dc_digicap},</if>
                 <if test="item.dc_covision > -1">dc_covision = #{item.dc_covision},</if>
                 <if test="item.opt_size > -1">opt_size = #{item.opt_size},</if>
-                <if test="item.opt_type > -1">opt_type = #{item.opt_type}</if>
+                <if test="item.opt_type > -1">opt_type = #{item.opt_type},</if>
+                <if test="item.event_name != null">event_name = #{item.event_name}</if>
             WHERE
                 code = #{item.code}
             AND

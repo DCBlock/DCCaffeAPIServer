@@ -186,8 +186,7 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
         t.setPrice(v.getPrice());
         t.setDc_digicap(v.getDc_digicap());
         t.setDc_covision(v.getDc_covision());
-        // TODO EVENT_NAME
-        t.setEvent_name("");
+        t.setEvent_name(v.getEvent_name());
 
         switch (v.getOpt_type()) {
             case 0:
@@ -223,8 +222,7 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
         v.setPrice(t.getPrice());
         v.setDc_digicap(t.getDc_digicap());
         v.setDc_covision(t.getDc_covision());
-        // TODO EVENT_NAME
-        //t.setEvent_name("");
+        v.setEvent_name(t.getEvent_name());
 
         switch (t.getOpt_type()) {
             case OPT_TYPE_HOT:

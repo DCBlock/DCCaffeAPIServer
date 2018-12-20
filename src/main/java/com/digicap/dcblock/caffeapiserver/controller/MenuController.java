@@ -18,7 +18,7 @@ import com.digicap.dcblock.caffeapiserver.service.MenuService;
 
 /**
  * 카페에서 사용하는 메뉴 Controller Class.
- * 
+ *
  * @author DigiCAP
  */
 @RestController
@@ -31,26 +31,21 @@ public class MenuController {
         this.service = service;
     }
 
-//    @ApiOperation(value = "/api/caffe/menus", nickname = "if-caffe-pub-002")
-//    @ApiResponses(value = {
-//        @ApiResponse(code = 200, message = "Success", response = LinkedHashMap.class),
-//        @ApiResponse(code = 500, message = "Failure", response = ApiError.class)})
     @GetMapping("/api/caffe/menus")
     LinkedHashMap<String, LinkedList<MenuDto>> getAllMenus() {
         LinkedHashMap<String, LinkedList<MenuDto>> menus = service.getAllMenus();
         return menus;
     }
 
-    @PostMapping(value = "/api/caffe/menus",
-            consumes = "application/json; charset=utf-8")
+    @PostMapping(value = "/api/caffe/menus", consumes = "application/json; charset=utf-8")
     MenuDto insertMenu(@RequestBody MenuDto body) {
         MenuDto result = service.setMenu(body);
         return result;
     }
 
-    @PatchMapping(value = "/api/caffe/menus/{category}",
-            consumes = "application/json; charset=utf-8")
-    LinkedList<MenuDto> updateMenuInCategory(@PathVariable("category") int category,@RequestBody LinkedList<MenuDto> body) {
+    @PatchMapping(value = "/api/caffe/menus/{category}", consumes = "application/json; charset=utf-8")
+    LinkedList<MenuDto> updateMenuInCategory(@PathVariable("category") int category,
+                                             @RequestBody LinkedList<MenuDto> body) {
         return service.updateAllMenusInCategory(category, body);
     }
 
