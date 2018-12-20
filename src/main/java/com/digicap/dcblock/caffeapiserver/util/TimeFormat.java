@@ -81,7 +81,7 @@ public class TimeFormat {
     public Timestamp toYesterday(Timestamp time) {
         Timestamp t = toTimeStampExcludeTime(time.getTime());
         LocalDate l = t.toLocalDateTime().toLocalDate();
-        LocalDate tomorrow = l.minus(1, ChronoUnit.DAYS);
-        return new Timestamp(tomorrow.toEpochDay() * 1000);
+        LocalDate y = l.minus(1, ChronoUnit.DAYS);
+        return Timestamp.valueOf(y.atStartOfDay());
     }
 }

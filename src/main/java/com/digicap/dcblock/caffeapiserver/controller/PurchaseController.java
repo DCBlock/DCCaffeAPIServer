@@ -147,12 +147,12 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
             throw new InvalidParameterException("before is empty");
         }
 
-        if (!(filter == 1 || filter == -1)) {
+        if (!(filter == 3 || filter == -1)) {
             throw new InvalidParameterException(
                     String.format("unknown filter(%s)", filter));
         }
 
-        if (userRecordIndex <= 0) {
+        if (filter == -1 && userRecordIndex <= 0) {
             throw new InvalidParameterException(
                     String.format("unknown user_index(%s)", userRecordIndex));
         }
