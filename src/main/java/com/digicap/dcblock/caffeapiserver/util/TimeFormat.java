@@ -69,7 +69,7 @@ public class TimeFormat {
         Timestamp t = toTimeStampExcludeTime(time.getTime());
         LocalDate l = t.toLocalDateTime().toLocalDate();
         LocalDate tomorrow = l.plus(1, ChronoUnit.DAYS);
-        return new Timestamp(tomorrow.toEpochDay() * 1000);
+        return Timestamp.valueOf(tomorrow.atStartOfDay());
     }
 
     /**

@@ -50,8 +50,7 @@ public class CategoryController {
         return categoriesDao;
     }
 
-    @PostMapping(value = "/api/caffe/categories",
-            consumes = "application/json; charset=utf-8")
+    @PostMapping(value = "/api/caffe/categories", consumes = "application/json; charset=utf-8")
     CategoryVo createCategory(@RequestBody CategoryVo categoryVo) {
         // Check Parameter.
         if (categoryVo.getName().replaceAll(" ", "").isEmpty()) {
@@ -68,8 +67,7 @@ public class CategoryController {
         return result;
     }
 
-    @PatchMapping(value = "/api/caffe/categories",
-            consumes = "application/json; charset=utf-8")
+    @PatchMapping(value = "/api/caffe/categories", consumes = "application/json; charset=utf-8")
     void updateAllCategory(@RequestBody LinkedList<CategoryVo> categories) {
         categoryService.updateAll(categories);
     }

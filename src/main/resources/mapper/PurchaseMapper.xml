@@ -145,7 +145,7 @@
         )
         ]]>
     </select>
-    <select id="selectAll" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseNewDto">
+    <select id="selectAllUser" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseNewDto">
         <![CDATA[
         SELECT
             count,
@@ -167,11 +167,13 @@
         FROM
             purchases
         WHERE
-            purchase_date >= #{from}
+            #{after} <= update_date
         AND
-            purchase_date <= #{to}
+            update_date <= #{before}
+        AND
+            user_record_index = #{userRecordIndex}
         ORDER BY
-            purchase_date
+            update_date
         DESC
         ]]>
     </select>

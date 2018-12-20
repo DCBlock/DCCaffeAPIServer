@@ -28,6 +28,8 @@ public interface PurchaseService {
 
     PurchaseBalanceDto getBalanceByRfid(String rfid, Timestamp from, Timestamp to);
 
-    LinkedHashMap<String, LinkedHashMap<String, LinkedList<PurchaseSearchDto>>> getPurchasesBySearch(
+//    LinkedHashMap<String, LinkedHashMap<String, LinkedList<PurchaseSearchDto>>>
+    LinkedList<PurchaseSearchDto>
+    getPurchasesBySearch(
             Timestamp after, Timestamp before, int filter, int userRecordIndex);
 }

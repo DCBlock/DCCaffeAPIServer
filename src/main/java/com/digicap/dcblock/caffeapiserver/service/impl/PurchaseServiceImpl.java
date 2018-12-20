@@ -289,46 +289,54 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     }
 
     @Override
-    public LinkedHashMap<String, LinkedHashMap<String, LinkedList<PurchaseSearchDto>>>
+    public
+//    LinkedHashMap<String, LinkedHashMap<String, LinkedList<PurchaseSearchDto>>>
+    LinkedList<PurchaseSearchDto>
     getPurchasesBySearch(Timestamp after, Timestamp before, int filter, int userRecordIndex) {
-        /* userRecordIndex는 filter가 -1인 경우에만 사용 */
+        /* userRecordIndex 는 filter 가 -1인 경우에만 사용 */
 
-        LinkedHashMap<String, LinkedHashMap<String, LinkedList<PurchaseSearchDto>>> results = new LinkedHashMap<>();
+//        LinkedHashMap<String, LinkedHashMap<String, LinkedList<PurchaseSearchDto>>> results = new LinkedHashMap<>();
 
         LinkedList<PurchaseNewDto> r = null;
 
         if (filter == 3) { // 3 is cancel and canceled
             // Get cancel, canceled
             // ORDER BY update DESC
-             r = purchaseMapper.selectAllCancel(after, before);
+            r = purchaseMapper.selectAllCancel(after, before);
+            if (r == null) {
+                throw new NotFindException("not find");
+            }
         } else if (filter == -1) { // -1 is all
-            // TODO dev
-//            results = purchaseMapper.selectAllCancel(after, before);
-        }
-
-        if (r == null) {
-            throw new NotFindException("not find");
+            r = purchaseMapper.selectAllUser(after, before, userRecordIndex);
+            if (r == null || r.size() == 0) {
+                throw new NotFindException(String.format("not find purchases for user(%s)", userRecordIndex));
+            }
         }
 
         // Grouping Date and ReceiptId
-        Timestamp yesterday = new TimeFormat().toYesterday(before);
-        Timestamp today = before;
-        while (after.equals(yesterday) || after.before(yesterday)) { // after <= yesterday
-            // p에는 목록에서 기간에 해당하는 목록만 존재
-            LinkedList<PurchaseNewDto> p = getPurchasePeriod(yesterday, today, r);
+//        Timestamp yesterday = new TimeFormat().toYesterday(before);
+//        Timestamp today = before;
+//        while (after.equals(yesterday) || after.before(yesterday)) { // after <= yesterday
+//            // p에는 목록에서 기간에 해당하는 목록만 존재
+//            LinkedList<PurchaseNewDto> p = getPurchasePeriod(yesterday, today, r);
+//
+//            if (p != null && p.size() > 0) {
+//                LinkedHashMap<String, LinkedList<PurchaseSearchDto>> lh = getGroupByReceiptId(p);
+//                if (lh != null && lh.size() > 0) {
+//                    results.put(yesterday.toLocalDateTime().toLocalDate().toString(), lh);
+//                }
+//            }
+//
+//            // Refresh today, yesterday
+//            today = yesterday;
+//            yesterday = new TimeFormat().toYesterday(yesterday);
+//        }
+        LinkedList<PurchaseSearchDto> results = new LinkedList<>();
 
-            LinkedHashMap<String, LinkedList<PurchaseSearchDto>> lh = getGroupByReceiptId(p);
-            if (lh != null && lh.size() > 0) {
-                results.put(today.toString(), lh);
-            }
-
-            // Refresh today, yesterday
-            log.error("today yesterday");
-            today = yesterday;
-            yesterday = new TimeFormat().toYesterday(yesterday);
-            log.error("today yesterday");
+        for (PurchaseNewDto p : r) {
+            PurchaseSearchDto ps = new PurchaseSearchDto(p);
+            results.add(ps);
         }
-
         return results;
     }
 
@@ -510,8 +518,6 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
                 keys.add(purchases.get(i).getReceipt_id());
             }
         }
-
-        log.debug("Check keys");
 
         LinkedList<PurchaseSearchDto> temp = null;
 

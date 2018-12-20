@@ -63,9 +63,8 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
     }
 
     @PostMapping(value = "/api/caffe/purchases/purchase/receipt/{receiptId}", consumes = "application/json; charset=utf-8")
-    PurchasedDto createPurchasesByReceiptId(
-            @PathVariable("receiptId") String _receiptId,
-            @RequestBody HashMap<String, Object> body) {
+    PurchasedDto createPurchasesByReceiptId(@PathVariable("receiptId") String _receiptId,
+                                            @RequestBody HashMap<String, Object> body) {
         // Check is integer.
         int receiptId = getIntegerValueOf(_receiptId);
 
@@ -89,8 +88,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
     }
 
     @PatchMapping("/api/caffe/purchases/purchase/receipt/{receiptId}/cancel")
-    HashMap<String, List<Purchase2Dto>> cancelPurchaseByReceiptId(
-            @PathVariable("receiptId") String _receiptId) {
+    HashMap<String, List<Purchase2Dto>> cancelPurchaseByReceiptId(@PathVariable("receiptId") String _receiptId) {
         int receiptId = getIntegerValueOf(_receiptId);
 
         List<PurchaseDto> cancels = service.cancelPurchases(receiptId);
@@ -107,9 +105,8 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
     }
 
     @PatchMapping("/api/caffe/purchases/purchase/receipt/{receiptId}/cancel-approval")
-    HashMap<String, List<Purchase2Dto>> canceledPurchaseByReceiptId(
-            @PathVariable("receiptId") String _receiptId,
-            @RequestParam("purchaseDate") String _purchaseDate) {
+    HashMap<String, List<Purchase2Dto>> canceledPurchaseByReceiptId(@PathVariable("receiptId") String _receiptId,
+                                                                    @RequestParam("purchaseDate") String _purchaseDate) {
         int receiptId = getIntegerValueOf(_receiptId);
 
         // String to Timestamp
@@ -128,11 +125,12 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         return result;
     }
 
-    // ----------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------
     // Purchases API
 
     @GetMapping("/api/caffe/purchases/purchase/search")
-    LinkedHashMap<String, LinkedHashMap<String, LinkedList<PurchaseSearchDto>>>
+//    LinkedHashMap<String, LinkedHashMap<String, LinkedList<PurchaseSearchDto>>>
+    LinkedList<PurchaseSearchDto>
     getPurchases(
             @RequestParam(value = "after", defaultValue = "") String after,
             @RequestParam(value = "before", defaultValue = "") String before,
@@ -148,25 +146,26 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         }
 
         if (!(filter == 3 || filter == -1)) {
-            throw new InvalidParameterException(
-                    String.format("unknown filter(%s)", filter));
+            throw new InvalidParameterException(String.format("unknown filter(%s)", filter));
         }
 
         if (filter == -1 && userRecordIndex <= 0) {
-            throw new InvalidParameterException(
-                    String.format("unknown user_index(%s)", userRecordIndex));
+            throw new InvalidParameterException(String.format("unknown user_index(%s)", userRecordIndex));
         }
 
         // String time to java.sql.Date.
         long _from = getLongValueOf(after);
         long _to = getLongValueOf(before);
 
-        Timestamp _after = new TimeFormat().toTimeStampExcludeTime(_from * 1000);
-        Timestamp _before = new TimeFormat().toTimeStampExcludeTime(_to * 1000);
+//        Timestamp _after = new TimeFormat().toTimeStampExcludeTime(_from * 1000);
+//        Timestamp _before = new TimeFormat().toTimeStampExcludeTime(_to * 1000);
+        Timestamp _after = new Timestamp(_from * 1000);
+        Timestamp _before = new Timestamp(_to * 1000);
 
         // Get Purchases.
-        LinkedHashMap<String, LinkedHashMap<String, LinkedList<PurchaseSearchDto>>>
-                results = service.getPurchasesBySearch(_after, _before, filter, userRecordIndex);
+//        LinkedHashMap<String, LinkedHashMap<String, LinkedList<PurchaseSearchDto>>> results =
+                LinkedList<PurchaseSearchDto> results =
+                service.getPurchasesBySearch(_after, _before, filter, userRecordIndex);
         return results;
     }
 
@@ -210,8 +209,8 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         purchaseDto.setReceipt_status(RECEIPT_STATUS_PURCHASE);
 
         // Get Purchased List.
-        LinkedList<PurchaseVo> purchases = service.getPurchases(purchaseDto,
-                temporaryUriVo.getSearchDateAfter(), temporaryUriVo.getSearchDateBefore());
+        LinkedList<PurchaseVo> purchases = service.getPurchases(purchaseDto, temporaryUriVo.getSearchDateAfter(),
+                temporaryUriVo.getSearchDateBefore());
 
         List<Purchase2Vo> cancels2 = new ArrayList<>();
         for (PurchaseVo p : purchases) {
@@ -243,10 +242,10 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         long _from = getLongValueOf(_after);
         long _to = getLongValueOf(_before);
 
-        Timestamp from = new Timestamp(_from * 1000);
-        Timestamp to = new Timestamp(_to * 1000);
+        Timestamp after = new Timestamp(_from * 1000);
+        Timestamp before = new Timestamp(_to * 1000);
 
-        return service.getBalanceByRfid(rfid, from, to);
+        return service.getBalanceByRfid(rfid, after, before);
     }
 
     // ---------------------------------------------------------------------------------------------
