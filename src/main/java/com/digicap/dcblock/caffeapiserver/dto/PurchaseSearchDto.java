@@ -14,6 +14,10 @@ import static com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConsta
 @Getter
 public class PurchaseSearchDto {
 
+    private long date;
+
+    private String receipt_id;
+
     @NonNull
     private String menu_name_kr;
 
@@ -36,6 +40,9 @@ public class PurchaseSearchDto {
     private long cancel_date;
 
     public PurchaseSearchDto(PurchaseNewDto p) {
+        this.date = p.getUpdate_date().getTime();
+        this.receipt_id = insertZeroString(p.getReceipt_id());
+
         this.menu_name_kr = p.getMenu_name_kr();
         this.price = p.getPrice();
         this.dc_price = p.getDc_price();
@@ -67,5 +74,22 @@ public class PurchaseSearchDto {
                 break;
             default:
                 throw new InvalidParameterException(String.format("unknown opt_type(%s)", p.getOpt_type()));
-        }}
+        }
+    }
+
+    private String insertZeroString(int number) {
+        int length = String.valueOf(number).length();
+
+        String value = String.valueOf(number);
+
+        if (length == 3) {
+            return "0" + value;
+        } else if (length == 2) {
+            return "00" + value;
+        } else if (length == 1) {
+            return "000" + value;
+        } else {
+            return value;
+        }
+    }
 }

@@ -137,32 +137,35 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
                 .getAllMenusUsingCode();
 
         // 구매요청한 카테고리, 메뉴 확인
-        for (PurchaseDto purchaseDto : purchases) {
-            int category = purchaseDto.getCategory();
-            int code = purchaseDto.getCode();
+        for (int i = 0; i < purchases.size(); i++) {
+//        for (PurchaseDto purchaseDto : purchases) {
+            int category = purchases.get(i).getCategory();
+            int code = purchases.get(i).getCode();
             boolean bExist = menuMapper.existCode(code, category);
             if (!bExist) {
                 throw new InvalidParameterException("unknown category: " + category);
             }
 
             for (MenuDto menu : menusInCategory.get(category)) {
-                // 사용자 정보.
-                purchaseDto.setName(receiptIdDto.getName());
-                purchaseDto.setUser_record_index(receiptIdDto.getUserRecordIndex());
+                if (menu.getCode() == code) {
+                    // 사용자 정보.
+                    purchases.get(i).setName(receiptIdDto.getName());
+                    purchases.get(i).setUser_record_index(receiptIdDto.getUserRecordIndex());
 
-                // 구매 정보.
-                purchaseDto.setPrice(menu.getPrice());
-                purchaseDto.setMenu_name_kr(menu.getName_kr());
-                purchaseDto.setReceipt_id(receiptId);
+                    // 구매 정보.
+                    purchases.get(i).setPrice(menu.getPrice());
+                    purchases.get(i).setMenu_name_kr(menu.getName_kr());
+                    purchases.get(i).setReceipt_id(receiptId);
 
-                // DC 가격
-                String company = receiptIdDto.getCompany();
-                if (company.equals(COMPANY_DIGICAP)) {
-                    purchaseDto.setDc_price(menu.getDc_digicap());
-                } else if (company.equals(COMPANY_COVISION)) {
-                    purchaseDto.setDc_price(menu.getDc_covision());
-                } else {
-                    purchaseDto.setDc_price(0);
+                    // DC 가격
+                    String company = receiptIdDto.getCompany();
+                    if (company.equals(COMPANY_DIGICAP)) {
+                        purchases.get(i).setDc_price(menu.getDc_digicap());
+                    } else if (company.equals(COMPANY_COVISION)) {
+                        purchases.get(i).setDc_price(menu.getDc_covision());
+                    } else {
+                        purchases.get(i).setDc_price(0);
+                    }
                 }
             }
         }
@@ -415,7 +418,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         int total = 0;
 
         for (PurchaseDto p : purchases) {
-            total += p.getPrice();
+            total += (p.getPrice() * p.getCount());
         }
 
         return total;
@@ -431,7 +434,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         int total = 0;
 
         for (PurchaseDto p : purchases) {
-            total += p.getDc_price();
+            total += (p.getDc_price() * p.getCount());
         }
 
         return total;
