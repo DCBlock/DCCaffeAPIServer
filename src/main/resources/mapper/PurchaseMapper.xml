@@ -71,9 +71,9 @@
         AND
             receipt_status = #{receiptStatus}
         AND
-            purchase_date >= #{_from}
+            purchase_date >= #{from}
         AND
-            purchase_date <= #{_to}
+            purchase_date <= #{to}
         ]]>
     </select>
     <select id="selectAllCancel" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseNewDto">
@@ -98,15 +98,15 @@
         FROM
             purchases
         WHERE
+            update_date >= #{from}
+        AND
+            update_date <= #{to}
+        AND
             receipt_status = '1'
         OR
             receipt_status = '2'
-        AND
-            cancel_date >= #{from}
-        AND
-            cancel_date <= #{to}
         ORDER BY
-            cancel_date
+            update_date
         DESC
         ]]>
     </select>
@@ -143,6 +143,36 @@
             AND
                 purchase_date < #{to}
         )
+        ]]>
+    </select>
+    <select id="selectAll" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseNewDto">
+        <![CDATA[
+        SELECT
+            count,
+            price,
+            dc_price,
+            name,
+            user_record_index,
+            code,
+            menu_name_kr,
+            receipt_status,
+            opt_size,
+            opt_type,
+            update_date,
+            cancel_date,
+            purchase_date,
+            canceled_date,
+            index,
+            receipt_id
+        FROM
+            purchases
+        WHERE
+            purchase_date >= #{from}
+        AND
+            purchase_date <= #{to}
+        ORDER BY
+            purchase_date
+        DESC
         ]]>
     </select>
 </mapper>

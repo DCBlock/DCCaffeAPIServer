@@ -20,7 +20,6 @@ import com.digicap.dcblock.caffeapiserver.exception.ExpiredTimeException;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
 import com.digicap.dcblock.caffeapiserver.service.TemporaryUriService;
-import com.digicap.dcblock.caffeapiserver.store.UserMapper;
 import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
 
 /**
@@ -34,8 +33,6 @@ public class TemporaryUriServiceImpl implements TemporaryUriService {
 
     private TemporaryUriDao temporaryUriDao;
     
-    private UserMapper userMapper;
-
     @Value("${random-uri-expired-minute}")
     private int randomUriExpired;
 
@@ -46,9 +43,7 @@ public class TemporaryUriServiceImpl implements TemporaryUriService {
     private String apiVersion;
 
     @Autowired
-    public TemporaryUriServiceImpl(TemporaryUriDao temporaryUriDao,UserMapper userMapper) {
-        this.userMapper = userMapper;
-
+    public TemporaryUriServiceImpl(TemporaryUriDao temporaryUriDao) {
         this.temporaryUriDao = temporaryUriDao;
     }
 
