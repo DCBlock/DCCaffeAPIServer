@@ -29,7 +29,7 @@ public class ScheduledConfig {
     /**
      * 매일 0시 0분에 동작.
      */
-    @Scheduled(cron="0 0 * * * *")
+    @Scheduled(cron="0 0 0 * * *")
 //    @Scheduled(cron="*/10 * * * * *") // for test
     public void initializeReceiptIdSequence() {
         log.info("initialize ReceiptId Sequence");
