@@ -2,19 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.digicap.dcblock.caffeapiserver.dao.ReceiptIdDao">
     <insert id="insertByReceipt" parameterType="com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo">
+        <selectKey keyProperty="randomId" resultType="string" order="BEFORE">
+            SELECT uuid_generate_v1()
+        </selectKey>
         INSERT
         INTO
             receipt_ids (
                 name,
                 company,
                 receipt_id,
-                user_record_index
+                user_record_index,
+                random_id
             )
         VALUES (
             #{name},
             #{company},
             #{receiptId},
-            #{userRecordIndex}
+            #{userRecordIndex},
+            #{randomId}
         )
     </insert>
 

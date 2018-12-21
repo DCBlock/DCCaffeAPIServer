@@ -16,6 +16,8 @@ public class ReceiptIdVo {
 
     private long receiptId;
 
+    private String randomId;
+
     private long userRecordIndex;
 
     private String company;

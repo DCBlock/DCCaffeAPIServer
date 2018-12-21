@@ -65,8 +65,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     }
 
     @Override
-    public ReceiptIdDto getReceiptId(String rfid)
-            throws UnknownException, MyBatisSystemException, NotFindException {
+    public ReceiptIdDto getReceiptId(String rfid) throws UnknownException, MyBatisSystemException, NotFindException {
         UserDto userDto = null;
 
         try {
@@ -100,6 +99,8 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         receiptIdDto.setName(userDto.getName());
         receiptIdDto.setCompany(userDto.getCompany());
         receiptIdDto.setDate(new TimeFormat().getCurrent());
+        // RandomId는 생성해서 DB에 저장하지만, 사용하지는 않음.
+//        receiptIdDto.setRandomId(receiptIdVo.getRandomId());
 
         return receiptIdDto;
     }

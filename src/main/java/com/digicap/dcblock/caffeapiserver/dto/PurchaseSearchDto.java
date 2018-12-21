@@ -7,6 +7,7 @@ import lombok.NonNull;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.util.Optional;
 
 import static com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants.*;
 
@@ -39,6 +40,8 @@ public class PurchaseSearchDto {
 
     private long cancel_date;
 
+    private long canceled_date;
+
     public PurchaseSearchDto(PurchaseNewDto p) {
         this.date = p.getUpdate_date().getTime();
         this.receipt_id = insertZeroString(p.getReceipt_id());
@@ -49,7 +52,17 @@ public class PurchaseSearchDto {
         this.count = p.getCount();
         this.receipt_status = p.getReceipt_status();
         this.purchase_date = p.getPurchase_date().getTime();
-        this.cancel_date = p.getCancel_date().getTime();
+        if (p.getCancel_date() == null) {
+            this.cancel_date = 0;
+        } else {
+            this.cancel_date = p.getCancel_date().getTime();
+        }
+
+        if (p.getCanceled_date() == null) {
+            this.canceled_date = 0;
+        } else {
+            this.canceled_date = p.getCanceled_date().getTime();
+        }
 
         switch (p.getOpt_size()) {
             case 0:
