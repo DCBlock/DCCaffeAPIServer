@@ -159,6 +159,11 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         Timestamp _after = new Timestamp(_from * 1000);
         Timestamp _before = new Timestamp(_to * 1000);
 
+        if (_before.after(_after)) {
+            throw new InvalidParameterException(String.format("before(%s) is bigger than after(%s)",
+                    before.toString(), after.toString()));
+        }
+
         // Get Purchases.
 //        LinkedHashMap<String, LinkedHashMap<String, LinkedList<PurchaseSearchDto>>> results =
         LinkedList<PurchaseSearchDto> results = service.getPurchasesBySearch(_before, _after, filter, userRecordIndex);
@@ -186,6 +191,11 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
                 .map(o -> Long.valueOf(o) * 1000)
                 .map(o -> new Timestamp(o))
                 .orElseThrow(() -> new InvalidParameterException("not find purchase_before"));
+
+        if (before.after(after)) {
+            throw new InvalidParameterException(String.format("purchase_before(%s) is bigger than purchase_after(%s)",
+                    before.toString(), after.toString()));
+        }
 
         String randomUri = temporaryUriService.createTemporaryUri(rfid, before, after);
 
@@ -240,6 +250,11 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
 
         Timestamp before = new Timestamp(b * 1000);
         Timestamp after = new Timestamp(a * 1000);
+
+        if (before.after(after)) {
+            throw new InvalidParameterException(String.format("purchase_before(%s) is bigger than purchase_after(%s)",
+                    before.toString(), after.toString()));
+        }
 
         return service.getBalanceByRfid(rfid, before, after);
     }

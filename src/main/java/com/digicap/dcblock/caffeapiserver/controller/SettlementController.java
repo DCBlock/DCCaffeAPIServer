@@ -56,6 +56,11 @@ public class SettlementController {
         Timestamp a = getTimestampValueOf(after);
         Timestamp b = getTimestampValueOf(before);
 
+        if (b.after(a)) {
+            throw new InvalidParameterException(String.format("before(%s) is bigger than after(%s)",
+                    b.toString(), a.toString()));
+        }
+
         SettlementReportDto result = settlementService.getReportByRecordIndex(b, a, userRecordIndex);
         return result;
     }
