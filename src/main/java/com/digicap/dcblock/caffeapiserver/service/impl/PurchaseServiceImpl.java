@@ -111,11 +111,9 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
      * @param _purchases 구매목록.
      */
     @Override
-    public PurchasedDto requestPurchases(int receiptId,
-                                         List<LinkedHashMap<String, Object>> _purchases) throws MyBatisSystemException,
-            NotFindException, InvalidParameterException, UnknownException {
+    public PurchasedDto requestPurchases(int receiptId, List<LinkedHashMap<String, Object>> _purchases)
+            throws MyBatisSystemException, NotFindException, InvalidParameterException, UnknownException {
         // parameter 확인
-//        ReceiptIdVo receiptIdVo = receiptMapper.selectByReceiptId(receiptId);
         ReceiptIdDto receiptIdDto = receiptIdDao.selectByReceipt(receiptId);
         if (receiptIdDto == null) {
             throw new NotFindException("not find receipt_id");
@@ -133,8 +131,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         // hashmap to instance
         LinkedList<PurchaseDto> purchases = toPurchaseDtos(_purchases);
 
-        LinkedHashMap<Integer, LinkedList<MenuDto>> menusInCategory = menuService
-                .getAllMenusUsingCode();
+        LinkedHashMap<Integer, LinkedList<MenuDto>> menusInCategory = menuService.getAllMenusUsingCode();
 
         // 구매요청한 카테고리, 메뉴 확인
         for (int i = 0; i < purchases.size(); i++) {
