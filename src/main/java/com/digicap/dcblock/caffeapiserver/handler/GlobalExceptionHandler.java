@@ -43,8 +43,8 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     @ResponseBody
     public ApiError handleException(NotFindException e) {
-        e.printStackTrace();
         log.error(e.getReason());
+        e.printStackTrace();
         return new ApiError(HttpStatus.NOT_FOUND.value(), e.getReason());
     }
 
@@ -104,8 +104,8 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public ApiError handleException(MyBatisSystemException e) {
-        e.printStackTrace();
         log.error(e.getMessage());
+        e.printStackTrace();
         return new ApiError(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
     }
 
@@ -113,8 +113,8 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ApiError handleException(MethodArgumentNotValidException e) {
-        e.printStackTrace();
         log.error(e.getMessage());
+        e.printStackTrace();
         return new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
     }
 
@@ -122,8 +122,8 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public ApiError handleException(JwtException e) {
-        e.printStackTrace();
         log.error(e.getMessage());
+        e.printStackTrace();
         return new ApiError(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
     }
 
@@ -131,8 +131,8 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ApiError handleException(HttpMessageNotReadableException e) {
-        e.printStackTrace();
         log.error(e.getMessage());
+        e.printStackTrace();
         return new ApiError(HttpStatus.BAD_REQUEST.value(), "invalid input values");
     }
 }
