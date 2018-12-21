@@ -187,7 +187,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
                 .map(o -> new Timestamp(o))
                 .orElseThrow(() -> new InvalidParameterException("not find purchase_before"));
 
-        String randomUri = temporaryUriService.createTemporaryUri(rfid, after, before);
+        String randomUri = temporaryUriService.createTemporaryUri(rfid, before, after);
 
         HashMap<String, String> result = new HashMap<>();
         result.put("uri", String.format("%s/%s", viewerServer, randomUri));
@@ -205,8 +205,8 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         purchaseDto.setReceipt_status(RECEIPT_STATUS_PURCHASE);
 
         // Get Purchased List.
-        LinkedList<PurchaseVo> purchases = service.getPurchases(purchaseDto, temporaryUriVo.getSearchDateAfter(),
-                temporaryUriVo.getSearchDateBefore());
+        LinkedList<PurchaseVo> purchases = service.getPurchases(purchaseDto, temporaryUriVo.getSearchDateBefore(),
+                temporaryUriVo.getSearchDateAfter());
 
         List<Purchase2Vo> cancels2 = new ArrayList<>();
         for (PurchaseVo p : purchases) {

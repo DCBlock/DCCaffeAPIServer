@@ -61,12 +61,7 @@ public class TemporaryUriServiceImpl implements TemporaryUriService {
         } catch (Exception e) {
             throw new UnknownException(e.getMessage());
         }
-//        TemporaryUriDto temporaryUriDto = new TemporaryUriDto();
-//        temporaryUriDto.setName(userVo.getName());
-//        temporaryUriDto.setUserRecordIndex(userVo.getIndex());
-//        temporaryUriDto.setSearchDateAfter(after);
-//        temporaryUriDto.setSearchDateBefore(before);
-        
+
         // Instance
         TemporaryUriVo vo = new TemporaryUriVo(); 
         vo.setUserRecordIndex(userDto.getIndex());
@@ -84,13 +79,6 @@ public class TemporaryUriServiceImpl implements TemporaryUriService {
 
     @Override
     public TemporaryUriDto existTemporary(String uuid) throws ExpiredTimeException {
-//        TemporaryUriDto temporaryUriDto = new TemporaryUriDto();
-//        temporaryUriDto.setRandom_uri(uuid);
-//        TemporaryUriVo temporaryUriVo = Optional
-//            .ofNullable(temporaryUriMapper.deleteAndSelectUri(temporaryUriDto))
-//            .orElseThrow(() -> new ExpiredTimeException("expired random uri"));
-
-
         TemporaryUriVo vo = new TemporaryUriVo();
         vo.setRandomUri(uuid);
 
