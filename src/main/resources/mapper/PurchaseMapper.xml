@@ -73,7 +73,7 @@
         AND
             receipt_status = #{receiptStatus}
         AND
-            purchase_date >= #{from}
+            #{from} <= purchase_date
         AND
             purchase_date <= #{to}
         ]]>
@@ -100,7 +100,7 @@
         FROM
             purchases
         WHERE
-            update_date >= #{from}
+            #{from} <= update_date
         AND
             update_date <= #{to}
         AND
@@ -169,9 +169,9 @@
         FROM
             purchases
         WHERE
-            #{after} <= update_date
+            #{before} <= update_date
         AND
-            update_date <= #{before}
+            update_date <= #{after}
         AND
             user_record_index = #{userRecordIndex}
         ORDER BY
