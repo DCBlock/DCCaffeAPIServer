@@ -24,12 +24,10 @@ public interface PurchaseService {
 
     List<PurchaseDto> cancelApprovalPurchases(int receiptId, Timestamp purchaseDate);
 
-    LinkedList<PurchaseVo> getPurchases(PurchaseDto purchaseDto, Timestamp from, Timestamp to);
+    LinkedList<PurchaseVo> getPurchases(PurchaseDto purchaseDto, Timestamp before, Timestamp after);
 
-    PurchaseBalanceDto getBalanceByRfid(String rfid, Timestamp from, Timestamp to);
+    PurchaseBalanceDto getBalanceByRfid(String rfid, Timestamp before, Timestamp after);
 
 //    LinkedHashMap<String, LinkedHashMap<String, LinkedList<PurchaseSearchDto>>>
-    LinkedList<PurchaseSearchDto>
-    getPurchasesBySearch(
-            Timestamp after, Timestamp before, int filter, int userRecordIndex);
+    LinkedList<PurchaseSearchDto> getPurchasesBySearch(Timestamp before, Timestamp after, int filter, int recordIndex);
 }

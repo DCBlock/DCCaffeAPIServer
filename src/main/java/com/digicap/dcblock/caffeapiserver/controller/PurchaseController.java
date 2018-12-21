@@ -1,7 +1,5 @@
 package com.digicap.dcblock.caffeapiserver.controller;
 
-import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
-
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -131,11 +129,10 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
     @GetMapping("/api/caffe/purchases/purchase/search")
 //    LinkedHashMap<String, LinkedHashMap<String, LinkedList<PurchaseSearchDto>>>
     LinkedList<PurchaseSearchDto>
-    getPurchases(
-            @RequestParam(value = "after", defaultValue = "") String after,
-            @RequestParam(value = "before", defaultValue = "") String before,
-            @RequestParam(value = "filter", defaultValue = "-2") int filter,
-            @RequestParam(value = "user_index", defaultValue = "0") int userRecordIndex) {
+    getPurchases(@RequestParam(value = "before", defaultValue = "") String before,
+                 @RequestParam(value = "after", defaultValue = "") String after,
+                 @RequestParam(value = "filter", defaultValue = "-2") int filter,
+                 @RequestParam(value = "user_index", defaultValue = "0") int userRecordIndex) {
         // Validate Parameter
         if (after.isEmpty()) {
             throw new InvalidParameterException("after is empty");
@@ -164,8 +161,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
 
         // Get Purchases.
 //        LinkedHashMap<String, LinkedHashMap<String, LinkedList<PurchaseSearchDto>>> results =
-                LinkedList<PurchaseSearchDto> results =
-                service.getPurchasesBySearch(_after, _before, filter, userRecordIndex);
+        LinkedList<PurchaseSearchDto> results = service.getPurchasesBySearch(_before, _after, filter, userRecordIndex);
         return results;
     }
 
@@ -239,13 +235,13 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
                                         @RequestParam("purchaseBefore") String _before,
                                         @RequestParam("purchaseAfter") String _after) {
 
-        long _from = getLongValueOf(_after);
-        long _to = getLongValueOf(_before);
+        long b = getLongValueOf(_before);
+        long a = getLongValueOf(_after);
 
-        Timestamp after = new Timestamp(_from * 1000);
-        Timestamp before = new Timestamp(_to * 1000);
+        Timestamp before = new Timestamp(b * 1000);
+        Timestamp after = new Timestamp(a * 1000);
 
-        return service.getBalanceByRfid(rfid, after, before);
+        return service.getBalanceByRfid(rfid, before, after);
     }
 
     // ---------------------------------------------------------------------------------------------

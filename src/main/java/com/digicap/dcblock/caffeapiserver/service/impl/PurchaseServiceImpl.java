@@ -294,8 +294,8 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     @Override
     public
 //    LinkedHashMap<String, LinkedHashMap<String, LinkedList<PurchaseSearchDto>>>
-    LinkedList<PurchaseSearchDto>
-    getPurchasesBySearch(Timestamp after, Timestamp before, int filter, int userRecordIndex) {
+    LinkedList<PurchaseSearchDto> getPurchasesBySearch(Timestamp before, Timestamp after, int filter,
+                                                       int userRecordIndex) {
         /* userRecordIndex 는 filter 가 -1인 경우에만 사용 */
 
 //        LinkedHashMap<String, LinkedHashMap<String, LinkedList<PurchaseSearchDto>>> results = new LinkedHashMap<>();
@@ -305,12 +305,12 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         if (filter == 3) { // 3 is cancel and canceled
             // Get cancel, canceled
             // ORDER BY update DESC
-            r = purchaseMapper.selectAllCancel(after, before);
+            r = purchaseMapper.selectAllCancel(before, after);
             if (r == null) {
                 throw new NotFindException("not find");
             }
         } else if (filter == -1) { // -1 is all
-            r = purchaseMapper.selectAllUser(after, before, userRecordIndex);
+            r = purchaseMapper.selectAllUser(before, after, userRecordIndex);
             if (r == null || r.size() == 0) {
                 throw new NotFindException(String.format("not find purchases for user(%s)", userRecordIndex));
             }
@@ -336,10 +336,12 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
 //        }
         LinkedList<PurchaseSearchDto> results = new LinkedList<>();
 
+        // 정의된 응답으로 변경.
         for (PurchaseNewDto p : r) {
             PurchaseSearchDto ps = new PurchaseSearchDto(p);
             results.add(ps);
         }
+
         return results;
     }
 
