@@ -1,7 +1,6 @@
 package com.digicap.dcblock.caffeapiserver.service.impl;
 
 import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
-import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseNewDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseSearchDto;
 import com.digicap.dcblock.caffeapiserver.dto.SettlementReportDto;
@@ -55,16 +54,20 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
                 throw new NotFindException("not find purchases by user");
             }
 
-            LinkedList<PurchaseSearchDto> results = new LinkedList<>();
+            LinkedList<PurchaseSearchDto> purchases = new LinkedList<>();
 
             // 정의된 응답으로 변경.
             for (PurchaseNewDto p : r) {
                 PurchaseSearchDto ps = new PurchaseSearchDto(p);
-                results.add(ps);
+                purchases.add(ps);
             }
 
             // Set
-            reportDto.setPurchases(results);
+            reportDto.setPurchases(purchases);
+
+            // Set name
+            String name = r.get(0).getName();
+            reportDto.setName(name);
         } catch (NotFindException e) {
             throw e;
         } catch (Exception e) {
@@ -83,7 +86,6 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
         reportDto.setBeforeDate(before.getTime());
         reportDto.setAfterDate(after.getTime());
 
-        // Set name
         return reportDto;
     }
 
