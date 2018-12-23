@@ -43,7 +43,7 @@ public class PurchaseSearchDto {
     private long canceled_date;
 
     public PurchaseSearchDto(PurchaseNewDto p) {
-        this.date = p.getUpdate_date().getTime();
+        this.date = p.getUpdate_date().getTime() / 1000;
         this.receipt_id = insertZeroString(p.getReceipt_id());
 
         this.menu_name_kr = p.getMenu_name_kr();
@@ -51,17 +51,17 @@ public class PurchaseSearchDto {
         this.dc_price = p.getDc_price();
         this.count = p.getCount();
         this.receipt_status = p.getReceipt_status();
-        this.purchase_date = p.getPurchase_date().getTime();
+        this.purchase_date = p.getPurchase_date().getTime() / 1000;
         if (p.getCancel_date() == null) {
             this.cancel_date = 0;
         } else {
-            this.cancel_date = p.getCancel_date().getTime();
+            this.cancel_date = p.getCancel_date().getTime() / 1000;
         }
 
         if (p.getCanceled_date() == null) {
             this.canceled_date = 0;
         } else {
-            this.canceled_date = p.getCanceled_date().getTime();
+            this.canceled_date = p.getCanceled_date().getTime() / 1000;
         }
 
         switch (p.getOpt_size()) {

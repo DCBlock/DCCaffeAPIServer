@@ -61,7 +61,7 @@ public class ControllerHandler implements HandlerInterceptor, CaffeApiServerAppl
         // 허락된 IP목록만 접속 가능하도록 함
         List<String> allow_remotes = properties.getAllow_remotes();
         if (!allow_remotes.contains(remoteIp)) {
-            throw new ForbiddenException("not allow remote client");
+            throw new ForbiddenException(String.format("not allow remote client(%s)", remoteIp));
         }
 
         // API Version Check

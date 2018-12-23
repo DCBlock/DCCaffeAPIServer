@@ -44,6 +44,6 @@ public interface PurchaseMapper {
     LinkedList<PurchaseNewDto> selectAllCancel(@Param("from") Timestamp from,
                                                @Param("to") Timestamp to);
 
-    LinkedList<PurchaseNewDto> selectAllUser(@Param("after") Timestamp after, @Param("before") Timestamp before,
+    LinkedList<PurchaseNewDto> selectAllUser(@Param("before") Timestamp before, @Param("after") Timestamp after,
                                              @Param("userRecordIndex") long index);
 }

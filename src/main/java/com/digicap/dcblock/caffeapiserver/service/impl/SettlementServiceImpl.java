@@ -83,8 +83,8 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
         reportDto.setTotalDcPrice(price);
 
         // Set time
-        reportDto.setBeforeDate(before.getTime());
-        reportDto.setAfterDate(after.getTime());
+        reportDto.setBeforeDate(before.getTime() / 1000);
+        reportDto.setAfterDate(after.getTime() / 1000);
 
         return reportDto;
     }
