@@ -76,13 +76,14 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
 
         // Get Canceled price
         long canceledPrice = calcTotalCanceledPrice(reportDto.getPurchases());
+        long canceldedDcPrice = calcDcTotalCanceledPrice(reportDto.getPurchases());
 
         // Get total price
         long price = calcTotalPrice(reportDto.getPurchases()) - canceledPrice;
         reportDto.setTotalPrice(price);
 
         // Get total dc_price
-        price = calcTotalDcPrice(reportDto.getPurchases());
+        price = calcTotalDcPrice(reportDto.getPurchases()) - canceldedDcPrice;
         reportDto.setTotalDcPrice(price);
 
         // Set time
@@ -102,6 +103,9 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
         long total = 0;
 
         for (PurchaseSearchDto p : purchases) {
+            if (p.getPurchase_type() == PURCHASE_TYPE_GUEST) {
+                continue;
+            }
             // 구매, 구매취소는 제외
             switch (p.getReceipt_status()) {
                 case RECEIPT_STATUS_PURCHASE:
@@ -124,6 +128,10 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
         long total = 0;
 
         for (PurchaseSearchDto p : purchases) {
+            if (p.getPurchase_type() == PURCHASE_TYPE_GUEST) {
+                continue;
+            }
+
             // 구매, 구매취소는 제외
             switch (p.getReceipt_status()) {
                 case RECEIPT_STATUS_PURCHASE:
@@ -149,6 +157,26 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
             switch (p.getReceipt_status()) {
                 case RECEIPT_STATUS_CANCELED:
                     v += (p.getPrice() * p.getCount());
+                    break;
+            }
+        }
+
+        return v;
+    }
+
+    /**
+     *
+     *
+     * @param purchases
+     * @return
+     */
+    private long calcDcTotalCanceledPrice(LinkedList<PurchaseSearchDto> purchases) {
+        long v = 0;
+
+        for (PurchaseSearchDto p : purchases) {
+            switch (p.getReceipt_status()) {
+                case RECEIPT_STATUS_CANCELED:
+                    v += (p.getDc_price() * p.getCount());
                     break;
             }
         }
