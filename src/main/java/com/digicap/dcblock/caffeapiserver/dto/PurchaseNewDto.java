@@ -28,4 +28,5 @@ public class PurchaseNewDto {
     private Timestamp canceled_date;
     private long index;
     private int receipt_id;
+    private int purchase_type;
 }

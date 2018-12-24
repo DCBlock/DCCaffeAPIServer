@@ -10,6 +10,7 @@ public interface CaffeApiServerApplicationConstants {
     String KEY_PURCHASES = "purchases";
     String KEY_PURCHASE_AFTER = "purchase_after";
     String KEY_PURCHASE_BEFORE = "purchase_before";
+    String KEY_PURCHASE_TYPE = "purchase_type";
 
     // for Response
     String KEY_PURCHASE_CANCELS = "purchase_cancels";
@@ -27,7 +28,10 @@ public interface CaffeApiServerApplicationConstants {
     String OPT_TYPE_HOT = "HOT";
     String OPT_TYPE_ICED = "ICED";
     String OPT_TYPE_BOTH = "BOTH";
-    
+
+    int PURCHASE_TYPE_MONTH = 0;
+    int PURCHASE_TYPE_GUEST = 1;
+
     // for JWT ------------------------------------------------------------------------------------
     
     // SCOPE in JWT.

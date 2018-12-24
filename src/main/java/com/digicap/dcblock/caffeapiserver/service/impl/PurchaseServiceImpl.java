@@ -112,7 +112,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
      * @param _purchases 구매목록.
      */
     @Override
-    public PurchasedDto requestPurchases(int receiptId, List<LinkedHashMap<String, Object>> _purchases)
+    public PurchasedDto requestPurchases(int receiptId, int type, List<LinkedHashMap<String, Object>> _purchases)
             throws MyBatisSystemException, NotFindException, InvalidParameterException, UnknownException {
         // parameter 확인
         ReceiptIdDto receiptIdDto = receiptIdDao.selectByReceipt(receiptId);
@@ -172,6 +172,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         for (PurchaseDto p : purchases) {
             try {
                 p.setReceipt_status(RECEIPT_STATUS_PURCHASE);
+                p.setPurchase_type(type);
                 int result = purchaseMapper.insertPurchase(p);
                 if (result == 0) {
                     // TODO receipt id db delete
@@ -276,6 +277,10 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         int total = 0;
         int dc_total = 0;
         for (PurchaseVo p : purchases) {
+            if (p.getPurchaseType() == PURCHASE_TYPE_GUEST) {
+                continue;
+            }
+
             total += p.getPrice() * p.getCount();
             dc_total += p.getDcPrice() * p.getCount();
         }

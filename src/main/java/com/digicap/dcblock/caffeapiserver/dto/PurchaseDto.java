@@ -35,4 +35,6 @@ public class PurchaseDto {
     private int receipt_id;
 
     private int receipt_status;
+
+    private int purchase_type;
 }

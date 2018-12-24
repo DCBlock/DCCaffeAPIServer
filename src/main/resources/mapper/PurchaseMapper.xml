@@ -13,7 +13,8 @@
             menu_name_kr,
             opt_size,
             opt_type,
-            receipt_id
+            receipt_id,
+            purchase_type
         )
         VALUES (
             #{count},
@@ -26,7 +27,8 @@
             #{menu_name_kr},
             #{opt_size},
             #{opt_type},
-            #{receipt_id}
+            #{receipt_id},
+            #{purchase_type}
         )
     </insert>
     <select id="updateReceiptCancelStatus" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseDto">
@@ -65,7 +67,7 @@
     <select id="selectAllByUser" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseVo">
         <![CDATA[
         SELECT
-            code, price, dc_price, opt_type, opt_size, count, menu_name_kr
+            code, price, dc_price, opt_type, opt_size, count, menu_name_kr, purchase_type
         FROM
             purchases
         WHERE
@@ -96,7 +98,8 @@
             purchase_date,
             canceled_date,
             index,
-            receipt_id
+            receipt_id,
+            purchase_type
         FROM
             purchases
         WHERE

@@ -7,7 +7,7 @@
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <charset>UTF-8</charset>
             <pattern>
-                %-5level %d{HH:mm:ss.SSS} [%thread] %logger[%method:%line] - %msg%n
+                %-5level %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %logger[%method:%line] - %msg%n
             </pattern>
         </encoder>
     </appender>
@@ -22,7 +22,7 @@
         <encoder>
             <charset>UTF-8</charset>
             <pattern>
-                %-5level %d{HH:mm:ss.SSS} [%thread] %logger[%method:%line] - %msg%n
+                %-5level %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %logger[%method:%line] - %msg%n
             </pattern>
         </encoder>
     </appender>

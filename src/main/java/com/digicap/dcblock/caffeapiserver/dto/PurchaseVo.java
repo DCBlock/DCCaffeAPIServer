@@ -11,30 +11,27 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PurchaseVo {
 
-    @NonNull
-    private int code;
+    private final int code;
 
-    @NonNull
-    private int price;
+    private final int price;
 
-    @NonNull
     @JsonProperty("dc_price")
-    private int dcPrice;
+    private final int dcPrice;
 
-    @NonNull
     @JsonProperty("opt_type")
-    private int optType;
+    private final int optType;
 
-    @NonNull
     @JsonProperty("opt_size")
-    private int optSize;
+    private final int optSize;
 
-    @NonNull
-    private int count;
+    private final int count;
 
     @NonNull
     @JsonProperty("menu_name_kr")
     private String menuNameKr;
+
+    @JsonProperty("purchase_type")
+    private final int purchaseType;
 
     @JsonIgnore
     private Timestamp purchaseDate;

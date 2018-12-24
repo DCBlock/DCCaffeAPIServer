@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import com.digicap.dcblock.caffeapiserver.dao.TemporaryUriDao;
 import com.digicap.dcblock.caffeapiserver.dto.TemporaryUriDto;
 import com.digicap.dcblock.caffeapiserver.dto.TemporaryUriVo;
-import com.digicap.dcblock.caffeapiserver.dto.UserVo;
 import com.digicap.dcblock.caffeapiserver.exception.ExpiredTimeException;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
@@ -48,7 +47,7 @@ public class TemporaryUriServiceImpl implements TemporaryUriService {
     }
 
     @Override
-    public String createTemporaryUri(String rfid, Timestamp after, Timestamp before)
+    public String createTemporaryUri(String rfid, Timestamp before, Timestamp after)
             throws MyBatisSystemException, NotFindException, UnknownException {
         // Get user from AdminServer.
         UserDto userDto = null;

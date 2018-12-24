@@ -18,7 +18,7 @@ public interface PurchaseService {
 
     ReceiptIdDto getReceiptId(String rfid);
 
-    PurchasedDto requestPurchases(int receiptId, List<LinkedHashMap<String, Object>> purchases);
+    PurchasedDto requestPurchases(int receiptId, int type, List<LinkedHashMap<String, Object>> purchases);
 
     List<PurchaseDto> cancelPurchases(int receiptId);
 

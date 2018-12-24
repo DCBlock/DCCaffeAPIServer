@@ -42,6 +42,8 @@ public class PurchaseSearchDto {
 
     private long canceled_date;
 
+    private int purchase_type;
+
     public PurchaseSearchDto(PurchaseNewDto p) {
         this.date = p.getUpdate_date().getTime() / 1000;
         this.receipt_id = insertZeroString(p.getReceipt_id());
@@ -51,6 +53,8 @@ public class PurchaseSearchDto {
         this.dc_price = p.getDc_price();
         this.count = p.getCount();
         this.receipt_status = p.getReceipt_status();
+        this.purchase_type = p.getPurchase_type();
+
         this.purchase_date = p.getPurchase_date().getTime() / 1000;
         if (p.getCancel_date() == null) {
             this.cancel_date = 0;

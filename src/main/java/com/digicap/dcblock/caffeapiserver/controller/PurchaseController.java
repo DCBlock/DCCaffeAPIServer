@@ -66,6 +66,14 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         // Check is integer.
         int receiptId = getIntegerValueOf(_receiptId);
 
+        int type = Integer.valueOf(body.getOrDefault(KEY_PURCHASE_TYPE, -1).toString());
+        if (type == -1) {
+           throw new InvalidParameterException("not find purchase_type");
+        } else if (!(type == PURCHASE_TYPE_MONTH || type == PURCHASE_TYPE_GUEST)) {
+
+            throw new InvalidParameterException(String.format("unknown purchase_type(%d)", type));
+        }
+
         // Casting
         List<LinkedHashMap<String, Object>> purchases = null;
 
@@ -81,7 +89,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
             throw new InvalidParameterException("fail casting purchases");
         }
 
-        PurchasedDto purchasedDto = service.requestPurchases(receiptId, purchases);
+        PurchasedDto purchasedDto = service.requestPurchases(receiptId, type, purchases);
         return purchasedDto;
     }
 
@@ -227,6 +235,12 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         int dc_total = 0;
 
         for (PurchaseVo p : purchases) {
+            // 구매종류가 Guest는 가격을 계산하지 않음.
+            // Guest는 경영지원실에서 결재함.
+            if (p.getPurchaseType() == PURCHASE_TYPE_GUEST) {
+                continue;
+            }
+
             total += p.getPrice() * p.getCount();
             dc_total += p.getDcPrice() * p.getCount();
         }
@@ -344,6 +358,6 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
 
         // TODO Warning
         return new Purchase2Vo(p.getCode(), p.getPrice(), p.getDcPrice(), type, size, p.getCount(),
-                p.getMenuNameKr());
+                p.getMenuNameKr(), p.getPurchaseType());
     }
 }
