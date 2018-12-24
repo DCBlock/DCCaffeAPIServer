@@ -74,8 +74,11 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
             throw new UnknownException(e.getMessage());
         }
 
+        // Get Canceled price
+        long canceledPrice = calcTotalCanceledPrice(reportDto.getPurchases());
+
         // Get total price
-        long price = calcTotalPrice(reportDto.getPurchases());
+        long price = calcTotalPrice(reportDto.getPurchases()) - canceledPrice;
         reportDto.setTotalPrice(price);
 
         // Get total dc_price
@@ -131,5 +134,25 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
         }
 
         return total;
+    }
+
+    /**
+     *
+     *
+     * @param purchases
+     * @return
+     */
+    private long calcTotalCanceledPrice(LinkedList<PurchaseSearchDto> purchases) {
+        long v = 0;
+
+        for (PurchaseSearchDto p : purchases) {
+            switch (p.getReceipt_status()) {
+                case RECEIPT_STATUS_CANCELED:
+                    v += (p.getPrice() * p.getCount());
+                    break;
+            }
+        }
+
+        return v;
     }
 }
