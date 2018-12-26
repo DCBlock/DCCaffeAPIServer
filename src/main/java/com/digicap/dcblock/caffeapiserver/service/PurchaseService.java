@@ -1,18 +1,11 @@
 package com.digicap.dcblock.caffeapiserver.service;
 
 import com.digicap.dcblock.caffeapiserver.dto.*;
-import com.digicap.dcblock.caffeapiserver.exception.ExpiredTimeException;
-import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
-import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
-import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.mybatis.spring.MyBatisSystemException;
 
 public interface PurchaseService {
 
@@ -24,7 +17,7 @@ public interface PurchaseService {
 
     List<PurchaseDto> cancelApprovalPurchases(int receiptId, Timestamp purchaseDate);
 
-    LinkedList<PurchaseVo> getPurchases(PurchaseDto purchaseDto, Timestamp before, Timestamp after);
+    LinkedList<PurchaseOldDto> getPurchases(PurchaseDto purchaseDto, Timestamp before, Timestamp after);
 
     PurchaseBalanceDto getBalanceByRfid(String rfid, Timestamp before, Timestamp after);
 

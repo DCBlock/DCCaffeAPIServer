@@ -223,18 +223,18 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         purchaseDto.setReceipt_status(RECEIPT_STATUS_PURCHASE);
 
         // Get Purchased List.
-        LinkedList<PurchaseVo> purchases = service.getPurchases(purchaseDto, temporaryUriVo.getSearchDateBefore(),
+        LinkedList<PurchaseOldDto> purchases = service.getPurchases(purchaseDto, temporaryUriVo.getSearchDateBefore(),
                 temporaryUriVo.getSearchDateAfter());
 
         List<Purchase2Vo> cancels2 = new ArrayList<>();
-        for (PurchaseVo p : purchases) {
+        for (PurchaseOldDto p : purchases) {
             cancels2.add(toPurchase2Vo(p));
         }
 
         int total = 0;
         int dc_total = 0;
 
-        for (PurchaseVo p : purchases) {
+        for (PurchaseOldDto p : purchases) {
             // 구매종류가 Guest는 가격을 계산하지 않음.
             // Guest는 경영지원실에서 결재함.
             if (p.getPurchaseType() == PURCHASE_TYPE_GUEST) {
@@ -332,7 +332,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         return p;
     }
 
-    private Purchase2Vo toPurchase2Vo(PurchaseVo p) {
+    private Purchase2Vo toPurchase2Vo(PurchaseOldDto p) {
         String size = "";
         switch (p.getOptSize()) {
             case 0:
