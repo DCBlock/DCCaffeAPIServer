@@ -2,9 +2,10 @@
 DigiCAP Caffe API Server
 
 ## 코딩 가이드
-- Sun 코딩 가이드를 준수
-- tab은 사용하지 않고 4 space를 사용
-- 한 줄의 최대 길이 제한 없습니다(개발툴에서 Word Wrap 사용)
+- ~Sun 코딩 가이드를 준수~
+- ~tab은 사용하지 않고 4 space를 사용~
+- ~한 줄의 최대 길이 제한 없습니다(개발툴에서 Word Wrap 사용)~
+- [google java style guide](https://google.github.io/styleguide/javaguide.html)를 준수
 
 ## Push Guide
 - ~개발자들은 master에 직접 개발, push 하지 않습니다.~
