@@ -22,168 +22,168 @@ import java.util.LinkedList;
 @Primary
 public class SettlementServiceImpl implements CaffeApiServerApplicationConstants, SettlementService {
 
-    private PurchaseMapper purchaseMapper;
+  private PurchaseMapper purchaseMapper;
 
-    // -----------------------------------------------------------------------
-    // Constructor
+  // -----------------------------------------------------------------------
+  // Constructor
 
-    @Autowired
-    public SettlementServiceImpl(PurchaseMapper purchaseMapper) {
-        this.purchaseMapper = purchaseMapper;
+  @Autowired
+  public SettlementServiceImpl(PurchaseMapper purchaseMapper) {
+    this.purchaseMapper = purchaseMapper;
+  }
+
+  // -----------------------------------------------------------------------
+  // Public Methods
+
+  /**
+   * 사용자의 구매 보고서를 처리.
+   *
+   * @param before
+   * @param after
+   * @param recordIndex
+   * @return
+   */
+  @Override
+  public SettlementReportDto getReportByRecordIndex(Timestamp before, Timestamp after, long recordIndex) {
+    SettlementReportDto reportDto = new SettlementReportDto();
+
+    // Get purchases by user
+    try {
+      LinkedList<PurchaseNewDto> r = purchaseMapper.selectAllUser(before, after, recordIndex);
+      if (r == null || r.size() == 0)  {
+        throw new NotFindException("not find purchases by user");
+      }
+
+      LinkedList<PurchaseSearchDto> purchases = new LinkedList<>();
+
+      // 정의된 응답으로 변경.
+      for (PurchaseNewDto p : r) {
+        PurchaseSearchDto ps = new PurchaseSearchDto(p);
+        purchases.add(ps);
+      }
+
+      // Set
+      reportDto.setPurchases(purchases);
+
+      // Set name
+      String name = r.get(0).getName();
+      reportDto.setName(name);
+    } catch (NotFindException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new UnknownException(e.getMessage());
     }
 
-    // -----------------------------------------------------------------------
-    // Public Methods
+    // Get Canceled price
+    long canceledPrice = calcTotalCanceledPrice(reportDto.getPurchases());
+    long canceledDcPrice = calcDcTotalCanceledPrice(reportDto.getPurchases());
 
-    /**
-     * 사용자의 구매 보고서를 처리.
-     *
-     * @param before
-     * @param after
-     * @param recordIndex
-     * @return
-     */
-    @Override
-    public SettlementReportDto getReportByRecordIndex(Timestamp before, Timestamp after, long recordIndex) {
-        SettlementReportDto reportDto = new SettlementReportDto();
+    // Get total price
+    long price = calcTotalPrice(reportDto.getPurchases()) - canceledPrice;
+    reportDto.setTotalPrice(price);
 
-        // Get purchases by user
-        try {
-            LinkedList<PurchaseNewDto> r = purchaseMapper.selectAllUser(before, after, recordIndex);
-            if (r == null || r.size() == 0)  {
-                throw new NotFindException("not find purchases by user");
-            }
+    // Get total dc_price
+    price = calcTotalDcPrice(reportDto.getPurchases()) - canceledDcPrice;
+    reportDto.setTotalDcPrice(price);
 
-            LinkedList<PurchaseSearchDto> purchases = new LinkedList<>();
+    // Set time
+    reportDto.setBeforeDate(before.getTime() / 1000);
+    reportDto.setAfterDate(after.getTime() / 1000);
 
-            // 정의된 응답으로 변경.
-            for (PurchaseNewDto p : r) {
-                PurchaseSearchDto ps = new PurchaseSearchDto(p);
-                purchases.add(ps);
-            }
+    return reportDto;
+  }
 
-            // Set
-            reportDto.setPurchases(purchases);
+  // -----------------------------------------------------------------------
+  // Private Methods
 
-            // Set name
-            String name = r.get(0).getName();
-            reportDto.setName(name);
-        } catch (NotFindException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new UnknownException(e.getMessage());
-        }
+  /**
+   * 구매목록에서 총 구매비용을 계산
+   *
+   * @param purchases purchase list
+   * @return total price
+   */
+  private long calcTotalPrice(LinkedList<PurchaseSearchDto> purchases) {
+    long total = 0;
 
-        // Get Canceled price
-        long canceledPrice = calcTotalCanceledPrice(reportDto.getPurchases());
-        long canceledDcPrice = calcDcTotalCanceledPrice(reportDto.getPurchases());
-
-        // Get total price
-        long price = calcTotalPrice(reportDto.getPurchases()) - canceledPrice;
-        reportDto.setTotalPrice(price);
-
-        // Get total dc_price
-        price = calcTotalDcPrice(reportDto.getPurchases()) - canceledDcPrice;
-        reportDto.setTotalDcPrice(price);
-
-        // Set time
-        reportDto.setBeforeDate(before.getTime() / 1000);
-        reportDto.setAfterDate(after.getTime() / 1000);
-
-        return reportDto;
+    for (PurchaseSearchDto p : purchases) {
+      if (p.getPurchase_type() == PURCHASE_TYPE_GUEST) {
+        continue;
+      }
+      // 구매, 구매취소는 제외
+      switch (p.getReceipt_status()) {
+        case RECEIPT_STATUS_PURCHASE:
+        case RECEIPT_STATUS_CANCEL:
+          total += (p.getPrice() * p.getCount());
+          break;
+      }
     }
 
-    // -----------------------------------------------------------------------
-    // Private Methods
+    return total;
+  }
 
-    /**
-     * 구매목록에서 총 구매비용을 계산
-     *
-     * @param purchases purchase list
-     * @return total price
-     */
-    private long calcTotalPrice(LinkedList<PurchaseSearchDto> purchases) {
-        long total = 0;
+  /**
+   * 구매목록에서 총 할인비용을 계산
+   *
+   * @param purchases purchase list
+   * @return total price
+   */
+  private long calcTotalDcPrice(LinkedList<PurchaseSearchDto> purchases) {
+    long total = 0;
 
-        for (PurchaseSearchDto p : purchases) {
-            if (p.getPurchase_type() == PURCHASE_TYPE_GUEST) {
-                continue;
-            }
-            // 구매, 구매취소는 제외
-            switch (p.getReceipt_status()) {
-                case RECEIPT_STATUS_PURCHASE:
-                case RECEIPT_STATUS_CANCEL:
-                    total += (p.getPrice() * p.getCount());
-                    break;
-            }
-        }
+    for (PurchaseSearchDto p : purchases) {
+      if (p.getPurchase_type() == PURCHASE_TYPE_GUEST) {
+        continue;
+      }
 
-        return total;
+      // 구매, 구매취소는 제외
+      switch (p.getReceipt_status()) {
+        case RECEIPT_STATUS_PURCHASE:
+        case RECEIPT_STATUS_CANCEL:
+          total += (p.getDc_price() * p.getCount());
+          break;
+      }
     }
 
-    /**
-     * 구매목록에서 총 할인비용을 계산
-     *
-     * @param purchases purchase list
-     * @return total price
-     */
-    private long calcTotalDcPrice(LinkedList<PurchaseSearchDto> purchases) {
-        long total = 0;
+    return total;
+  }
 
-        for (PurchaseSearchDto p : purchases) {
-            if (p.getPurchase_type() == PURCHASE_TYPE_GUEST) {
-                continue;
-            }
+  /**
+   *
+   *
+   * @param purchases
+   * @return
+   */
+  private long calcTotalCanceledPrice(LinkedList<PurchaseSearchDto> purchases) {
+    long v = 0;
 
-            // 구매, 구매취소는 제외
-            switch (p.getReceipt_status()) {
-                case RECEIPT_STATUS_PURCHASE:
-                case RECEIPT_STATUS_CANCEL:
-                    total += (p.getDc_price() * p.getCount());
-                    break;
-            }
-        }
-
-        return total;
+    for (PurchaseSearchDto p : purchases) {
+      switch (p.getReceipt_status()) {
+        case RECEIPT_STATUS_CANCELED:
+          v += (p.getPrice() * p.getCount());
+          break;
+      }
     }
 
-    /**
-     *
-     *
-     * @param purchases
-     * @return
-     */
-    private long calcTotalCanceledPrice(LinkedList<PurchaseSearchDto> purchases) {
-        long v = 0;
+    return v;
+  }
 
-        for (PurchaseSearchDto p : purchases) {
-            switch (p.getReceipt_status()) {
-                case RECEIPT_STATUS_CANCELED:
-                    v += (p.getPrice() * p.getCount());
-                    break;
-            }
-        }
+  /**
+   *
+   *
+   * @param purchases
+   * @return
+   */
+  private long calcDcTotalCanceledPrice(LinkedList<PurchaseSearchDto> purchases) {
+    long v = 0;
 
-        return v;
+    for (PurchaseSearchDto p : purchases) {
+      switch (p.getReceipt_status()) {
+        case RECEIPT_STATUS_CANCELED:
+          v += (p.getDc_price() * p.getCount());
+          break;
+      }
     }
 
-    /**
-     *
-     *
-     * @param purchases
-     * @return
-     */
-    private long calcDcTotalCanceledPrice(LinkedList<PurchaseSearchDto> purchases) {
-        long v = 0;
-
-        for (PurchaseSearchDto p : purchases) {
-            switch (p.getReceipt_status()) {
-                case RECEIPT_STATUS_CANCELED:
-                    v += (p.getDc_price() * p.getCount());
-                    break;
-            }
-        }
-
-        return v;
-    }
+    return v;
+  }
 }
