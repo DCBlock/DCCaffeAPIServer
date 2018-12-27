@@ -36,7 +36,7 @@ public class ScheduledConfig {
 
         try {
             // receipt_id를 0으로 초기화한다.
-//            purchaseMapper.updateReceiptId();
+            purchaseMapper.updateReceiptId();
         } catch (Exception e) {
             log.error(e.getMessage());
         }

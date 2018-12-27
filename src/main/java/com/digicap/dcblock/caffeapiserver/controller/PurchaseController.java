@@ -1,6 +1,8 @@
 package com.digicap.dcblock.caffeapiserver.controller;
 
+import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
 import com.google.common.base.Preconditions;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -121,7 +123,8 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
     Preconditions.checkArgument(1 <= receiptId && receiptId <= 9999, "invalid receiptId(%s)", receiptId);
 
     // unix time to Timestamp
-    Timestamp purchaseTime = new Timestamp(purchaseDate * 1000);
+    Timestamp purchaseTime = new TimeFormat().toTimeStampExcludeTime(purchaseDate * 1_000);
+//    Timestamp purchaseTime = new Timestamp(purchaseDate * 1_000);
 
     List<PurchaseDto> canceleds = service.cancelApprovalPurchases(receiptId, purchaseTime);
 

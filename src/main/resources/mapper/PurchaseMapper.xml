@@ -32,6 +32,7 @@
         )
     </insert>
     <select id="updateReceiptCancelStatus" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseDto">
+        <![CDATA[
         UPDATE
             purchases
         SET
@@ -42,6 +43,11 @@
             receipt_id = #{receiptId}
         AND
             receipt_status = '0'
+        AND
+            (SELECT CURRENT_DATE) <= purchase_date
+        AND
+            purchase_date < (SELECT CURRENT_DATE + 1)
+        ]]>
         RETURNING *
     </select>
 
