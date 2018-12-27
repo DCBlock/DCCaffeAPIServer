@@ -27,10 +27,16 @@ public class MenuController {
 
   private MenuService service;
 
+  // -------------------------------------------------------------------------
+  // Constructor
+
   @Autowired
   public MenuController(MenuService service) {
     this.service = service;
   }
+
+  // -------------------------------------------------------------------------
+  // Public Methods
 
   @GetMapping("/api/caffe/menus")
   LinkedHashMap<String, LinkedList<MenuDto>> getAllMenus() {
@@ -47,8 +53,8 @@ public class MenuController {
   @PatchMapping(value = "/api/caffe/menus/{category}", consumes = "application/json; charset=utf-8")
   LinkedList<MenuDto> updateMenuInCategory(@PathVariable("category") int category,
       @RequestBody LinkedList<MenuDto> body) {
-    // Check Arugment
-    Preconditions.checkArgument(category > 0, "invalid cateogry(%d)", category);
+    // Check Argument.
+    Preconditions.checkArgument(category > 0, "invalid category(%d)", category);
 
     return service.updateAllMenusInCategory(category, body);
   }
