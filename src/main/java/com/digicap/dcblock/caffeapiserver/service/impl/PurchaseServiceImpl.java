@@ -52,6 +52,9 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
   @Value("${admin-server}")
   private String adminServer;
 
+  @Value("${cancel-able-minute:10}")
+  private int cancelTime;
+
   @Autowired
   public PurchaseServiceImpl(PurchaseMapper purchaseMapper, ReceiptIdDao receiptIdDao,
       MenuMapper menuMapper, MenuService menuService) {
@@ -200,7 +203,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     // 오늘 receiptId로 구매된 결과가 있는지 확인
     LinkedList<Timestamp> updateDatePurchases = purchaseMapper.selectByReceiptId(receiptId);
     if (updateDatePurchases == null || updateDatePurchases.size() == 0) {
-      throw new NotFindException("not find purchases using receiptId");
+      throw new NotFindException("not find purchases by receiptId");
     }
 
     // 구매 취소 가능한 시간 확인. 10분
@@ -210,7 +213,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
 
     LinkedList<PurchaseDto> results = purchaseMapper.updateReceiptCancelStatus(receiptId);
     if (results == null || results.size() == 0) {
-      throw new NotFindException("not find purchases using receiptId");
+      throw new NotFindException("not find purchases by receiptId");
     }
 
     return results;
@@ -361,12 +364,16 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
 
     String value = String.valueOf(number);
 
-    if (length == 3) {
+    if (length == 5) {
       return "0" + value;
-    } else if (length == 2) {
+    } else if (length == 4) {
       return "00" + value;
-    } else if (length == 1) {
+    } else if (length == 3) {
       return "000" + value;
+    } else if (length == 2) {
+      return "0000" + value;
+    } else if (length == 1) {
+      return "00000" + value;
     } else {
       return value;
     }
@@ -453,9 +460,11 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
   private boolean enablePurchaseCancel(Timestamp timestamp) {
     LocalTime startTime = timestamp.toLocalDateTime().toLocalTime();
     LocalTime endTime = LocalTime.now();
-    long minutes = ChronoUnit.MINUTES.between(startTime, endTime);
 
-    if (minutes < TEN_MINUTES) {
+    // 구매시간과 현재시간 차이가 10분 이하 인 경우에만 유효.
+    long minutes = ChronoUnit.MINUTES.between(startTime, endTime);
+    if (minutes <= cancelTime) {
+      // TODO 23:55에 구매한걸 00:03분에 취소할 수 없음.
       return true;
     }
 
