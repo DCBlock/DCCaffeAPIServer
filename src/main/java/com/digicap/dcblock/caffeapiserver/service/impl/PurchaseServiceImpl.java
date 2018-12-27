@@ -35,9 +35,6 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
   private static final String COMPANY_DIGICAP = "digicap";
   private static final String COMPANY_COVISION = "covision";
 
-  private static final int MINUTES = 1;
-  private static final int TEN_MINUTES = 10 * MINUTES;
-
   private PurchaseMapper purchaseMapper;
 
   private ReceiptIdDao receiptIdDao;
@@ -68,7 +65,8 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
   }
 
   @Override
-  public ReceiptIdDto getReceiptId(String rfid) throws UnknownException, MyBatisSystemException, NotFindException {
+  public ReceiptIdDto getReceiptId(String rfid) throws UnknownException, MyBatisSystemException,
+      NotFindException {
     UserDto userDto = null;
 
     try {
@@ -299,12 +297,9 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
 
   @Override
   public
-//    LinkedHashMap<String, LinkedHashMap<String, LinkedList<PurchaseSearchDto>>>
   LinkedList<PurchaseSearchDto> getPurchasesBySearch(Timestamp before, Timestamp after, int filter,
       int userRecordIndex) {
     /* userRecordIndex 는 filter 가 -1인 경우에만 사용 */
-
-//        LinkedHashMap<String, LinkedHashMap<String, LinkedList<PurchaseSearchDto>>> results = new LinkedHashMap<>();
 
     LinkedList<PurchaseNewDto> r = null;
 
