@@ -10,64 +10,64 @@ import reactor.core.publisher.Mono;
 
 /**
  * AdminServer Request 관련 Class.
- * 
+ *
  * @author DigiCAP
  */
 @AllArgsConstructor
 public class AdminServer {
 
-    private String server;
-        
-    private String apiVersion;
-    
-    /**
-     * Get User from AdminServer
-     *
-     * @param rfid
-     * @return
-     * @throws Exception
-     */
-    public UserDto getUserByRfid(String rfid) throws Exception {
-        final String uri = String.format("%s/users?rfid=%s", server, rfid);
+  private String server;
 
-        WebClient webClient = WebClient
-            .builder()
-            .baseUrl(uri)
-            .defaultHeader("Accept", apiVersion)
-            .build();
+  private String apiVersion;
 
-        Mono<UserDto> result = webClient.get()
-            .retrieve()
-            .bodyToMono(UserDto.class);
+  /**
+   * Get User from AdminServer
+   *
+   * @param rfid
+   * @return
+   * @throws Exception
+   */
+  public UserDto getUserByRfid(String rfid) throws Exception {
+    final String uri = String.format("%s/users?rfid=%s", server, rfid);
 
-        UserDto userByRfid = result.block();
+    WebClient webClient = WebClient
+        .builder()
+        .baseUrl(uri)
+        .defaultHeader("Accept", apiVersion)
+        .build();
 
-        return userByRfid;
-    }
+    Mono<UserDto> result = webClient.get()
+        .retrieve()
+        .bodyToMono(UserDto.class);
 
-    /**
-     * Valid Token from Admin Server.
-     *
-     * @param token
-     * @return
-     * @throws Exception
-     */
-    public ApiError validToken(String token) throws Exception {
-        final String uri = String.format("%s/validation", server);
-        final String tokens = String.format("Bearer %s", token);
+    UserDto userByRfid = result.block();
 
-        WebClient webClient = WebClient
-            .builder()
-            .baseUrl(uri)
-            .defaultHeader("Accept", apiVersion)
-            .defaultHeader("Authorization", tokens)
-            .build();
+    return userByRfid;
+  }
 
-        Mono<ApiError> result = webClient.post()
-            .retrieve()
-            .bodyToMono(ApiError.class);
+  /**
+   * Valid Token from Admin Server.
+   *
+   * @param token
+   * @return
+   * @throws Exception
+   */
+  public ApiError validToken(String token) throws Exception {
+    final String uri = String.format("%s/validation", server);
+    final String tokens = String.format("Bearer %s", token);
 
-        ApiError apiError = result.block();
-        return apiError;
-    }
+    WebClient webClient = WebClient
+        .builder()
+        .baseUrl(uri)
+        .defaultHeader("Accept", apiVersion)
+        .defaultHeader("Authorization", tokens)
+        .build();
+
+    Mono<ApiError> result = webClient.post()
+        .retrieve()
+        .bodyToMono(ApiError.class);
+
+    ApiError apiError = result.block();
+    return apiError;
+  }
 }

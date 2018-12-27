@@ -1,18 +1,14 @@
 package com.digicap.dcblock.caffeapiserver.controller;
 
-import com.digicap.dcblock.caffeapiserver.dto.PurchaseSearchDto;
 import com.digicap.dcblock.caffeapiserver.dto.SettlementReportDto;
-import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
-import com.digicap.dcblock.caffeapiserver.service.PurchaseService;
 import com.digicap.dcblock.caffeapiserver.service.SettlementService;
-import com.digicap.dcblock.caffeapiserver.service.TemporaryUriService;
+import com.google.common.base.Preconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.Timestamp;
-import java.util.LinkedList;
 
 /**
  * 정산처리 Controller.
@@ -20,65 +16,43 @@ import java.util.LinkedList;
 @RestController
 public class SettlementController {
 
-    private SettlementService settlementService;
+  private SettlementService settlementService;
 
-    @Autowired
-    public SettlementController(SettlementService settlementService) {
-        this.settlementService = settlementService;
-    }
+  // --------------------------------------------------------------------------------------------
+  // Constructor
 
-    /**
-     * 사용자의 기간별 대금을 정산.
-     *
-     * @param before
-     * @param after
-     * @param userRecordIndex
-     * @return
-     */
-    @GetMapping("/api/caffe/settlement/report")
-    SettlementReportDto getPurchases(@RequestParam(value = "before", defaultValue = "") String before,
-                                     @RequestParam(value = "after", defaultValue = "") String after,
-                                     @RequestParam(value = "user_index", defaultValue = "0") long userRecordIndex) {
-        // Validate Parameter
-        if (before.isEmpty()) {
-            throw new InvalidParameterException("before is empty");
-        }
+  @Autowired
+  public SettlementController(SettlementService settlementService) {
+    this.settlementService = settlementService;
+  }
 
-        if (after.isEmpty()) {
-            throw new InvalidParameterException("after is empty");
-        }
+  /**
+   * 사용자의 기간별 대금을 정산.
+   *
+   * @param before
+   * @param after
+   * @param userRecordIndex
+   * @return
+   */
+  @GetMapping("/api/caffe/settlement/report")
+  SettlementReportDto getPurchases(@RequestParam(value = "before", defaultValue = "0") long before,
+      @RequestParam(value = "after", defaultValue = "0") long after,
+      @RequestParam(value = "user_index", defaultValue = "0") long userRecordIndex) {
+    // Check Argument
+    Preconditions.checkArgument(before > 0, "before is empty");
+    Preconditions.checkArgument(after > 0, "after is empty");
+    Preconditions.checkArgument(userRecordIndex > 0, "invalid user_index(%d)", userRecordIndex);
 
-        if (userRecordIndex <= 0) {
-            throw new InvalidParameterException(String.format("invalid user_index(%s)", userRecordIndex));
-        }
+    // unix time to timestamp
+    Timestamp b = new Timestamp(before * 1_000L);
+    Timestamp a = new Timestamp(after * 1_000L);
 
-        // time(String) to java.sql.Timestamp
-        Timestamp a = getTimestampValueOf(after);
-        Timestamp b = getTimestampValueOf(before);
+    Preconditions.checkArgument(!b.after(a), "before(%s) is bigger then after(%s)", b.toString(), a.toString());
 
-        if (b.after(a)) {
-            throw new InvalidParameterException(String.format("before(%s) is bigger than after(%s)",
-                    b.toString(), a.toString()));
-        }
+    SettlementReportDto result = settlementService.getReportByRecordIndex(b, a, userRecordIndex);
+    return result;
+  }
 
-        SettlementReportDto result = settlementService.getReportByRecordIndex(b, a, userRecordIndex);
-        return result;
-    }
-
-    // ----------------------------------------------------------------------------------------------------------------
-    // Private Methods
-
-    private long getLongValueOf(String value) throws InvalidParameterException {
-        try {
-            long v = Long.valueOf(value);
-            return v;
-        } catch (NumberFormatException e) {
-            throw new InvalidParameterException(e.getMessage());
-        }
-    }
-
-    private Timestamp getTimestampValueOf(String value) {
-        long t = getLongValueOf(value);
-        return new Timestamp(t * 1000);
-    }
+  // ---------------------------------------------------------------------------------------------
+  // Private Methods
 }

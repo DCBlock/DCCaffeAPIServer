@@ -76,14 +76,14 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
 
         // Get Canceled price
         long canceledPrice = calcTotalCanceledPrice(reportDto.getPurchases());
-        long canceldedDcPrice = calcDcTotalCanceledPrice(reportDto.getPurchases());
+        long canceledDcPrice = calcDcTotalCanceledPrice(reportDto.getPurchases());
 
         // Get total price
         long price = calcTotalPrice(reportDto.getPurchases()) - canceledPrice;
         reportDto.setTotalPrice(price);
 
         // Get total dc_price
-        price = calcTotalDcPrice(reportDto.getPurchases()) - canceldedDcPrice;
+        price = calcTotalDcPrice(reportDto.getPurchases()) - canceledDcPrice;
         reportDto.setTotalDcPrice(price);
 
         // Set time
@@ -92,6 +92,9 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
 
         return reportDto;
     }
+
+    // -----------------------------------------------------------------------
+    // Private Methods
 
     /**
      * 구매목록에서 총 구매비용을 계산

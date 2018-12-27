@@ -79,4 +79,5 @@ dependencies {
     // error java.lang.NoClassDefFoundError: com/sun/istack/Pool
     // https://mvnrepository.com/artifact/com.sun.istack/istack-commons-runtime
     // compile group: 'com.sun.istack', name: 'istack-commons-runtime', version: '3.0.7'
+	compile 'com.google.guava:guava:27.0.1-jre'
 }
