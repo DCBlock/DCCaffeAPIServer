@@ -13,7 +13,7 @@ public interface PurchaseService {
 
   PurchasedDto requestPurchases(int receiptId, int type, List<LinkedHashMap<String, Object>> purchases);
 
-  List<PurchaseDto> cancelPurchases(int receiptId);
+  List<PurchaseDto> cancelPurchases(int receiptId, String rfid);
 
   List<PurchaseDto> cancelApprovalPurchases(int receiptId, Timestamp purchaseDate);
 

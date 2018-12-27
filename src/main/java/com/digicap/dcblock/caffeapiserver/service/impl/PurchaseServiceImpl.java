@@ -196,10 +196,24 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
    * 구매된 목록 중에서 취소 요청
    */
   @Override
-  public List<PurchaseDto> cancelPurchases(int receiptId) throws MyBatisSystemException,
+  public List<PurchaseDto> cancelPurchases(int receiptId, String rfid) throws MyBatisSystemException,
       NotFindException, ExpiredTimeException {
+    // find User by rfid
+    UserDto userDto = null;
+
+    try {
+      userDto = new AdminServer(adminServer, apiVersion).getUserByRfid(rfid);
+    } catch (Exception e) {
+      throw new UnknownException(e.getMessage());
+    }
+
+    if (userDto == null) {
+      throw new NotFindException(String.format("not find user by rfid(%s)", rfid));
+    }
+
     // 오늘 receiptId로 구매된 결과가 있는지 확인
-    LinkedList<Timestamp> updateDatePurchases = purchaseMapper.selectByReceiptId(receiptId);
+    LinkedList<Timestamp> updateDatePurchases = purchaseMapper.selectByReceiptId(receiptId,
+        userDto.getIndex());
     if (updateDatePurchases == null || updateDatePurchases.size() == 0) {
       throw new NotFindException("not find purchases by receiptId");
     }

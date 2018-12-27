@@ -31,7 +31,8 @@ public interface PurchaseMapper {
     boolean existReceiptId(@Param("receiptId") int receiptId, @Param("from") Timestamp from,
                            @Param("to") Timestamp to);
 
-    LinkedList<Timestamp> selectByReceiptId(@Param("receiptId") int receiptId);
+    LinkedList<Timestamp> selectByReceiptId(@Param("receiptId") int receiptId,
+        @Param("userRecordIndex") long userRecordIndex);
 
     LinkedList<PurchaseDto> updateReceiptCancelStatus(@Param("receiptId") int receiptId);
 

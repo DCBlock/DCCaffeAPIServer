@@ -130,6 +130,8 @@
         WHERE
             receipt_id = #{receiptId}
         AND
+            user_record_index = #{userRecordIndex}
+        AND
             receipt_status = '0'
         AND
             (SELECT CURRENT_DATE) <= update_date

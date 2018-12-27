@@ -98,12 +98,17 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
     return purchasedDto;
   }
 
-  @PatchMapping("/api/caffe/purchases/purchase/receipt/{receiptId}/cancel")
-  HashMap<String, List<Purchase2Dto>> cancelPurchaseByReceiptId(@PathVariable("receiptId") int receiptId) {
+  @PatchMapping(value = "/api/caffe/purchases/purchase/receipt/{receiptId}/cancel",
+      consumes = "application/json; charset=utf-8")
+  HashMap<String, List<Purchase2Dto>> cancelPurchaseByReceiptId(
+      @PathVariable("receiptId") int receiptId,
+      @RequestBody RfidDto rfidDto) {
     // Check Argument.
     Preconditions.checkArgument(1 <= receiptId && receiptId <= 9999, "invalid receiptId(%s)", receiptId);
+    Preconditions.checkNotNull(rfidDto == null || rfidDto.getRfid() == null, "rfid is null");
+    Preconditions.checkNotNull(rfidDto.getRfid().isEmpty(), "rfid is empty");
 
-    List<PurchaseDto> cancels = service.cancelPurchases(receiptId);
+    List<PurchaseDto> cancels = service.cancelPurchases(receiptId, rfidDto.getRfid());
 
     List<Purchase2Dto> cancels2 = new ArrayList<>();
     for (PurchaseDto p : cancels) {
