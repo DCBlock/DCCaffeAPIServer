@@ -3,7 +3,7 @@ package com.digicap.dcblock.caffeapiserver.service.impl;
 import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseNewDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseSearchDto;
-import com.digicap.dcblock.caffeapiserver.dto.SettlementReportDto;
+import com.digicap.dcblock.caffeapiserver.dto.SettlementUserReportDto;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
 import com.digicap.dcblock.caffeapiserver.service.SettlementService;
@@ -44,8 +44,8 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
    * @return
    */
   @Override
-  public SettlementReportDto getReportByRecordIndex(Timestamp before, Timestamp after, long recordIndex) {
-    SettlementReportDto reportDto = new SettlementReportDto();
+  public SettlementUserReportDto getReportByRecordIndex(Timestamp before, Timestamp after, long recordIndex) {
+    SettlementUserReportDto reportDto = new SettlementUserReportDto();
 
     // Get purchases by user
     try {

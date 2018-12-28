@@ -1,7 +1,7 @@
 package com.digicap.dcblock.caffeapiserver.controller;
 
 import com.digicap.dcblock.caffeapiserver.dto.SettlementReport;
-import com.digicap.dcblock.caffeapiserver.dto.SettlementReportDto;
+import com.digicap.dcblock.caffeapiserver.dto.SettlementUserReportDto;
 import com.digicap.dcblock.caffeapiserver.service.SettlementService;
 import com.google.common.base.Preconditions;
 import java.util.LinkedList;
@@ -28,8 +28,16 @@ public class SettlementController {
     this.settlementService = settlementService;
   }
 
+  /**
+   * 기간의 모든 사용자 구매 정산
+   *
+   * @param before
+   * @param after
+   * @return
+   */
   @GetMapping("/api/caffe/settlement/reports")
-  LinkedList<SettlementReport> getSettlements(@RequestParam(value = "before", defaultValue = "0") long before,
+  LinkedList<SettlementReport> getSettlements
+      (@RequestParam(value = "before", defaultValue = "0") long before,
       @RequestParam(value = "after", defaultValue = "0") long after) {
     // Check Argument
     Preconditions.checkArgument(before > 0, "before is empty");
@@ -62,7 +70,7 @@ public class SettlementController {
    * @return
    */
   @GetMapping("/api/caffe/settlement/report")
-  SettlementReportDto getPurchases(@RequestParam(value = "before", defaultValue = "0") long before,
+  SettlementUserReportDto getPurchases(@RequestParam(value = "before", defaultValue = "0") long before,
       @RequestParam(value = "after", defaultValue = "0") long after,
       @RequestParam(value = "user_index", defaultValue = "0") long userRecordIndex) {
     // Check Argument
@@ -76,7 +84,7 @@ public class SettlementController {
 
     Preconditions.checkArgument(!b.after(a), "before(%s) is bigger then after(%s)", b.toString(), a.toString());
 
-    SettlementReportDto result = settlementService.getReportByRecordIndex(b, a, userRecordIndex);
+    SettlementUserReportDto result = settlementService.getReportByRecordIndex(b, a, userRecordIndex);
     return result;
   }
 

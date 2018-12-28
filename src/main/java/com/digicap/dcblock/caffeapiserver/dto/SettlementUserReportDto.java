@@ -12,7 +12,7 @@ import java.util.LinkedList;
 @Getter
 @ToString
 @JsonPropertyOrder({"name", "total_price", "total_dc_price", "before_date", "after_date", "purchases"})
-public class SettlementReportDto {
+public class SettlementUserReportDto {
 
     private String name;
 
