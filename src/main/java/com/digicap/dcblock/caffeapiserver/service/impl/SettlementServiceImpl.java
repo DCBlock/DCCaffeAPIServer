@@ -3,6 +3,7 @@ package com.digicap.dcblock.caffeapiserver.service.impl;
 import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseNewDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseSearchDto;
+import com.digicap.dcblock.caffeapiserver.dto.SettlementReportDto;
 import com.digicap.dcblock.caffeapiserver.dto.SettlementUserReportDto;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
@@ -13,7 +14,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.LinkedList;
+import java.util.*;
 
 /**
  * 정산 처리 Service Implement.
@@ -91,6 +92,87 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
     reportDto.setAfterDate(after.getTime() / 1000);
 
     return reportDto;
+  }
+
+  /**
+   * before ~ after 동안 모든 구매 목록을 구함.
+   *
+   * @param before
+   * @param after
+   * @return
+   */
+  public LinkedList<SettlementReportDto> getReports(Timestamp before, Timestamp after) {
+    // Get purchases
+    // user_record_index = -1은 모든 사용자
+    LinkedList<PurchaseNewDto> purchases = purchaseMapper.selectAllUser(before, after, -1);
+    if (purchases == null || purchases.size() == 0)  {
+      throw new NotFindException("not find purchases");
+    }
+
+    LinkedList<SettlementReportDto> results = new LinkedList<>();
+
+    // 사용자별 계산을 위해 임시 정렬 HashMap
+    HashMap<Long, List<PurchaseNewDto>> temp = new HashMap<>();
+
+    Iterator<PurchaseNewDto> itr = purchases.iterator();
+    while (itr.hasNext()) {
+      PurchaseNewDto purchase = itr.next();
+      long userRecordIndex = purchase.getUser_record_index();
+
+      int receiptStatus = purchase.getReceipt_status();
+
+      // 구매취소승인은 정산 대상이 아님.
+      if (receiptStatus == RECEIPT_STATUS_CANCELED) {
+        continue;
+      }
+
+      // 정산대상이 아닌 정보가 있는 경우는 exception. 잘못된 정산이 진행되지 않도록.
+      if (!(receiptStatus == RECEIPT_STATUS_PURCHASE || receiptStatus == RECEIPT_STATUS_CANCEL)) {
+        throw new UnknownException(String.format("unknown receipt_status(%s)", receiptStatus));
+      }
+
+      // 손님 결재는 정산 대상이 아님.
+      if (purchase.getPurchase_type() == PURCHASE_TYPE_GUEST) {
+        continue;
+      }
+
+      if (!temp.containsKey(userRecordIndex)) {
+        List<PurchaseNewDto> l = new LinkedList<>();
+        l.add(purchase);
+        temp.put(userRecordIndex, l);
+      } else {
+        List<PurchaseNewDto> l = temp.get(userRecordIndex);
+        l.add(purchase);
+      }
+    }
+
+    // 사용자별로 total_price, total_dc_price, billing 계산
+    Iterator<List<PurchaseNewDto>> iterator = temp.values().iterator();
+    while (iterator.hasNext()) {
+      SettlementReportDto s = new SettlementReportDto();
+      results.add(s);
+
+      List<PurchaseNewDto> l = iterator.next();
+      for (PurchaseNewDto p : l) {
+        s.setName(p.getName());
+        s.setEmail(p.getEmail());
+        s.setCompany(p.getCompany());
+        s.setUserRecordIndex(p.getUser_record_index());
+
+        long price = s.getTotalPrice();
+        price += (p.getPrice() * p.getCount());
+        s.setTotalPrice(price);
+
+        long dc = s.getTotalDcPrice();
+        dc += p.getDc_price() * p.getCount();
+        s.setTotalDcPrice(dc);
+      }
+
+      // 사용자가 결재해야할 금액.
+      s.setBillingAmount(s.getTotalPrice() - s.getTotalDcPrice());
+    }
+
+    return results;
   }
 
   // -----------------------------------------------------------------------

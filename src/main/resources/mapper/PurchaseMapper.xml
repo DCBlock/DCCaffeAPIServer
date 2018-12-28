@@ -163,7 +163,6 @@
         ]]>
     </select>
     <select id="selectAllUser" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseNewDto">
-        <![CDATA[
         SELECT
             count,
             price,
@@ -180,18 +179,23 @@
             purchase_date,
             canceled_date,
             index,
-            receipt_id
+            receipt_id,
+            email,
+            company
         FROM
             purchases
+        <![CDATA[
         WHERE
             #{before} <= update_date
         AND
             update_date <= #{after}
+        ]]>
+        <if test = "userRecordIndex > 0">
         AND
             user_record_index = #{userRecordIndex}
+        </if>
         ORDER BY
             update_date
         DESC
-        ]]>
     </select>
 </mapper>

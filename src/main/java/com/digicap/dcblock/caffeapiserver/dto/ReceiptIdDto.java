@@ -12,21 +12,21 @@ import lombok.ToString;
 @ToString
 public class ReceiptIdDto {
 
-  private String name;
+    private String name;
 
-  private String company;
+    private String company;
 
-  @JsonInclude(JsonInclude.Include.NON_NULL)
-  private String email;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String email;
 
-  private String receipt_id;
+    private String receipt_id;
 
-  @JsonProperty("random_id")
-  @JsonInclude(JsonInclude.Include.NON_NULL)
-  private String randomId;
+    @JsonProperty("random_id")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String randomId;
 
-  @JsonProperty(access = Access.WRITE_ONLY)
-  private long userRecordIndex;
+    @JsonProperty(access = Access.WRITE_ONLY)
+    private long userRecordIndex;
 
-  private String date;
+    private String date;
 }
