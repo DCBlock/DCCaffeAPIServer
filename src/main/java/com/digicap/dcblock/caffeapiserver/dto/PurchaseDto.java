@@ -1,6 +1,8 @@
 package com.digicap.dcblock.caffeapiserver.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -37,4 +39,10 @@ public class PurchaseDto {
     private int receipt_status;
 
     private int purchase_type;
+
+    @JsonProperty(access = Access.WRITE_ONLY)
+    private String email;
+
+    @JsonProperty(access = Access.WRITE_ONLY)
+    private String company;
 }

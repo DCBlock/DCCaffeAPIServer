@@ -1,8 +1,10 @@
 package com.digicap.dcblock.caffeapiserver.controller;
 
+import com.digicap.dcblock.caffeapiserver.dto.SettlementReport;
 import com.digicap.dcblock.caffeapiserver.dto.SettlementReportDto;
 import com.digicap.dcblock.caffeapiserver.service.SettlementService;
 import com.google.common.base.Preconditions;
+import java.util.LinkedList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,6 +26,31 @@ public class SettlementController {
   @Autowired
   public SettlementController(SettlementService settlementService) {
     this.settlementService = settlementService;
+  }
+
+  @GetMapping("/api/caffe/settlement/reports")
+  LinkedList<SettlementReport> getSettlements(@RequestParam(value = "before", defaultValue = "0") long before,
+      @RequestParam(value = "after", defaultValue = "0") long after) {
+    // Check Argument
+    Preconditions.checkArgument(before > 0, "before is empty");
+    Preconditions.checkArgument(after > 0, "after is empty");
+
+    // unix time to timestamp
+    Timestamp b = new Timestamp(before * 1_000L);
+    Timestamp a = new Timestamp(after * 1_000L);
+
+    Preconditions.checkArgument(!b.after(a), "before(%s) is bigger then after(%s)", b.toString(), a.toString());
+
+    // Test
+    SettlementReport temp = new SettlementReport();
+    temp.setName("서상호");
+    temp.setCompany("digicap");
+    temp.setEmail("shseo@digicap.com");
+
+    LinkedList<SettlementReport> results = new LinkedList<>();
+    results.add(temp);
+
+    return results;
   }
 
   /**

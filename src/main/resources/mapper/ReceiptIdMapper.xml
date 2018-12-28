@@ -10,6 +10,7 @@
             receipt_ids (
                 name,
                 company,
+                email,
                 receipt_id,
                 user_record_index,
                 random_id
@@ -17,6 +18,7 @@
         VALUES (
             #{name},
             #{company},
+            #{email},
             #{receiptId},
             #{userRecordIndex},
             #{randomId}
@@ -27,6 +29,7 @@
         SELECT
             name,
             company,
+            email,
             user_record_index AS userRecordIndex,
             regdate AS date
         FROM

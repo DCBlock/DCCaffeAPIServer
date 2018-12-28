@@ -14,7 +14,9 @@
             opt_size,
             opt_type,
             receipt_id,
-            purchase_type
+            purchase_type,
+            email,
+            company
         )
         VALUES (
             #{count},
@@ -28,7 +30,9 @@
             #{opt_size},
             #{opt_type},
             #{receipt_id},
-            #{purchase_type}
+            #{purchase_type},
+            #{email},
+            #{company}
         )
     </insert>
     <select id="updateReceiptCancelStatus" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseDto">

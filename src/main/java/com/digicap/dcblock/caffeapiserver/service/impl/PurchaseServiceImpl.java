@@ -79,15 +79,18 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
       throw new NotFindException("not find user using rfid");
     }
 
+    // TODO SelectKey로 한번에 처리 가능.
     // ReceiptId 생성.
     int receiptId = purchaseMapper.selectReceiptId();
 
+    // TODO ReceiptIdVo가 아니라 Dto가 맞음. Mybatis에서 SelectKey로 Before 때문에 Set이 필요하기 때문에 Vo가 아님.
     // instance ReceiptIdVo
     ReceiptIdVo receiptIdVo = new ReceiptIdVo();
     receiptIdVo.setName(userDto.getName());
     receiptIdVo.setCompany(userDto.getCompany().toLowerCase());
     receiptIdVo.setReceiptId(receiptId);
     receiptIdVo.setUserRecordIndex(userDto.getIndex());
+    receiptIdVo.setEmail(userDto.getEmail());
 
     // receipts table에 insert
     int result = receiptIdDao.insertByReceipt(receiptIdVo);
@@ -131,13 +134,12 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     }
 
     // hashmap to instance
-    LinkedList<PurchaseDto> purchases = toPurchaseDtos(_purchases);
+    LinkedList<PurchaseDto> purchases = toPurchaseDtos(_purchases, receiptIdDto.getEmail(), receiptIdDto.getCompany());
 
     LinkedHashMap<Integer, LinkedList<MenuDto>> menusInCategory = menuService.getAllMenusUsingCode();
 
     // 구매요청한 카테고리, 메뉴 확인
     for (int i = 0; i < purchases.size(); i++) {
-//        for (PurchaseDto purchaseDto : purchases) {
       int category = purchases.get(i).getCategory();
       int code = purchases.get(i).getCode();
       boolean bExist = menuMapper.existCode(code, category);
@@ -388,7 +390,8 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     }
   }
 
-  private LinkedList<PurchaseDto> toPurchaseDtos(List<LinkedHashMap<String, Object>> purchases) {
+  private LinkedList<PurchaseDto> toPurchaseDtos(List<LinkedHashMap<String, Object>> purchases,
+      String email, String company) {
     LinkedList<PurchaseDto> results = new LinkedList<>();
 
     for (LinkedHashMap<String, Object> p : purchases) {
@@ -396,6 +399,8 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
       pp.setCategory(Integer.valueOf(p.getOrDefault("category", -1).toString()));
       pp.setCode(Integer.valueOf(p.getOrDefault("code", -1).toString()));
       pp.setCount(Integer.valueOf(p.getOrDefault("count", -1).toString()));
+      pp.setEmail(email);
+      pp.setCompany(company);
 
       String size = p.getOrDefault("size", -1).toString().toUpperCase();
       switch (size) {
