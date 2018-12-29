@@ -91,7 +91,6 @@
         ]]>
     </select>
     <select id="selectAllCancel" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseNewDto">
-        <![CDATA[
         SELECT
             count,
             price,
@@ -112,18 +111,21 @@
             purchase_type
         FROM
             purchases
+        <![CDATA[
         WHERE
             #{from} <= update_date
         AND
             update_date <= #{to}
+        ]]>
+        <if test = 'company != null and company != ""'>
         AND
-            receipt_status = '1'
-        OR
-            receipt_status = '2'
+            company = #{company}
+        </if>
+        AND
+            (receipt_status = '1' OR receipt_status = '2')
         ORDER BY
             update_date
         DESC
-        ]]>
     </select>
     <select id="selectByReceiptId" resultType="java.sql.Timestamp">
         <![CDATA[

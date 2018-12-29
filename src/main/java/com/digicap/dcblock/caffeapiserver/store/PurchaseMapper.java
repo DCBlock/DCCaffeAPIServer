@@ -43,8 +43,10 @@ public interface PurchaseMapper {
                                                @Param("userRecordIndex") long userRecordIndex, @Param("receiptStatus") int receiptStatus);
 
     LinkedList<PurchaseNewDto> selectAllCancel(@Param("from") Timestamp from,
-                                               @Param("to") Timestamp to);
+                                               @Param("to") Timestamp to,
+                                               @Param("company") String company);
 
     LinkedList<PurchaseNewDto> selectAllUser(@Param("before") Timestamp before, @Param("after") Timestamp after,
-                                             @Param("userRecordIndex") long index);
+                                             @Param("userRecordIndex") long index,
+                                             @Param("company") String company);
 }

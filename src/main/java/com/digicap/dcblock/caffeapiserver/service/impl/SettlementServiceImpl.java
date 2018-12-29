@@ -50,7 +50,8 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
 
     // Get purchases by user
     try {
-      LinkedList<PurchaseNewDto> r = purchaseMapper.selectAllUser(before, after, recordIndex);
+      // TODO company
+      LinkedList<PurchaseNewDto> r = purchaseMapper.selectAllUser(before, after, recordIndex, "");
       if (r == null || r.size() == 0)  {
         throw new NotFindException("not find purchases by user");
       }
@@ -88,8 +89,8 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
     reportDto.setTotalDcPrice(price);
 
     // Set time
-    reportDto.setBeforeDate(before.getTime() / 1000);
-    reportDto.setAfterDate(after.getTime() / 1000);
+    reportDto.setBeforeDate(before.getTime() / 1_000);
+    reportDto.setAfterDate(after.getTime() / 1_000);
 
     return reportDto;
   }
@@ -104,7 +105,8 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
   public LinkedList<SettlementReportDto> getReports(Timestamp before, Timestamp after) {
     // Get purchases
     // user_record_index = -1은 모든 사용자
-    LinkedList<PurchaseNewDto> purchases = purchaseMapper.selectAllUser(before, after, -1);
+    // TODO company
+    LinkedList<PurchaseNewDto> purchases = purchaseMapper.selectAllUser(before, after, -1, "");
     if (purchases == null || purchases.size() == 0)  {
       throw new NotFindException("not find purchases");
     }
