@@ -15,7 +15,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
 import com.digicap.dcblock.caffeapiserver.dto.ApiError;
-import com.digicap.dcblock.caffeapiserver.dto.JwtDto;
+import com.digicap.dcblock.caffeapiserver.dto.JwtVo;
 import com.digicap.dcblock.caffeapiserver.exception.ForbiddenException;
 import com.digicap.dcblock.caffeapiserver.exception.JwtException;
 import com.digicap.dcblock.caffeapiserver.exception.NotSupportedException;
@@ -120,46 +120,36 @@ public class ControllerHandler implements HandlerInterceptor, CaffeApiServerAppl
 
         // Validate JWT
         if (enableJwt) {
-            String url = request.getRequestURI();
-            String domain = getAuthoritiesByUri(url);
-            if (domain.equals("MENU")) {
+            String uri = request.getRequestURI();
+            String route = getAuthoritiesByUri(uri);
+            String method = request.getMethod();
+            if (checkRouteJwt(route, method)) {
                 // Remove 'Bearer' Key.
                 String jwt = getJwtFromHeader(request);
 
-                // Request Token Valid to AdminServer
-                try {
-                    ApiError error = new AdminServer(adminServer, apiVersion).validToken(jwt);
-                    if (error.getCode() != 200) {
-                        throw new ForbiddenException(error.getReason());
-                    }
-                } catch (Exception e) {
-                    throw new UnknownException(e.getMessage());
-                }
+                // Request Token Valid to AdminServer.
+                validateJwt(jwt);
 
                 // Remove Signature.
                 String withoutSignature = removeSignatureJwt(jwt);
 
                 // Pairing JWT.
-                JwtDto jwtDto = parsingJwt(withoutSignature);
+                JwtVo jwtVo = parsingJwt(withoutSignature);
 
                 // Check Scope
-                if (jwtDto.getScope().equals(SCOPE_ADMIN)) {
+                if (jwtVo.getScope().equals(SCOPE_ADMIN) && jwtVo.getCompany().equals(COMPANY_DIGICAP)) {
                     return true;
-                } else if (jwtDto.getScope().equals(SCOPE_OPERATOR)) {
-                    if (jwtDto.getCompany().equals(COMPANY_DIGICAP)) {
-                        return true;
-                    }
                 }
 
-                // Check Authority
-                if (jwtDto.getAuthroties().contains(AUTHORITY_MANAGEMENT)) {
-                    return true;
-                }
+//                // Check Authority
+//                if (jwtVo.getAuthorities().contains(AUTHORITY_MANAGEMENT)) {
+//                    return true;
+//                }
 
                 // All extra Error.
                 throw new ForbiddenException(String.format("access denied. Scope(%s), Authrotiy(%s), "
-                                + "Company(%s)", jwtDto.getScope(), jwtDto.getAuthroties().toString(),
-                        jwtDto.getCompany()));
+                                + "Company(%s)", jwtVo.getScope(), jwtVo.getAuthorities().toString(),
+                        jwtVo.getCompany()));
             } //  if (domain.equals("MENU")) {
         }
 
@@ -202,18 +192,41 @@ public class ControllerHandler implements HandlerInterceptor, CaffeApiServerAppl
     }
 
     /**
-     * Get Domain from Path.
+     * Get Route from Path.
      *
      * @param path
      * @return
      */
     private String getAuthoritiesByUri(String path) {
         final String PATH_MENU = "/api/caffe/menus";
+        final String PATH_CATEGORIES = "/api/caffe/categories";
 
         if (path.startsWith(PATH_MENU)) {
             return "MENU";
+        } else if (path.startsWith(PATH_CATEGORIES)) {
+            return "CATEGORIES";
         }
+
         return "";
+    }
+
+    /**
+     * Validate JWT to AdminServer
+     *
+     * @param jwt
+     * @return
+     */
+    private boolean validateJwt(String jwt) {
+        try {
+            ApiError error = new AdminServer(adminServer, apiVersion).validToken(jwt);
+            if (error.getCode() != 200) {
+                throw new ForbiddenException(error.getReason());
+            }
+        } catch (Exception e) {
+            throw new UnknownException(e.getMessage());
+        }
+
+        return true;
     }
 
     /**
@@ -254,8 +267,7 @@ public class ControllerHandler implements HandlerInterceptor, CaffeApiServerAppl
      * @return
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private JwtDto parsingJwt(String withoutSignatureJwt) {
-        // Pairing JWT.
+    private JwtVo parsingJwt(String withoutSignatureJwt) {
         Jwt<Header,Claims> claims = null;
         try {
             claims = Jwts.parser().parseClaimsJwt(withoutSignatureJwt);
@@ -263,12 +275,38 @@ public class ControllerHandler implements HandlerInterceptor, CaffeApiServerAppl
             throw new JwtException(e.getMessage());
         }
 
-        JwtDto jwtDto = new JwtDto();
         // pairing
-        jwtDto.setAuthroties((List<String>)claims.getBody().getOrDefault("authorities", new ArrayList<String>()));
-        jwtDto.setCompany(claims.getBody().getOrDefault("company", "").toString().toLowerCase());
-        jwtDto.setScope(claims.getBody().getOrDefault("scope", "").toString().toLowerCase());
+        JwtVo jwtVo = new JwtVo(
+                (List<String>)claims.getBody().getOrDefault("authorities", new ArrayList<String>()),
+                claims.getBody().getOrDefault("company", "").toString().toLowerCase(),
+                claims.getBody().getOrDefault("scope", "").toString().toUpperCase());
+        return jwtVo;
+    }
 
-        return jwtDto;
+    /**
+     * route와 http method에 따라 JWT 필요 대상을 확인. true면 JWT가 필요한 route.
+     *
+     * @param route
+     * @param method
+     * @return
+     */
+    private boolean checkRouteJwt(String route, String method) {
+        if (route.toUpperCase().equals("MENU")) {
+            switch (method.toUpperCase()) {
+                case "POST":
+                case "PATCH":
+                case "DELETE":
+                    return true;
+            }
+        } else if (route.toUpperCase().equals("CATEGORIES")) {
+            switch (method.toUpperCase()) {
+                case "POST":
+                case "PATCH":
+                case "DELETE":
+                    return true;
+            }
+        }
+
+        return false;
     }
 }
