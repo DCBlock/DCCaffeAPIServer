@@ -35,8 +35,8 @@ public interface CaffeApiServerApplicationConstants {
     // for JWT ------------------------------------------------------------------------------------
     
     // SCOPE in JWT.
-    String SCOPE_ADMIN = "admin";
-    String SCOPE_OPERATOR = "operator";
+    String SCOPE_ADMIN = "ADMIN";
+    String SCOPE_OPERATOR = "OPERATOR";
     String SCOPE_USER = "user";
     
     // AUTHRORIES in JWT.
