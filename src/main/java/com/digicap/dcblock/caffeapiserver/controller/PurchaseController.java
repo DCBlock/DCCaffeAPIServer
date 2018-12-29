@@ -167,6 +167,11 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
             throw new InvalidParameterException(String.format("unknown user_index(%s)", userRecordIndex));
         }
 
+        // 사용자의 구매목록은 검색조건에서 company를 제외
+        if (filter == -1) {
+            company = "";
+        }
+
         // String time to java.sql.Date.
         Timestamp _before = new Timestamp(before * 1_000);
         Timestamp _after = new Timestamp(after * 1_000);

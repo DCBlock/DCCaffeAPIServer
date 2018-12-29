@@ -196,6 +196,10 @@
         AND
             user_record_index = #{userRecordIndex}
         </if>
+        <if test = 'company != null and company != ""'>
+        AND
+            company = #{company}
+        </if>
         ORDER BY
             update_date
         DESC

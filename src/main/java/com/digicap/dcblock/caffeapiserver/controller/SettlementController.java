@@ -1,5 +1,6 @@
 package com.digicap.dcblock.caffeapiserver.controller;
 
+import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
 import com.digicap.dcblock.caffeapiserver.dto.SettlementReportDto;
 import com.digicap.dcblock.caffeapiserver.dto.SettlementUserReportDto;
 import com.digicap.dcblock.caffeapiserver.service.SettlementService;
@@ -16,7 +17,7 @@ import java.sql.Timestamp;
  * 정산처리 Controller.
  */
 @RestController
-public class SettlementController {
+public class SettlementController implements CaffeApiServerApplicationConstants {
 
     private SettlementService settlementService;
 
@@ -38,10 +39,16 @@ public class SettlementController {
     @GetMapping("/api/caffe/settlement/reports")
     LinkedList<SettlementReportDto> getSettlements(
             @RequestParam(value = "before", defaultValue = "0") long before,
-            @RequestParam(value = "after", defaultValue = "0") long after) {
+            @RequestParam(value = "after", defaultValue = "0") long after,
+            @RequestParam(value = "company", defaultValue = "") String company) {
         // Check Argument
         Preconditions.checkArgument(before > 0, "before is empty");
         Preconditions.checkArgument(after > 0, "after is empty");
+        if (!company.isEmpty()) { // empty 경우는 무시.
+            Preconditions.checkArgument(company.toLowerCase().equals(COMPANY_DIGICAP)
+                            || company.toLowerCase().equals(COMPANY_COVISION),
+                    "unknown company(%s)", company);
+        }
 
         // unix time to timestamp
         Timestamp b = new Timestamp(before * 1_000L);
@@ -58,7 +65,7 @@ public class SettlementController {
 //        LinkedList<SettlementReportDto> results = new LinkedList<>();
 //        results.add(temp);
 
-        LinkedList<SettlementReportDto> results = settlementService.getReports(b, a);
+        LinkedList<SettlementReportDto> results = settlementService.getReports(b, a, company);
         return results;
     }
 
