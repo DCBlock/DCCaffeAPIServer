@@ -25,15 +25,19 @@ public class Purchase2Dto {
 
     private int count;
 
+    @JsonIgnore
     @NonNull
     private String menu_name_kr;
 
     @JsonIgnore
     private String name;
 
+    @JsonIgnore
     private long user_record_index;
 
+    @JsonIgnore
     private int receipt_id;
 
+    @JsonIgnore
     private int receipt_status;
 }

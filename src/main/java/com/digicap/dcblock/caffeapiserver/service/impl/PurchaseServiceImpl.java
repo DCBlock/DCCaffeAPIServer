@@ -476,7 +476,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
 
         // 구매시간과 현재시간 차이가 10분 이하 인 경우에만 유효.
         long minutes = ChronoUnit.MINUTES.between(startTime, endTime);
-        if (minutes <= cancelTime) {
+        if (minutes >= 0 && minutes <= cancelTime) {
             // TODO 23:55에 구매한걸 00:03분에 취소할 수 없음.
             return true;
         }
