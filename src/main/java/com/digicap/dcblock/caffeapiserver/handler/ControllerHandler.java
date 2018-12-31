@@ -223,7 +223,7 @@ public class ControllerHandler implements HandlerInterceptor, CaffeApiServerAppl
                 throw new ForbiddenException(error.getReason());
             }
         } catch (Exception e) {
-            throw new UnknownException(e.getMessage());
+            throw new UnknownException(String.format("AdminServer: %s", e.getMessage()));
         }
 
         return true;

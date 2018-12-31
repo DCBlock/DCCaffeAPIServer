@@ -58,7 +58,7 @@ public class TemporaryUriServiceImpl implements TemporaryUriService {
                 throw new UnknownException("not find user");
             }
         } catch (Exception e) {
-            throw new UnknownException(e.getMessage());
+            throw new UnknownException(String.format("Admin Server: %s", e.getMessage()));
         }
 
         // Instance

@@ -72,7 +72,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         try {
             userDto = new AdminServer(adminServer, apiVersion).getUserByRfid(rfid);
         } catch (Exception e) {
-            throw new UnknownException(e.getMessage());
+            throw new UnknownException(String.format("Admin Server: %s", e.getMessage()));
         }
 
         if (userDto == null) {
@@ -206,7 +206,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         try {
             userDto = new AdminServer(adminServer, apiVersion).getUserByRfid(rfid);
         } catch (Exception e) {
-            throw new UnknownException(e.getMessage());
+            throw new UnknownException(String.format("Admin Server: %s", e.getMessage()));
         }
 
         if (userDto == null) {
@@ -274,7 +274,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         try {
             userDto = new AdminServer(adminServer, apiVersion).getUserByRfid(rfid);
         } catch (Exception e) {
-            throw new UnknownException(e.getMessage());
+            throw new UnknownException(String.format("Admin Server: %s", e.getMessage()));
         }
 
         if (userDto == null) {

@@ -41,7 +41,6 @@ public class AdminServer {
                 .bodyToMono(UserDto.class);
 
         UserDto userByRfid = result.block();
-
         return userByRfid;
     }
 
