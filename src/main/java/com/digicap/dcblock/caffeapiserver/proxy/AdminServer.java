@@ -10,16 +10,16 @@ import reactor.core.publisher.Mono;
 
 /**
  * AdminServer Request 관련 Class.
- * 
+ *
  * @author DigiCAP
  */
 @AllArgsConstructor
 public class AdminServer {
 
     private String server;
-        
+
     private String apiVersion;
-    
+
     /**
      * Get User from AdminServer
      *
@@ -31,17 +31,16 @@ public class AdminServer {
         final String uri = String.format("%s/users?rfid=%s", server, rfid);
 
         WebClient webClient = WebClient
-            .builder()
-            .baseUrl(uri)
-            .defaultHeader("Accept", apiVersion)
-            .build();
+                .builder()
+                .baseUrl(uri)
+                .defaultHeader("Accept", apiVersion)
+                .build();
 
         Mono<UserDto> result = webClient.get()
-            .retrieve()
-            .bodyToMono(UserDto.class);
+                .retrieve()
+                .bodyToMono(UserDto.class);
 
         UserDto userByRfid = result.block();
-
         return userByRfid;
     }
 
@@ -57,15 +56,15 @@ public class AdminServer {
         final String tokens = String.format("Bearer %s", token);
 
         WebClient webClient = WebClient
-            .builder()
-            .baseUrl(uri)
-            .defaultHeader("Accept", apiVersion)
-            .defaultHeader("Authorization", tokens)
-            .build();
+                .builder()
+                .baseUrl(uri)
+                .defaultHeader("Accept", apiVersion)
+                .defaultHeader("Authorization", tokens)
+                .build();
 
         Mono<ApiError> result = webClient.post()
-            .retrieve()
-            .bodyToMono(ApiError.class);
+                .retrieve()
+                .bodyToMono(ApiError.class);
 
         ApiError apiError = result.block();
         return apiError;

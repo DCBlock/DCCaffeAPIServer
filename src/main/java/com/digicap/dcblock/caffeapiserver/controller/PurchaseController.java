@@ -1,6 +1,7 @@
 package com.digicap.dcblock.caffeapiserver.controller;
 
-import java.sql.Date;
+import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
+import com.google.common.base.Preconditions;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,11 +13,9 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.digicap.dcblock.caffeapiserver.dto.*;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.Errors;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,7 +34,7 @@ import javax.validation.Valid;
 
 /**
  * 구매 관련 Controller
- * 
+ *
  * @author DigiCAP
  */
 @RestController
@@ -48,43 +47,67 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
     @Value("${purchase-list-viewer-server}")
     private String viewerServer;
 
+    // -------------------------------------------------------------------------
+    // Constructor
+
     @Autowired
     public PurchaseController(PurchaseService service, TemporaryUriService temporaryUriService) {
         this.service = service;
         this.temporaryUriService = temporaryUriService;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------------------------------------------
     // 구매 관련 API
 
-    @PostMapping("/api/caffe/purchases/purchase/receipt/id")
-    ReceiptIdDto createReceiptId(@Valid @RequestBody RfidDto rfidDto) { // Map<String, Object> body) {
-//        String rfid = Optional.ofNullable(body.get(KEY_RFID))
-//            .map(Object::toString)
-//            .orElseThrow(() -> new InvalidParameterException("not find rfid"));
-
+    @PostMapping(value = "/api/caffe/purchases/purchase/receipt/id", consumes = "application/json; charset=utf-8")
+    ReceiptIdDto createReceiptId(@Valid @RequestBody RfidDto rfidDto) {
         ReceiptIdDto receiptIdDto = service.getReceiptId(rfidDto.getRfid());
         return receiptIdDto;
     }
 
-    @PostMapping("/api/caffe/purchases/purchase/receipt/{receiptId}")
-    PurchasedDto createPurchasesByReceiptId(@PathVariable("receiptId") String _receiptId, @RequestBody HashMap<String, Object> body) {
-        int receiptId = getIntegerValueOf(_receiptId);
+    @PostMapping(value = "/api/caffe/purchases/purchase/receipt/{receiptId}", consumes = "application/json; charset=utf-8")
+    PurchasedDto createPurchasesByReceiptId(@PathVariable("receiptId") int receiptId,
+                                            @RequestBody HashMap<String, Object> body) {
+        // Check Argument.
+        Preconditions.checkArgument(1 <= receiptId && receiptId <= 9999, "invalid receiptId(%s)", receiptId);
 
-        // TODO unsafe code to safe code
-        List<LinkedHashMap<String, Object>> purchases = Optional.ofNullable(body.get(KEY_PURCHASES))
-            .map(s -> new ObjectMapper().convertValue(s, List.class))
-            .orElseThrow(() -> new InvalidParameterException("not find purchases."));
+        int type = Integer.valueOf(body.getOrDefault(KEY_PURCHASE_TYPE, -1).toString());
+        if (type == -1) {
+            throw new InvalidParameterException("not find purchase_type");
+        } else if (!(type == PURCHASE_TYPE_MONTH || type == PURCHASE_TYPE_GUEST)) {
+            throw new InvalidParameterException(String.format("unknown purchase_type(%d)", type));
+        }
 
-        PurchasedDto purchasedDto = service.requestPurchases(receiptId, purchases);
+        // Casting
+        List<LinkedHashMap<String, Object>> purchases = null;
+
+        try {
+            List temp = Optional.ofNullable(body.get(KEY_PURCHASES))
+                    .map(s -> new ObjectMapper().convertValue(s, List.class))
+                    .orElseThrow(() -> new InvalidParameterException("not find purchases."));
+
+            purchases = new ObjectMapper().convertValue(temp,
+                    new TypeReference<List<LinkedHashMap<String, Object>>>() {
+                    });
+        } catch (Exception e) {
+            throw new InvalidParameterException("fail casting purchases");
+        }
+
+        PurchasedDto purchasedDto = service.requestPurchases(receiptId, type, purchases);
         return purchasedDto;
     }
 
-    @PatchMapping("/api/caffe/purchases/purchase/receipt/{receiptId}/cancel")
-    HashMap<String, List<Purchase2Dto>> cancelPurchaseByReceiptId(@PathVariable("receiptId") String _receiptId) {
-        int receiptId = getIntegerValueOf(_receiptId);
+    @PatchMapping(value = "/api/caffe/purchases/purchase/receipt/{receiptId}/cancel",
+            consumes = "application/json; charset=utf-8")
+    HashMap<String, List<Purchase2Dto>> cancelPurchaseByReceiptId(
+            @PathVariable("receiptId") int receiptId,
+            @RequestBody RfidDto rfidDto) {
+        // Check Argument.
+        Preconditions.checkArgument(1 <= receiptId && receiptId <= 9999, "invalid receiptId(%s)", receiptId);
+        Preconditions.checkNotNull(rfidDto == null || rfidDto.getRfid() == null, "rfid is null");
+        Preconditions.checkNotNull(rfidDto.getRfid().isEmpty(), "rfid is empty");
 
-        List<PurchaseDto> cancels = service.cancelPurchases(receiptId);
+        List<PurchaseDto> cancels = service.cancelPurchases(receiptId, rfidDto.getRfid());
 
         List<Purchase2Dto> cancels2 = new ArrayList<>();
         for (PurchaseDto p : cancels) {
@@ -98,10 +121,16 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
     }
 
     @PatchMapping("/api/caffe/purchases/purchase/receipt/{receiptId}/cancel-approval")
-    HashMap<String, List<Purchase2Dto>> canceledPurchaseByReceiptId(@PathVariable("receiptId") String _receiptId) {
-        int receiptId = getIntegerValueOf(_receiptId);
+    HashMap<String, List<Purchase2Dto>> canceledPurchaseByReceiptId(@PathVariable("receiptId") int receiptId,
+                                                                    @RequestParam("purchaseDate") long purchaseDate) {
+        // Check Argument.
+        Preconditions.checkArgument(1 <= receiptId && receiptId <= 9999, "invalid receiptId(%s)", receiptId);
 
-        List<PurchaseDto> canceleds = service.cancelApprovalPurchases(receiptId);
+        // unix time to Timestamp
+        Timestamp purchaseTime = new TimeFormat().toTimeStampExcludeTime(purchaseDate * 1_000);
+//    Timestamp purchaseTime = new Timestamp(purchaseDate * 1_000);
+
+        List<PurchaseDto> canceleds = service.cancelApprovalPurchases(receiptId, purchaseTime);
 
         List<Purchase2Dto> cancels2 = new ArrayList<>();
         for (PurchaseDto p : canceleds) {
@@ -113,29 +142,82 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         return result;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // ----------------------------------------------------------------------------------------------------------------
+    // Purchases API
+
+    @GetMapping("/api/caffe/purchases/purchase/search")
+    LinkedList<PurchaseSearchDto>
+    getPurchases(@RequestParam(value = "before", defaultValue = "0") long before,
+                 @RequestParam(value = "after", defaultValue = "0") long after,
+                 @RequestParam(value = "filter", defaultValue = "-2") int filter,
+                 @RequestParam(value = "user_index", defaultValue = "0") int userRecordIndex,
+                 @RequestParam(value = "company", defaultValue = "") String company) {
+        // Check Argument.
+        Preconditions.checkArgument(before > 0, "invalid before(%s)", before);
+        Preconditions.checkArgument(after > 0, "invalid after(%s)", after);
+        Preconditions.checkArgument(filter == 3 || filter == -1, "unknown filter(%s)", filter);
+        if (!company.isEmpty()) { // empty 경우는 무시.
+            Preconditions.checkArgument(
+                    company.toLowerCase().equals(COMPANY_DIGICAP)
+                            || company.toLowerCase().equals(COMPANY_COVISION),
+                    "unknown company(%s)", company);
+        }
+
+        if (filter == -1 && userRecordIndex <= 0) {
+            throw new InvalidParameterException(String.format("unknown user_index(%s)", userRecordIndex));
+        }
+
+        // 사용자의 구매목록은 검색조건에서 company를 제외
+        if (filter == -1) {
+            company = "";
+        }
+
+        // String time to java.sql.Date.
+        Timestamp _before = new Timestamp(before * 1_000);
+        Timestamp _after = new Timestamp(after * 1_000);
+
+        Preconditions.checkArgument(!_before.after(_after),
+                "before(%s) is bigger than after(%s)", _before.toString(), _after.toString());
+
+        // Query Where
+        PurchaseWhere w = PurchaseWhere.builder()
+                .filter(filter)
+                .company(company)
+                .userRecordIndex(userRecordIndex)
+                .before(_before)
+                .after(_after)
+                .build();
+
+        // Get Purchases.
+        LinkedList<PurchaseSearchDto> results = service.getPurchasesBySearch(w);
+        return results;
+    }
+
+    //-----------------------------------------------------------------------------------------------
     // 구매 token API
 
-    @PostMapping("/api/caffe/purchases/temporary")
+    @PostMapping(value = "/api/caffe/purchases/temporary", consumes = "application/json; charset=utf-8")
     HashMap<String, String> getTemporaryUri(@RequestBody Map<String, Object> body) {
-        // Validation.
+        // Check Argument
         String rfid = Optional.ofNullable(body.get(KEY_RFID))
-            .map(Object::toString)
-            .orElseThrow(() -> new InvalidParameterException("not find rfid"));
+                .map(Object::toString)
+                .orElseThrow(() -> new InvalidParameterException("not find rfid"));
 
         Timestamp after = Optional.ofNullable(body.get(KEY_PURCHASE_AFTER))
-            .map(Objects::toString)
-            .map(o -> Long.valueOf(o) * 1000)
-            .map(o -> new Timestamp(o))
-            .orElseThrow(() -> new InvalidParameterException("not find purchase_after"));
+                .map(Objects::toString)
+                .map(o -> Long.valueOf(o) * 1_000)
+                .map(o -> new Timestamp(o))
+                .orElseThrow(() -> new InvalidParameterException("not find purchase_after"));
 
         Timestamp before = Optional.ofNullable(body.get(KEY_PURCHASE_BEFORE))
-            .map(Objects::toString)
-            .map(o -> Long.valueOf(o) * 1000)
-            .map(o -> new Timestamp(o))
-            .orElseThrow(() -> new InvalidParameterException("not find purchase_before"));
+                .map(Objects::toString)
+                .map(o -> Long.valueOf(o) * 1_000)
+                .map(o -> new Timestamp(o))
+                .orElseThrow(() -> new InvalidParameterException("not find purchase_before"));
 
-        String randomUri = temporaryUriService.createTemporaryUri(rfid, after, before);
+        Preconditions.checkArgument(!before.after(after), "before(%s) is bigger than after(%s)", before.toString(), after.toString());
+
+        String randomUri = temporaryUriService.createTemporaryUri(rfid, before, after);
 
         HashMap<String, String> result = new HashMap<>();
         result.put("uri", String.format("%s/%s", viewerServer, randomUri));
@@ -147,26 +229,30 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         // Get registered user_record_index and name by random uri.
         TemporaryUriDto temporaryUriVo = temporaryUriService.existTemporary(uri);
 
-        Date from = new Date(temporaryUriVo.getSearchDateAfter().getTime());
-        Date to = new Date(temporaryUriVo.getSearchDateBefore().getTime());
-
         // Set Where Case.
         PurchaseDto purchaseDto = new PurchaseDto();
         purchaseDto.setUser_record_index(temporaryUriVo.getUserRecordIndex());
         purchaseDto.setReceipt_status(RECEIPT_STATUS_PURCHASE);
 
         // Get Purchased List.
-        LinkedList<PurchaseVo> purchases = service.getPurchases(purchaseDto, from, to);
+        LinkedList<PurchaseOldDto> purchases = service.getPurchases(purchaseDto, temporaryUriVo.getSearchDateBefore(),
+                temporaryUriVo.getSearchDateAfter());
 
         List<Purchase2Vo> cancels2 = new ArrayList<>();
-        for (PurchaseVo p : purchases) {
+        for (PurchaseOldDto p : purchases) {
             cancels2.add(toPurchase2Vo(p));
         }
 
         int total = 0;
         int dc_total = 0;
 
-        for (PurchaseVo p : purchases) {
+        for (PurchaseOldDto p : purchases) {
+            // 구매종류가 Guest는 가격을 계산하지 않음.
+            // Guest는 경영지원실에서 결재함.
+            if (p.getPurchaseType() == PURCHASE_TYPE_GUEST) {
+                continue;
+            }
+
             total += p.getPrice() * p.getCount();
             dc_total += p.getDcPrice() * p.getCount();
         }
@@ -182,21 +268,23 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
 
     @GetMapping("/api/caffe/purchases/purchase/rfid/{rfid}")
     PurchaseBalanceDto getBalanceByRfid(@PathVariable("rfid") String rfid,
-        @RequestParam("purchaseBefore") String _before,
-        @RequestParam("purchaseAfter") String _after) {
+                                        @RequestParam("purchaseBefore") long _before,
+                                        @RequestParam("purchaseAfter") long _after) {
+        // Check Augment
+        Preconditions.checkArgument(_before > 0, "invalid purchaseBefore(%s)", _before);
+        Preconditions.checkArgument(_after > 0, "invalid purchaseAfter(%s)", _after);
 
-        long _from = getLongValueOf(_after);
-        long _to = getLongValueOf(_before);
+        Timestamp before = new Timestamp(_before * 1000);
+        Timestamp after = new Timestamp(_after * 1000);
 
-        Date from = new Date(_from * 1000);
-        Date to = new Date(_to * 1000);
+        Preconditions.checkArgument(!before.after(after), "purchase_before(%s) is bigger than purchase_after(%s)", before.toString(), after.toString());
 
-        return service.getBalanceByRfid(rfid, from, to);
+        return service.getBalanceByRfid(rfid, before, after);
     }
 
     // ---------------------------------------------------------------------------------------------
-    // Private Methdos
-    
+    // Private Method
+
     private int getIntegerValueOf(String _value) throws InvalidParameterException {
         try {
             int value = Integer.valueOf(_value);
@@ -206,54 +294,54 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         }
     }
 
-    private long getLongValueOf(String _value) throws InvalidParameterException {
+    private long getLongValueOf(String value) throws InvalidParameterException {
         try {
-            long value = Long.valueOf(_value);
-            return value;
+            long v = Long.valueOf(value);
+            return v;
         } catch (NumberFormatException e) {
             throw new InvalidParameterException(e.getMessage());
         }
     }
 
     private Purchase2Dto toPurchaseDto(PurchaseDto purchaseDto) {
-        Purchase2Dto newPurchase = new Purchase2Dto();
+        Purchase2Dto p = new Purchase2Dto();
 
-        newPurchase.setCategory(purchaseDto.getCategory());
-        newPurchase.setCode(purchaseDto.getCode());
-        newPurchase.setCount(purchaseDto.getCount());
-        newPurchase.setDc_price(purchaseDto.getDc_price());
-        newPurchase.setMenu_name_kr(purchaseDto.getMenu_name_kr());
-        newPurchase.setName(purchaseDto.getName());
-        newPurchase.setPrice(purchaseDto.getPrice());
-        newPurchase.setReceipt_id(purchaseDto.getReceipt_id());
-        newPurchase.setReceipt_status(purchaseDto.getReceipt_id());
-        newPurchase.setUser_record_index(purchaseDto.getUser_record_index());
+        p.setCategory(purchaseDto.getCategory());
+        p.setCode(purchaseDto.getCode());
+        p.setCount(purchaseDto.getCount());
+        p.setDc_price(purchaseDto.getDc_price());
+        p.setMenu_name_kr(purchaseDto.getMenu_name_kr());
+        p.setName(purchaseDto.getName());
+        p.setPrice(purchaseDto.getPrice());
+        p.setReceipt_id(purchaseDto.getReceipt_id());
+        p.setReceipt_status(purchaseDto.getReceipt_id());
+        p.setUser_record_index(purchaseDto.getUser_record_index());
+
         switch (purchaseDto.getOpt_size()) {
             case 0:
-                newPurchase.setSize(OPT_SIZE_REGULAR);
+                p.setSize(OPT_SIZE_REGULAR);
                 break;
             case 1:
-                newPurchase.setSize(OPT_SIZE_SMALL);
+                p.setSize(OPT_SIZE_SMALL);
                 break;
         }
 
         switch (purchaseDto.getOpt_type()) {
             case 0:
-                newPurchase.setType(OPT_TYPE_HOT);
+                p.setType(OPT_TYPE_HOT);
                 break;
             case 1:
-                newPurchase.setType(OPT_TYPE_ICED);
+                p.setType(OPT_TYPE_ICED);
                 break;
             case 2:
-                newPurchase.setType(OPT_TYPE_BOTH);
+                p.setType(OPT_TYPE_BOTH);
                 break;
         }
 
-        return newPurchase;
+        return p;
     }
 
-    private Purchase2Vo toPurchase2Vo(PurchaseVo p) {
-
+    private Purchase2Vo toPurchase2Vo(PurchaseOldDto p) {
         String size = "";
         switch (p.getOptSize()) {
             case 0:
@@ -277,6 +365,8 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
                 break;
         }
 
-        return new Purchase2Vo(p.getCode(), p.getPrice(), p.getDcPrice(), type, size, p.getCount(), p.getMenuNameKr());
+        // TODO Warning
+        return new Purchase2Vo(p.getCode(), p.getPrice(), p.getDcPrice(), type, size, p.getCount(),
+                p.getMenuNameKr(), p.getPurchaseType());
     }
 }

@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class Purchase2Vo {
+public class PurchaseOldDto {
 
     private final int code;
 
@@ -18,13 +18,11 @@ public class Purchase2Vo {
     @JsonProperty("dc_price")
     private final int dcPrice;
 
-    @NonNull
-    @JsonProperty("type")
-    private String optType;
+    @JsonProperty("opt_type")
+    private final int optType;
 
-    @NonNull
-    @JsonProperty("size")
-    private String optSize;
+    @JsonProperty("opt_size")
+    private final int optSize;
 
     private final int count;
 

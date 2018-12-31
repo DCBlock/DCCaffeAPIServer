@@ -4,6 +4,8 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Optional;
 
+import com.digicap.dcblock.caffeapiserver.dto.UserDto;
+import com.digicap.dcblock.caffeapiserver.proxy.AdminServer;
 import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,12 +15,10 @@ import org.springframework.stereotype.Service;
 import com.digicap.dcblock.caffeapiserver.dao.TemporaryUriDao;
 import com.digicap.dcblock.caffeapiserver.dto.TemporaryUriDto;
 import com.digicap.dcblock.caffeapiserver.dto.TemporaryUriVo;
-import com.digicap.dcblock.caffeapiserver.dto.UserVo;
 import com.digicap.dcblock.caffeapiserver.exception.ExpiredTimeException;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
 import com.digicap.dcblock.caffeapiserver.service.TemporaryUriService;
-import com.digicap.dcblock.caffeapiserver.store.UserMapper;
 import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
 
 /**
@@ -32,34 +32,39 @@ public class TemporaryUriServiceImpl implements TemporaryUriService {
 
     private TemporaryUriDao temporaryUriDao;
     
-    private UserMapper userMapper;
-
     @Value("${random-uri-expired-minute}")
     private int randomUriExpired;
-    
-    @Autowired
-    public TemporaryUriServiceImpl(TemporaryUriDao temporaryUriDao,UserMapper userMapper) {
-        this.userMapper = userMapper;
 
+    @Value("${admin-server}")
+    private String adminServer;
+
+    @Value("${api-version}")
+    private String apiVersion;
+
+    @Autowired
+    public TemporaryUriServiceImpl(TemporaryUriDao temporaryUriDao) {
         this.temporaryUriDao = temporaryUriDao;
     }
 
     @Override
-    public String createTemporaryUri(String rfid, Timestamp after, Timestamp before)
+    public String createTemporaryUri(String rfid, Timestamp before, Timestamp after)
             throws MyBatisSystemException, NotFindException, UnknownException {
-        UserVo userVo = Optional.ofNullable(userMapper.selectUserByRfid(rfid))
-            .orElseThrow(() -> new NotFindException("not find rfid' user"));
+        // Get user from AdminServer.
+        UserDto userDto = null;
 
-//        TemporaryUriDto temporaryUriDto = new TemporaryUriDto();
-//        temporaryUriDto.setName(userVo.getName());
-//        temporaryUriDto.setUserRecordIndex(userVo.getIndex());
-//        temporaryUriDto.setSearchDateAfter(after);
-//        temporaryUriDto.setSearchDateBefore(before);
-        
+        try {
+            userDto = new AdminServer(adminServer, apiVersion).getUserByRfid(rfid);
+            if (userDto == null) {
+                throw new UnknownException("not find user");
+            }
+        } catch (Exception e) {
+            throw new UnknownException(String.format("Admin Server: %s", e.getMessage()));
+        }
+
         // Instance
         TemporaryUriVo vo = new TemporaryUriVo(); 
-        vo.setUserRecordIndex(userVo.getIndex());
-        vo.setName(userVo.getName());
+        vo.setUserRecordIndex(userDto.getIndex());
+        vo.setName(userDto.getName());
         vo.setSearchDateAfter(after);
         vo.setSearchDateBefore(before);
 
@@ -73,13 +78,6 @@ public class TemporaryUriServiceImpl implements TemporaryUriService {
 
     @Override
     public TemporaryUriDto existTemporary(String uuid) throws ExpiredTimeException {
-//        TemporaryUriDto temporaryUriDto = new TemporaryUriDto();
-//        temporaryUriDto.setRandom_uri(uuid);
-//        TemporaryUriVo temporaryUriVo = Optional
-//            .ofNullable(temporaryUriMapper.deleteAndSelectUri(temporaryUriDto))
-//            .orElseThrow(() -> new ExpiredTimeException("expired random uri"));
-
-
         TemporaryUriVo vo = new TemporaryUriVo();
         vo.setRandomUri(uuid);
 

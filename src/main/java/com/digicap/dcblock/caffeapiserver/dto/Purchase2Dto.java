@@ -9,16 +9,12 @@ import lombok.Setter;
 @Getter
 public class Purchase2Dto {
 
-    @NonNull
     private int category;
 
-    @NonNull
     private int code;
 
-    @NonNull
     private int price;
 
-    @NonNull
     private int dc_price;
 
     @NonNull
@@ -27,21 +23,21 @@ public class Purchase2Dto {
     @NonNull
     private String size;
 
-    @NonNull
     private int count;
 
+    @JsonIgnore
     @NonNull
     private String menu_name_kr;
 
     @JsonIgnore
     private String name;
 
-    @NonNull
+    @JsonIgnore
     private long user_record_index;
 
     @JsonIgnore
     private int receipt_id;
 
-    @NonNull
+    @JsonIgnore
     private int receipt_status;
 }

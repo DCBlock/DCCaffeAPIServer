@@ -25,38 +25,38 @@ import com.digicap.dcblock.caffeapiserver.store.MenuMapper;
 @Transactional
 public class CategoryServiceImpl implements CategoryService {
 
-    private CategoryMapper categoryMapper;
+  private CategoryMapper categoryMapper;
 
-    private MenuMapper menuMapper;
+  private MenuMapper menuMapper;
 
-    @Autowired
-    public CategoryServiceImpl(CategoryMapper mapper, MenuMapper menuMapper) {
-        this.categoryMapper = mapper;
+  @Autowired
+  public CategoryServiceImpl(CategoryMapper mapper, MenuMapper menuMapper) {
+    this.categoryMapper = mapper;
 
-        this.menuMapper = menuMapper;
+    this.menuMapper = menuMapper;
+  }
+
+  @Override
+  public LinkedList<CategoryVo> getAllCategories() throws MyBatisSystemException, NotFindException {
+    LinkedList<CategoryVo> categoriesVo = categoryMapper.selectAllCategory();
+    if (categoriesVo == null || categoriesVo.size() == 0) {
+      throw new NotFindException("not find resource");
     }
 
-    @Override
-    public LinkedList<CategoryVo> getAllCategories() throws MyBatisSystemException, NotFindException {
-        LinkedList<CategoryVo> categoriesVo = categoryMapper.selectAllCategory();
-        if (categoriesVo == null || categoriesVo.size() == 0) {
-            throw new NotFindException("not find resource");
-        }
+    return categoriesVo;
+  }
 
-        return categoriesVo;
-    }
+  @Override
+  public CategoryVo postCategory(String name) throws MyBatisSystemException {
+    CategoryVo categoryVo = categoryMapper.insertCategory(name);
+    return categoryVo;
+  }
 
-    @Override
-    public CategoryVo postCategory(String name) throws MyBatisSystemException {
-        CategoryVo categoryVo = categoryMapper.insertCategory(name);
-        return categoryVo;
-    }
+  @Override
+  public MenusInCategoryDto deleteCategory(int code) throws MyBatisSystemException, UnknownException, NotFindException {
+    MenusInCategoryDto menusInCategoryDto = new MenusInCategoryDto();
 
-    @Override
-    public MenusInCategoryDto deleteCategory(int code) throws MyBatisSystemException, UnknownException, NotFindException {
-        MenusInCategoryDto menusInCategoryDto = new MenusInCategoryDto();
-
-        // 카테고리 삭제하고 하위 메뉴도 삭제.
+    // 카테고리 삭제하고 하위 메뉴도 삭제.
 //        try {
 //            if (menuMapper.existCategory(code)) {
 //                // TODO extension error code
@@ -68,59 +68,59 @@ public class CategoryServiceImpl implements CategoryService {
 //            throw new UnknownException(e.getMessage());
 //        }
 
-        try {
-            LinkedList<MenuVo> menus = menuMapper.deleteByCategory(code);
-            if (menus == null) {
-                throw new UnknownException(String.format("fail delete menus by category(%d)", code));
-            }
+    try {
+      LinkedList<MenuVo> menus = menuMapper.deleteByCategory(code);
+      if (menus == null) {
+        throw new UnknownException(String.format("fail delete menus by category(%d)", code));
+      }
 
-            menusInCategoryDto.setMenus(menus);
+      menusInCategoryDto.setMenus(menus);
 
-            CategoryVo categoryVo = categoryMapper.selectByCode(code);
-            if (categoryVo == null) {
-                throw new NotFindException(String.format("not find code(%d) in category.", code));
-            }
+      CategoryVo categoryVo = categoryMapper.selectByCode(code);
+      if (categoryVo == null) {
+        throw new NotFindException(String.format("not find code(%d) in category.", code));
+      }
 
-            Integer result = categoryMapper.deleteCategory(code);
-            if (result == null || result == 0) {
-                throw new UnknownException(String.format("fail delete code(%d)", code));
-            }
+      Integer result = categoryMapper.deleteCategory(code);
+      if (result == null || result == 0) {
+        throw new UnknownException(String.format("fail delete code(%d)", code));
+      }
 
-            menusInCategoryDto.setCode(categoryVo.getCode());
-            menusInCategoryDto.setName(categoryVo.getName());
-            menusInCategoryDto.setOrder(categoryVo.getOrder());
-        } catch (NotFindException | UnknownException e) {
-            throw e;
-        }
-
-        return menusInCategoryDto;
+      menusInCategoryDto.setCode(categoryVo.getCode());
+      menusInCategoryDto.setName(categoryVo.getName());
+      menusInCategoryDto.setOrder(categoryVo.getOrder());
+    } catch (NotFindException | UnknownException e) {
+      throw e;
     }
 
-    @Override
-    @Transactional
-    public void updateAll(LinkedList<CategoryVo> categories)
-            throws MyBatisSystemException, InvalidParameterException {
-        // Check.
-        int size = categoryMapper.selectAllCategorySize();
-        if (size != categories.size()) {
-            throw new InvalidParameterException("invalid update count");
-        }
+    return menusInCategoryDto;
+  }
 
-        // Sort By Order.
-        Collections.sort(categories, new Comparator<CategoryVo>() {
-
-            @Override
-            public int compare(CategoryVo o1, CategoryVo o2) {
-                return o1.getOrder() - o2.getOrder();
-            }
-        });
-
-        // Reset Order value
-        for (int index = 0; index < categories.size(); index++) {
-            categories.get(index).setOrder(index);
-        }
-
-        // Update.
-        categoryMapper.updateCategories(categories);
+  @Override
+  @Transactional
+  public void updateAll(LinkedList<CategoryVo> categories)
+      throws MyBatisSystemException, InvalidParameterException {
+    // Check.
+    int size = categoryMapper.selectAllCategorySize();
+    if (size != categories.size()) {
+      throw new InvalidParameterException("invalid update count");
     }
+
+    // Sort By Order.
+    Collections.sort(categories, new Comparator<CategoryVo>() {
+
+      @Override
+      public int compare(CategoryVo o1, CategoryVo o2) {
+        return o1.getOrder() - o2.getOrder();
+      }
+    });
+
+    // Reset Order value
+    for (int index = 0; index < categories.size(); index++) {
+      categories.get(index).setOrder(index);
+    }
+
+    // Update.
+    categoryMapper.updateCategories(categories);
+  }
 }

@@ -8,11 +8,15 @@
             dc_price,
             name,
             user_record_index,
+            category,
             code,
             menu_name_kr,
             opt_size,
             opt_type,
-            receipt_id
+            receipt_id,
+            purchase_type,
+            email,
+            company
         )
         VALUES (
             #{count},
@@ -20,14 +24,19 @@
             #{dc_price},
             #{name},
             #{user_record_index},
+            #{category},
             #{code},
             #{menu_name_kr},
             #{opt_size},
             #{opt_type},
-            #{receipt_id}
+            #{receipt_id},
+            #{purchase_type},
+            #{email},
+            #{company}
         )
     </insert>
     <select id="updateReceiptCancelStatus" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseDto">
+        <![CDATA[
         UPDATE
             purchases
         SET
@@ -38,10 +47,16 @@
             receipt_id = #{receiptId}
         AND
             receipt_status = '0'
+        AND
+            (SELECT CURRENT_DATE) <= purchase_date
+        AND
+            purchase_date < (SELECT CURRENT_DATE + 1)
+        ]]>
         RETURNING *
     </select>
 
     <select id="updateReceiptCancelApprovalStatus" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseDto">
+        <![CDATA[
         UPDATE
             purchases
         SET
@@ -52,12 +67,17 @@
             receipt_id = #{receiptId}
         AND
             receipt_status = '1'
+        AND
+            #{from} <= purchase_date
+        AND
+            purchase_date < #{to}
+        ]]>
         RETURNING *
     </select>
-    <select id="selectAllByUser" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseVo">
+    <select id="selectAllByUser" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseOldDto">
         <![CDATA[
         SELECT
-            code, price, dc_price, opt_type, opt_size, count, menu_name_kr
+            code, price, dc_price, opt_type, opt_size, count, menu_name_kr, purchase_type
         FROM
             purchases
         WHERE
@@ -65,9 +85,124 @@
         AND
             receipt_status = #{receiptStatus}
         AND
-            purchase_date >= #{_from}
+            #{from} <= purchase_date
         AND
-            purchase_date <= #{_to}
+            purchase_date <= #{to}
         ]]>
+    </select>
+    <select id="selectAllCancel" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseNewDto">
+        SELECT
+            count,
+            price,
+            dc_price,
+            name,
+            user_record_index,
+            code,
+            menu_name_kr,
+            receipt_status,
+            opt_size,
+            opt_type,
+            update_date,
+            cancel_date,
+            purchase_date,
+            canceled_date,
+            index,
+            receipt_id,
+            purchase_type
+        FROM
+            purchases
+        <![CDATA[
+        WHERE
+            #{from} <= update_date
+        AND
+            update_date <= #{to}
+        ]]>
+        <if test = 'company != null and company != ""'>
+        AND
+            company = #{company}
+        </if>
+        AND
+            (receipt_status = '1' OR receipt_status = '2')
+        ORDER BY
+            update_date
+        DESC
+    </select>
+    <select id="selectByReceiptId" resultType="java.sql.Timestamp">
+        <![CDATA[
+        SELECT
+            update_date
+        FROM
+            purchases
+        WHERE
+            receipt_id = #{receiptId}
+        AND
+            user_record_index = #{userRecordIndex}
+        AND
+            receipt_status = '0'
+        AND
+            (SELECT CURRENT_DATE) <= update_date
+        AND
+            update_date < (SELECT CURRENT_DATE + 1)
+        ORDER BY
+            update_date
+        DESC
+        ]]>
+    </select>
+    <select id="existReceiptId" resultType="boolean">
+        <![CDATA[
+        SELECT EXISTS(
+            SELECT
+                1
+            FROM
+                purchases
+            WHERE
+                receipt_id = #{receiptId}
+            AND
+                #{from} <= purchase_date
+            AND
+                purchase_date < #{to}
+        )
+        ]]>
+    </select>
+    <select id="selectAllUser" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseNewDto">
+        SELECT
+            count,
+            price,
+            dc_price,
+            name,
+            user_record_index,
+            code,
+            menu_name_kr,
+            receipt_status,
+            opt_size,
+            opt_type,
+            update_date,
+            cancel_date,
+            purchase_date,
+            canceled_date,
+            index,
+            receipt_id,
+            email,
+            company,
+            purchase_type
+        FROM
+            purchases
+        <![CDATA[
+        WHERE
+            #{before} <= update_date
+        AND
+            update_date <= #{after}
+        ]]>
+        <if test = "userRecordIndex > 0">
+        AND
+            user_record_index = #{userRecordIndex}
+        </if>
+        <if test = 'company != null and company != ""'>
+        AND
+            company = #{company}
+        </if>
+        ORDER BY
+            update_date
+        DESC
     </select>
 </mapper>

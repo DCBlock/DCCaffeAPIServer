@@ -12,11 +12,15 @@ public class ReceiptIdVo {
 
     private String name;
 
-    private Timestamp regdate;
+    private String company;
 
-    private long receiptId;
+    private String email;
 
     private long userRecordIndex;
 
-    private String company;
+    private long receiptId;
+
+    private String randomId;
+
+    private Timestamp regdate;
 }

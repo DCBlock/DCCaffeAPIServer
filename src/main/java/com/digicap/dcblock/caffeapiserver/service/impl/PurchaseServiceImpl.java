@@ -1,15 +1,12 @@
 package com.digicap.dcblock.caffeapiserver.service.impl;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import com.digicap.dcblock.caffeapiserver.dao.ReceiptIdDao;
+import com.digicap.dcblock.caffeapiserver.dto.*;
 import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,15 +14,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
-import com.digicap.dcblock.caffeapiserver.dto.MenuDto;
-import com.digicap.dcblock.caffeapiserver.dto.PurchaseBalanceDto;
-import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
-import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
-import com.digicap.dcblock.caffeapiserver.dto.PurchasedDto;
-import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
-import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo;
-import com.digicap.dcblock.caffeapiserver.dto.UserDto;
-import com.digicap.dcblock.caffeapiserver.dto.UserVo;
 import com.digicap.dcblock.caffeapiserver.exception.ExpiredTimeException;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
@@ -35,8 +23,6 @@ import com.digicap.dcblock.caffeapiserver.service.MenuService;
 import com.digicap.dcblock.caffeapiserver.service.PurchaseService;
 import com.digicap.dcblock.caffeapiserver.store.MenuMapper;
 import com.digicap.dcblock.caffeapiserver.store.PurchaseMapper;
-import com.digicap.dcblock.caffeapiserver.store.UserMapper;
-import com.digicap.dcblock.caffeapiserver.util.ApplicationProperties;
 import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
 
 import lombok.extern.slf4j.Slf4j;
@@ -49,11 +35,6 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     private static final String COMPANY_DIGICAP = "digicap";
     private static final String COMPANY_COVISION = "covision";
 
-    private static final int MINUTES = 1;
-    private static final int TEN_MINUTES = 10 * MINUTES;
-
-    private UserMapper userMapper;
-
     private PurchaseMapper purchaseMapper;
 
     private ReceiptIdDao receiptIdDao;
@@ -64,18 +45,18 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
 
     @Value("${api-version}")
     private String apiVersion;
-    
+
     @Value("${admin-server}")
     private String adminServer;
-    
-    @Autowired
-    public PurchaseServiceImpl(UserMapper userMapper, PurchaseMapper purchaseMapper, ReceiptIdDao receiptIdDao,
-                               MenuMapper menuMapper, MenuService menuService) {
-        this.userMapper = userMapper;
 
+    @Value("${cancel-able-minute:10}")
+    private int cancelTime;
+
+    @Autowired
+    public PurchaseServiceImpl(PurchaseMapper purchaseMapper, ReceiptIdDao receiptIdDao,
+                               MenuMapper menuMapper, MenuService menuService) {
         this.purchaseMapper = purchaseMapper;
 
-//        this.receiptMapper = receiptIdsMapper;
         this.receiptIdDao = receiptIdDao;
 
         this.menuMapper = menuMapper;
@@ -84,30 +65,32 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     }
 
     @Override
-    public ReceiptIdDto getReceiptId(String rfid) throws UnknownException, MyBatisSystemException, NotFindException {
-//        UserVo userVo = null;
+    public ReceiptIdDto getReceiptId(String rfid) throws UnknownException, MyBatisSystemException,
+            NotFindException {
         UserDto userDto = null;
-        
+
         try {
-//            userVo = userMapper.selectUserByRfid(rfid);
             userDto = new AdminServer(adminServer, apiVersion).getUserByRfid(rfid);
         } catch (Exception e) {
-            throw new UnknownException(e.getMessage());
+            throw new UnknownException(String.format("Admin Server: %s", e.getMessage()));
         }
 
         if (userDto == null) {
             throw new NotFindException("not find user using rfid");
         }
 
+        // TODO SelectKey로 한번에 처리 가능.
         // ReceiptId 생성.
         int receiptId = purchaseMapper.selectReceiptId();
 
+        // TODO ReceiptIdVo가 아니라 Dto가 맞음. Mybatis에서 SelectKey로 Before 때문에 Set이 필요하기 때문에 Vo가 아님.
         // instance ReceiptIdVo
         ReceiptIdVo receiptIdVo = new ReceiptIdVo();
         receiptIdVo.setName(userDto.getName());
         receiptIdVo.setCompany(userDto.getCompany().toLowerCase());
         receiptIdVo.setReceiptId(receiptId);
         receiptIdVo.setUserRecordIndex(userDto.getIndex());
+        receiptIdVo.setEmail(userDto.getEmail());
 
         // receipts table에 insert
         int result = receiptIdDao.insertByReceipt(receiptIdVo);
@@ -120,6 +103,8 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         receiptIdDto.setName(userDto.getName());
         receiptIdDto.setCompany(userDto.getCompany());
         receiptIdDto.setDate(new TimeFormat().getCurrent());
+        // RandomId는 생성해서 DB에 저장하지만, 사용하지는 않음.
+//        receiptIdDto.setRandomId(receiptIdVo.getRandomId());
 
         return receiptIdDto;
     }
@@ -127,18 +112,16 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     /**
      * 구매 요청을 처리.
      *
-     * @param receiptId 구매하려는 사용자가 발급받은 영수증 ID.
+     * @param receiptId  구매하려는 사용자가 발급받은 영수증 ID.
      * @param _purchases 구매목록.
-     * @return
      */
     @Override
-    public PurchasedDto requestPurchases(int receiptId, List<LinkedHashMap<String, Object>> _purchases) 
+    public PurchasedDto requestPurchases(int receiptId, int type, List<LinkedHashMap<String, Object>> _purchases)
             throws MyBatisSystemException, NotFindException, InvalidParameterException, UnknownException {
         // parameter 확인
-//        ReceiptIdVo receiptIdVo = receiptMapper.selectByReceiptId(receiptId);
         ReceiptIdDto receiptIdDto = receiptIdDao.selectByReceipt(receiptId);
         if (receiptIdDto == null) {
-            throw new NotFindException("not find receipt_id");
+            throw new NotFindException("not find receiptId");
         }
 
         // receiptId는 구매 API 성공과 상관없이 일회용.
@@ -151,37 +134,39 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         }
 
         // hashmap to instance
-        LinkedList<PurchaseDto> purchases = toPurchaseDtos(_purchases);
+        LinkedList<PurchaseDto> purchases = toPurchaseDtos(_purchases, receiptIdDto.getEmail(), receiptIdDto.getCompany());
 
         LinkedHashMap<Integer, LinkedList<MenuDto>> menusInCategory = menuService.getAllMenusUsingCode();
 
         // 구매요청한 카테고리, 메뉴 확인
-        for (PurchaseDto purchaseDto : purchases) {
-            int category = purchaseDto.getCategory();
-            int code = purchaseDto.getCode();
+        for (int i = 0; i < purchases.size(); i++) {
+            int category = purchases.get(i).getCategory();
+            int code = purchases.get(i).getCode();
             boolean bExist = menuMapper.existCode(code, category);
             if (!bExist) {
-               throw new InvalidParameterException("unknown category: " + category);
+                throw new InvalidParameterException("unknown category: " + category);
             }
 
             for (MenuDto menu : menusInCategory.get(category)) {
-                // 사용자 정보.
-                purchaseDto.setName(receiptIdDto.getName());
-                purchaseDto.setUser_record_index(receiptIdDto.getUserRecordIndex());
+                if (menu.getCode() == code) {
+                    // 사용자 정보.
+                    purchases.get(i).setName(receiptIdDto.getName());
+                    purchases.get(i).setUser_record_index(receiptIdDto.getUserRecordIndex());
 
-                // 구매 정보.
-                purchaseDto.setPrice(menu.getPrice());
-                purchaseDto.setMenu_name_kr(menu.getName_kr());
-                purchaseDto.setReceipt_id(receiptId);
+                    // 구매 정보.
+                    purchases.get(i).setPrice(menu.getPrice());
+                    purchases.get(i).setMenu_name_kr(menu.getName_kr());
+                    purchases.get(i).setReceipt_id(receiptId);
 
-                // DC 가격
-                String company = receiptIdDto.getCompany();
-                if (company.equals(COMPANY_DIGICAP)) {
-                    purchaseDto.setDc_price(menu.getDc_digicap());
-                } else if (company.equals(COMPANY_COVISION)) {
-                    purchaseDto.setDc_price(menu.getDc_covision());
-                } else {
-                    purchaseDto.setDc_price(0);
+                    // DC 가격
+                    String company = receiptIdDto.getCompany();
+                    if (company.equals(COMPANY_DIGICAP)) {
+                        purchases.get(i).setDc_price(menu.getDc_digicap());
+                    } else if (company.equals(COMPANY_COVISION)) {
+                        purchases.get(i).setDc_price(menu.getDc_covision());
+                    } else {
+                        purchases.get(i).setDc_price(0);
+                    }
                 }
             }
         }
@@ -190,6 +175,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         for (PurchaseDto p : purchases) {
             try {
                 p.setReceipt_status(RECEIPT_STATUS_PURCHASE);
+                p.setPurchase_type(type);
                 int result = purchaseMapper.insertPurchase(p);
                 if (result == 0) {
                     // TODO receipt id db delete
@@ -209,16 +195,29 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     }
 
     /**
-     * 구매된 목록 중에서 취소를 처리(취소가 완료가 아닌 취소대기
-     *
-     * @param receiptId
-     * @return
+     * 구매된 목록 중에서 취소 요청
      */
     @Override
-    public List<PurchaseDto> cancelPurchases(int receiptId) throws MyBatisSystemException, NotFindException, ExpiredTimeException {
-        LinkedList<Timestamp> updateDatePurchases = purchaseMapper.selectByReceiptId(receiptId);
+    public List<PurchaseDto> cancelPurchases(int receiptId, String rfid) throws MyBatisSystemException,
+            NotFindException, ExpiredTimeException {
+        // find User by rfid
+        UserDto userDto = null;
+
+        try {
+            userDto = new AdminServer(adminServer, apiVersion).getUserByRfid(rfid);
+        } catch (Exception e) {
+            throw new UnknownException(String.format("Admin Server: %s", e.getMessage()));
+        }
+
+        if (userDto == null) {
+            throw new NotFindException(String.format("not find user by rfid(%s)", rfid));
+        }
+
+        // 오늘 receiptId로 구매된 결과가 있는지 확인
+        LinkedList<Timestamp> updateDatePurchases = purchaseMapper.selectByReceiptId(receiptId,
+                userDto.getIndex());
         if (updateDatePurchases == null || updateDatePurchases.size() == 0) {
-            throw new NotFindException("not find purchases using receipt_id");
+            throw new NotFindException("not find purchases by receiptId");
         }
 
         // 구매 취소 가능한 시간 확인. 10분
@@ -228,7 +227,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
 
         LinkedList<PurchaseDto> results = purchaseMapper.updateReceiptCancelStatus(receiptId);
         if (results == null || results.size() == 0) {
-            throw new NotFindException("not find purchase list using receipt_id");
+            throw new NotFindException("not find purchases by receiptId");
         }
 
         return results;
@@ -238,15 +237,19 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
      * 구매취소 요청을 승인
      *
      * @param receiptId receipt id
-     * @return
      */
     @Override
-    public List<PurchaseDto> cancelApprovalPurchases(int receiptId) throws MyBatisSystemException, NotFindException {
-        if (!purchaseMapper.existReceiptId(receiptId)) {
+    public List<PurchaseDto> cancelApprovalPurchases(int receiptId, Timestamp today)
+            throws MyBatisSystemException, NotFindException {
+        // Get Tomorrow
+        Timestamp tomorrow = new TimeFormat().toTomorrow(today);
+
+        if (!purchaseMapper.existReceiptId(receiptId, today, tomorrow)) {
             throw new NotFindException("not find receipt_id");
         }
 
-        LinkedList<PurchaseDto> results = purchaseMapper.updateReceiptCancelApprovalStatus(receiptId);
+        LinkedList<PurchaseDto> results = purchaseMapper
+                .updateReceiptCancelApprovalStatus(receiptId, today, tomorrow);
         if (results == null || results.size() == 0) {
             throw new NotFindException("not find cancel' purchase using receipt_id");
         }
@@ -255,35 +258,46 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     }
 
     @Override
-    public LinkedList<PurchaseVo> getPurchases(PurchaseDto purchaseDto, Date fromDate, Date toDate) throws MyBatisSystemException {
-        LinkedList<PurchaseVo> purchases = purchaseMapper.selectAllByUser(fromDate, toDate,
-            purchaseDto.getUser_record_index(), purchaseDto.getReceipt_status());
+    public LinkedList<PurchaseOldDto> getPurchases(PurchaseDto purchaseDto, Timestamp from, Timestamp to)
+            throws MyBatisSystemException {
+        LinkedList<PurchaseOldDto> purchases = purchaseMapper.selectAllByUser(from, to,
+                purchaseDto.getUser_record_index(), purchaseDto.getReceipt_status());
         return purchases;
     }
 
     @Override
-    public PurchaseBalanceDto getBalanceByRfid(String rfid, Date fromDate, Date toDate) throws MyBatisSystemException, NotFindException {
-        // TODO Admin API
-        UserVo userVo = Optional.ofNullable(userMapper.selectUserByRfid(rfid))
-            .orElseThrow(() -> new NotFindException(String.format("not find rfid(%s)", rfid)));
+    public PurchaseBalanceDto getBalanceByRfid(String rfid, Timestamp from, Timestamp to)
+            throws MyBatisSystemException, NotFindException {
+        // Get user from AdminServer.
+        UserDto userDto = null;
 
-        if (userVo.getName() == null) {
-            throw new NotFindException(String.format("not find rfid(%s)", rfid));
+        try {
+            userDto = new AdminServer(adminServer, apiVersion).getUserByRfid(rfid);
+        } catch (Exception e) {
+            throw new UnknownException(String.format("Admin Server: %s", e.getMessage()));
+        }
+
+        if (userDto == null) {
+            throw new NotFindException(String.format("not find user using rfid(%s)", rfid));
         }
 
         //
         PurchaseDto purchaseDto = new PurchaseDto();
-        purchaseDto.setUser_record_index(userVo.getIndex());
+        purchaseDto.setUser_record_index(userDto.getIndex());
         purchaseDto.setReceipt_status(RECEIPT_STATUS_PURCHASE);
 
         // Get Purchases.
-        LinkedList<PurchaseVo> purchases = purchaseMapper.selectAllByUser(fromDate, toDate,
-            purchaseDto.getUser_record_index(), purchaseDto.getReceipt_status());
+        LinkedList<PurchaseOldDto> purchases = purchaseMapper.selectAllByUser(from, to,
+                purchaseDto.getUser_record_index(), purchaseDto.getReceipt_status());
 
         // Calculate total, dc_total.
         int total = 0;
         int dc_total = 0;
-        for (PurchaseVo p : purchases) {
+        for (PurchaseOldDto p : purchases) {
+            if (p.getPurchaseType() == PURCHASE_TYPE_GUEST) {
+                continue;
+            }
+
             total += p.getPrice() * p.getCount();
             dc_total += p.getDcPrice() * p.getCount();
         }
@@ -292,37 +306,91 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         PurchaseBalanceDto balanceDto = new PurchaseBalanceDto();
         balanceDto.setTotal_price(total);
         balanceDto.setTotal_dc_price(dc_total);
-        balanceDto.setName(userVo.getName());
+        balanceDto.setName(userDto.getName());
 
         return balanceDto;
     }
 
-    // --------------------------------------------------------------------------------------------
+    @Override
+    public
+    LinkedList<PurchaseSearchDto> getPurchasesBySearch(PurchaseWhere w) {
+        /* userRecordIndex 는 filter 가 -1인 경우에만 사용 */
+
+        LinkedList<PurchaseNewDto> r = null;
+
+        if (w.getFilter() == 3) { // 3 is cancel and canceled
+            // Get cancel, canceled
+            // ORDER BY update DESC
+            r = purchaseMapper.selectAllCancel(w.getBefore(), w.getAfter(), w.getCompany());
+            if (r == null) {
+                throw new NotFindException("not find purchases");
+            }
+        } else if (w.getFilter() == -1) { // -1 is all
+            r = purchaseMapper.selectAllUser(w.getBefore(), w.getAfter(), w.getUserRecordIndex(), w.getCompany());
+            if (r == null || r.size() == 0) {
+                throw new NotFindException(String.format("not find purchases for user(%s)", w.getUserRecordIndex()));
+            }
+        }
+
+        // Grouping Date and ReceiptId
+//        Timestamp yesterday = new TimeFormat().toYesterday(before);
+//        Timestamp today = before;
+//        while (after.equals(yesterday) || after.before(yesterday)) { // after <= yesterday
+//            // p에는 목록에서 기간에 해당하는 목록만 존재
+//            LinkedList<PurchaseNewDto> p = getPurchasePeriod(yesterday, today, r);
+//
+//            if (p != null && p.size() > 0) {
+//                LinkedHashMap<String, LinkedList<PurchaseSearchDto>> lh = getGroupByReceiptId(p);
+//                if (lh != null && lh.size() > 0) {
+//                    results.put(yesterday.toLocalDateTime().toLocalDate().toString(), lh);
+//                }
+//            }
+//
+//            // Refresh today, yesterday
+//            today = yesterday;
+//            yesterday = new TimeFormat().toYesterday(yesterday);
+//        }
+        LinkedList<PurchaseSearchDto> results = new LinkedList<>();
+
+        // 정의된 응답으로 변경.
+        for (PurchaseNewDto p : r) {
+            PurchaseSearchDto ps = new PurchaseSearchDto(p);
+            results.add(ps);
+        }
+
+        return results;
+    }
+
+    // -------------------------------------------------------------------------
     // Private Methods
 
     /**
      * 숫자를 네자리 문자열로 변경. 공백은 0으로 채움.
      *
      * @param number 숫자.
-     * @return
      */
     private String insertZeroString(int number) {
         int length = String.valueOf(number).length();
 
         String value = String.valueOf(number);
 
-        if (length == 3) {
+        if (length == 5) {
             return "0" + value;
-        } else if (length == 2) {
+        } else if (length == 4) {
             return "00" + value;
-        } else if (length == 1) {
+        } else if (length == 3) {
             return "000" + value;
+        } else if (length == 2) {
+            return "0000" + value;
+        } else if (length == 1) {
+            return "00000" + value;
         } else {
             return value;
         }
     }
 
-    private LinkedList<PurchaseDto> toPurchaseDtos(List<LinkedHashMap<String, Object>> purchases) {
+    private LinkedList<PurchaseDto> toPurchaseDtos(List<LinkedHashMap<String, Object>> purchases,
+                                                   String email, String company) {
         LinkedList<PurchaseDto> results = new LinkedList<>();
 
         for (LinkedHashMap<String, Object> p : purchases) {
@@ -330,6 +398,8 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
             pp.setCategory(Integer.valueOf(p.getOrDefault("category", -1).toString()));
             pp.setCode(Integer.valueOf(p.getOrDefault("code", -1).toString()));
             pp.setCount(Integer.valueOf(p.getOrDefault("count", -1).toString()));
+            pp.setEmail(email);
+            pp.setCompany(company);
 
             String size = p.getOrDefault("size", -1).toString().toUpperCase();
             switch (size) {
@@ -351,6 +421,8 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
                 case OPT_TYPE_ICED:
                     pp.setOpt_type(1);
                     break;
+                case OPT_TYPE_BOTH:
+                    pp.setOpt_type(2);
                 default:
                     throw new InvalidParameterException(String.format("unknown type(%s)", type));
             }
@@ -371,7 +443,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         int total = 0;
 
         for (PurchaseDto p : purchases) {
-            total += p.getPrice();
+            total += (p.getPrice() * p.getCount());
         }
 
         return total;
@@ -387,7 +459,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         int total = 0;
 
         for (PurchaseDto p : purchases) {
-            total += p.getDc_price();
+            total += (p.getDc_price() * p.getCount());
         }
 
         return total;
@@ -397,17 +469,103 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
      * 구매취소 가능 시간을 확인
      *
      * @param timestamp purchase timestamp
-     * @return
      */
     private boolean enablePurchaseCancel(Timestamp timestamp) {
         LocalTime startTime = timestamp.toLocalDateTime().toLocalTime();
         LocalTime endTime = LocalTime.now();
-        long minutes = ChronoUnit.MINUTES.between(startTime, endTime);
 
-        if (minutes < TEN_MINUTES) {
+        // 구매시간과 현재시간 차이가 10분 이하 인 경우에만 유효.
+        long minutes = ChronoUnit.MINUTES.between(startTime, endTime);
+        if (minutes >= 0 && minutes <= cancelTime) {
+            // TODO 23:55에 구매한걸 00:03분에 취소할 수 없음.
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * 일정기간 동안의 목록을 Get.
+     *
+     * @param from
+     * @param to
+     * @param purchases
+     * @return
+     */
+    private LinkedList<PurchaseNewDto> getPurchasePeriod(Timestamp from, Timestamp to, LinkedList<PurchaseNewDto> purchases) {
+        LinkedList<PurchaseNewDto> r = new LinkedList<>();
+
+        Iterator<PurchaseNewDto> itr = purchases.iterator();
+        while (itr.hasNext()) {
+            PurchaseNewDto p = itr.next();
+
+            Timestamp t = p.getUpdate_date();
+            if (t.after(from) && t.before(to)) { // from < t < to
+                r.add(p);
+                itr.remove();
+            }
+        }
+
+        return r;
+    }
+
+    /**
+     * receiptID 기준으로 역순 정렬
+     *
+     * @param purchases
+     */
+    private void sortDescByReceiptId(LinkedList<PurchaseNewDto> purchases) {
+        log.debug("");
+        // ReceiptID Order DESC
+        purchases.sort(new Comparator<PurchaseNewDto>() {
+
+            @Override
+            public int compare(PurchaseNewDto o1, PurchaseNewDto o2) {
+                return o1.getReceipt_id() - o2.getReceipt_id();
+            }
+        });
+
+        log.debug("");
+    }
+
+    /**
+     * ReceiptID 기준으로 그룹화.
+     *
+     * @param purchases
+     * @return
+     */
+    private LinkedHashMap<String, LinkedList<PurchaseSearchDto>> getGroupByReceiptId(LinkedList<PurchaseNewDto> purchases) {
+        LinkedHashMap<String, LinkedList<PurchaseSearchDto>> results = new LinkedHashMap<>();
+
+        // sort
+        sortDescByReceiptId(purchases);
+
+        // Get All ReceiptID
+        LinkedList<Integer> keys = new LinkedList<>();
+
+        for (int i = 0; i < purchases.size(); i++) {
+            if (!keys.contains(purchases.get(i).getReceipt_id())) {
+                keys.add(purchases.get(i).getReceipt_id());
+            }
+        }
+
+        LinkedList<PurchaseSearchDto> temp = null;
+
+        for (Integer k : keys) {
+            for (int i = 0; i < purchases.size(); i++) {
+                temp = new LinkedList<>();
+
+                if (purchases.get(i).getReceipt_id() == k.intValue()) {
+                    PurchaseSearchDto p = new PurchaseSearchDto(purchases.get(i));
+                    temp.add(p);
+                }
+            }
+
+            if (temp != null && temp.size() > 0) {
+                results.put(insertZeroString(k.intValue()), temp);
+            }
+        }
+
+        return results;
     }
 }

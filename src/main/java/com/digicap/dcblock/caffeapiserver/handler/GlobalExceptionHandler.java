@@ -23,12 +23,21 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 /**
  * Global Exception Handler Class.
  * exclude Authentication Exception(AuthenticationFailureHandler.java). 
- * 
+ *
  * @author DigiCAP
  */
 @ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public ApiError handleException(Exception e) {
+        log.error(e.getMessage());
+        e.printStackTrace();
+        return new ApiError(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
+    }
 
     @ExceptionHandler(UnknownException.class)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
@@ -43,8 +52,8 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     @ResponseBody
     public ApiError handleException(NotFindException e) {
-        e.printStackTrace();
         log.error(e.getReason());
+        e.printStackTrace();
         return new ApiError(HttpStatus.NOT_FOUND.value(), e.getReason());
     }
 
@@ -104,8 +113,8 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public ApiError handleException(MyBatisSystemException e) {
-        e.printStackTrace();
         log.error(e.getMessage());
+        e.printStackTrace();
         return new ApiError(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
     }
 
@@ -113,8 +122,8 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ApiError handleException(MethodArgumentNotValidException e) {
-        e.printStackTrace();
         log.error(e.getMessage());
+        e.printStackTrace();
         return new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
     }
 
@@ -122,8 +131,8 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public ApiError handleException(JwtException e) {
-        e.printStackTrace();
         log.error(e.getMessage());
+        e.printStackTrace();
         return new ApiError(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
     }
 
@@ -131,8 +140,17 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ApiError handleException(HttpMessageNotReadableException e) {
-        e.printStackTrace();
         log.error(e.getMessage());
+        e.printStackTrace();
         return new ApiError(HttpStatus.BAD_REQUEST.value(), "invalid input values");
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ApiError handleException(IllegalArgumentException e) {
+        log.error(e.getMessage());
+        e.printStackTrace();
+        return new ApiError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
     }
 }

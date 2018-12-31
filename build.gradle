@@ -59,9 +59,9 @@ dependencies {
 
     // error java.lang.ClassNotFoundException: com.sun.xml.internal.bind.v2.ContextFactory
     // https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api
-    compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
+    // compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
     // https://mvnrepository.com/artifact/com.sun.xml.bind/jaxb-impl
-    compile group: 'com.sun.xml.bind', name: 'jaxb-impl', version: '2.3.1'
+    // compile group: 'com.sun.xml.bind', name: 'jaxb-impl', version: '2.3.1'
     
     // for WebClient
     compile 'org.springframework.boot:spring-boot-starter-webflux'
@@ -78,6 +78,6 @@ dependencies {
     
     // error java.lang.NoClassDefFoundError: com/sun/istack/Pool
     // https://mvnrepository.com/artifact/com.sun.istack/istack-commons-runtime
-    compile group: 'com.sun.istack', name: 'istack-commons-runtime', version: '3.0.7'
-    
+    // compile group: 'com.sun.istack', name: 'istack-commons-runtime', version: '3.0.7'
+	compile 'com.google.guava:guava:27.0.1-jre'
 }
