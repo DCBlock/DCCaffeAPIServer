@@ -19,4 +19,8 @@ public class PurchaseWhere {
     private String company;
 
     private long userRecordIndex;
+
+    private int size;
+
+    private int page;
 }

@@ -40,7 +40,9 @@ public class SettlementController implements CaffeApiServerApplicationConstants 
     LinkedList<SettlementReportDto> getSettlements(
             @RequestParam(value = "before", defaultValue = "0") long before,
             @RequestParam(value = "after", defaultValue = "0") long after,
-            @RequestParam(value = "company", defaultValue = "") String company) {
+            @RequestParam(value = "company", defaultValue = "") String company,
+            @RequestParam(value = "size", defaultValue = "0") int size,
+            @RequestParam(value = "page", defaultValue = "0") int page) {
         // Check Argument
         Preconditions.checkArgument(before > 0, "before is empty");
         Preconditions.checkArgument(after > 0, "after is empty");
@@ -56,14 +58,8 @@ public class SettlementController implements CaffeApiServerApplicationConstants 
 
         Preconditions.checkArgument(!b.after(a), "before(%s) is bigger then after(%s)", b.toString(), a.toString());
 
-//        // Test
-//        SettlementReportDto temp = new SettlementReportDto();
-//        temp.setName("서상호");
-//        temp.setCompany("digicap");
-//        temp.setEmail("shseo@digicap.com");
-//
-//        LinkedList<SettlementReportDto> results = new LinkedList<>();
-//        results.add(temp);
+//        Preconditions.checkArgument( 10 <= size && size <= 20, "size is %s. size is 10 ~ 20", size);
+//        Preconditions.checkArgument( page > 0, "page is %s. page start is 1", page);
 
         LinkedList<SettlementReportDto> results = settlementService.getReports(b, a, company);
         return results;
