@@ -183,7 +183,8 @@
             index,
             receipt_id,
             email,
-            company
+            company,
+            purchase_type
         FROM
             purchases
         <![CDATA[
