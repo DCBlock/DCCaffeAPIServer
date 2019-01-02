@@ -99,7 +99,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
 
     @PatchMapping(value = "/api/caffe/purchases/purchase/receipt/{receiptId}/cancel",
             consumes = "application/json; charset=utf-8")
-    HashMap<String, List<Purchase2Dto>> cancelPurchaseByReceiptId(
+    PurchaseCancelingDto cancelPurchaseByReceiptId(
             @PathVariable("receiptId") int receiptId,
             @RequestBody RfidDto rfidDto) {
         // Check Argument.
@@ -114,8 +114,14 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
             cancels2.add(toPurchaseDto(p));
         }
 
-        LinkedHashMap<String, List<Purchase2Dto>> result = new LinkedHashMap<>();
-        result.put(KEY_PURCHASE_CANCELS, cancels2);
+        PurchaseCancelingDto result  = new PurchaseCancelingDto();
+//        LinkedHashMap<String, List<Purchase2Dto>> result = new LinkedHashMap<>();
+//        result.put(KEY_PURCHASE_CANCELS, cancels2);
+        result.setReceiptId(receiptId);
+        if (cancels2.size() > 0) {
+            result.setPurchasedDate(new TimeFormat().timestampToString(cancels.get(0).getPurchase_date()));
+        }
+        result.setPurchaseCancels(cancels);
 
         return result;
     }
@@ -225,36 +231,41 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
     }
 
     @GetMapping("/api/caffe/purchases/temporary/{randomUri}")
-    LinkedHashMap<String, Object> getPurchasesByUri(@PathVariable("randomUri") String uri) {
+    LinkedHashMap<String, Object> getPurchasesByTemporaryUri(@PathVariable("randomUri") String uri) {
         // Get registered user_record_index and name by random uri.
         TemporaryUriDto temporaryUriVo = temporaryUriService.existTemporary(uri);
 
         // Set Where Case.
         PurchaseDto purchaseDto = new PurchaseDto();
         purchaseDto.setUser_record_index(temporaryUriVo.getUserRecordIndex());
-        purchaseDto.setReceipt_status(RECEIPT_STATUS_PURCHASE);
+        purchaseDto.setReceipt_status(RECEIPT_STATUS_ALL);
 
         // Get Purchased List.
-        LinkedList<PurchaseOldDto> purchases = service.getPurchases(purchaseDto, temporaryUriVo.getSearchDateBefore(),
+        LinkedList<PurchaseNewDto> purchases = service.getPurchases(purchaseDto, temporaryUriVo.getSearchDateBefore(),
                 temporaryUriVo.getSearchDateAfter());
 
-        List<Purchase2Vo> cancels2 = new ArrayList<>();
-        for (PurchaseOldDto p : purchases) {
-            cancels2.add(toPurchase2Vo(p));
+        List<PurchasesTemporaryDto> cancels2 = new ArrayList<>();
+        for (PurchaseNewDto p : purchases) {
+            cancels2.add(new PurchasesTemporaryDto(p));
         }
 
-        int total = 0;
-        int dc_total = 0;
+        long total = 0;
+        long dc_total = 0;
 
-        for (PurchaseOldDto p : purchases) {
+        for (PurchasesTemporaryDto p : cancels2) {
             // 구매종류가 Guest는 가격을 계산하지 않음.
             // Guest는 경영지원실에서 결재함.
             if (p.getPurchaseType() == PURCHASE_TYPE_GUEST) {
                 continue;
             }
 
+            // 구매취소승인된 것은 계산하지 않음.
+            if (p.getReceiptStatus() == CaffeApiServerApplicationConstants.RECEIPT_STATUS_CANCELED) {
+               continue;
+            }
+
             total += p.getPrice() * p.getCount();
-            dc_total += p.getDcPrice() * p.getCount();
+            dc_total += p.getDc_price() * p.getCount();
         }
 
         // Result

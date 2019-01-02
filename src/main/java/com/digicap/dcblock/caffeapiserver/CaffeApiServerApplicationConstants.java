@@ -16,7 +16,10 @@ public interface CaffeApiServerApplicationConstants {
     String KEY_PURCHASE_CANCELS = "purchase_cancels";
     String KEY_PURCHASE_CANCELEDS = "purchase_canceleds";
     String KEY_URI = "uri";
+    String KEY_RECEIPT_ID = "receipt_id";
+    String KEY_PURCHASED_DATE = "purchased_date";
 
+    int RECEIPT_STATUS_ALL = -2;
     int RECEIPT_STATUS_READY = -1;
     int RECEIPT_STATUS_PURCHASE = 0;
     int RECEIPT_STATUS_CANCEL = 1;

@@ -258,10 +258,12 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     }
 
     @Override
-    public LinkedList<PurchaseOldDto> getPurchases(PurchaseDto purchaseDto, Timestamp from, Timestamp to)
+    public LinkedList<PurchaseNewDto> getPurchases(PurchaseDto purchaseDto, Timestamp from, Timestamp to)
             throws MyBatisSystemException {
-        LinkedList<PurchaseOldDto> purchases = purchaseMapper.selectAllByUser(from, to,
-                purchaseDto.getUser_record_index(), purchaseDto.getReceipt_status());
+//        LinkedList<PurchaseOldDto> purchases = purchaseMapper.selectAllByUser(from, to,
+//                purchaseDto.getUser_record_index(), purchaseDto.getReceipt_status());
+
+        LinkedList<PurchaseNewDto> purchases = purchaseMapper.selectAllUser(from, to, purchaseDto.getUser_record_index(), "");
         return purchases;
     }
 

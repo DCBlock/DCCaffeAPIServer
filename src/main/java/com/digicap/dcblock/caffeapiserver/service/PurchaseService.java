@@ -17,7 +17,7 @@ public interface PurchaseService {
 
     List<PurchaseDto> cancelApprovalPurchases(int receiptId, Timestamp purchaseDate);
 
-    LinkedList<PurchaseOldDto> getPurchases(PurchaseDto purchaseDto, Timestamp before, Timestamp after);
+    LinkedList<PurchaseNewDto> getPurchases(PurchaseDto purchaseDto, Timestamp before, Timestamp after);
 
     PurchaseBalanceDto getBalanceByRfid(String rfid, Timestamp before, Timestamp after);
 
