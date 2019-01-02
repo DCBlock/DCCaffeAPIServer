@@ -104,14 +104,15 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
      * @return
      */
     public LinkedList<SettlementReportDto> getReports(Timestamp before, Timestamp after, String company) {
+        LinkedList<SettlementReportDto> results = new LinkedList<>();
+
         // Get purchases
         // user_record_index = -1은 모든 사용자
         LinkedList<PurchaseNewDto> purchases = purchaseMapper.selectAllUser(before, after, -1, company);
         if (purchases == null || purchases.size() == 0)  {
-            throw new NotFindException("not find purchases");
+//            throw new NotFindException("not find purchases");
+            return results;
         }
-
-        LinkedList<SettlementReportDto> results = new LinkedList<>();
 
         // 사용자별 계산을 위해 임시 정렬 HashMap
         HashMap<Long, List<PurchaseNewDto>> temp = new HashMap<>();
