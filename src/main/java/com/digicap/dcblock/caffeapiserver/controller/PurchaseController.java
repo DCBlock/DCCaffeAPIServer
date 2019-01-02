@@ -69,7 +69,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
     PurchasedDto createPurchasesByReceiptId(@PathVariable("receiptId") int receiptId,
                                             @RequestBody HashMap<String, Object> body) {
         // Check Argument.
-        Preconditions.checkArgument(1 <= receiptId && receiptId <= 9999, "invalid receiptId(%s)", receiptId);
+        Preconditions.checkArgument(1 <= receiptId && receiptId <= 999999, "invalid receiptId(%s)", receiptId);
 
         int type = Integer.valueOf(body.getOrDefault(KEY_PURCHASE_TYPE, -1).toString());
         if (type == -1) {
@@ -103,7 +103,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
             @PathVariable("receiptId") int receiptId,
             @RequestBody RfidDto rfidDto) {
         // Check Argument.
-        Preconditions.checkArgument(1 <= receiptId && receiptId <= 9999, "invalid receiptId(%s)", receiptId);
+        Preconditions.checkArgument(1 <= receiptId && receiptId <= 999999, "invalid receiptId(%s)", receiptId);
         Preconditions.checkNotNull(rfidDto == null || rfidDto.getRfid() == null, "rfid is null");
         Preconditions.checkNotNull(rfidDto.getRfid().isEmpty(), "rfid is empty");
 
@@ -124,7 +124,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
     HashMap<String, List<Purchase2Dto>> canceledPurchaseByReceiptId(@PathVariable("receiptId") int receiptId,
                                                                     @RequestParam("purchaseDate") long purchaseDate) {
         // Check Argument.
-        Preconditions.checkArgument(1 <= receiptId && receiptId <= 9999, "invalid receiptId(%s)", receiptId);
+        Preconditions.checkArgument(1 <= receiptId && receiptId <= 999999, "invalid receiptId(%s)", receiptId);
 
         // unix time to Timestamp
         Timestamp purchaseTime = new TimeFormat().toTimeStampExcludeTime(purchaseDate * 1_000);

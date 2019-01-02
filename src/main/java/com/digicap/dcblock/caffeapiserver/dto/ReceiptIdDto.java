@@ -19,7 +19,7 @@ public class ReceiptIdDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String email;
 
-    private String receipt_id;
+    private long receipt_id;
 
     @JsonProperty("random_id")
     @JsonInclude(JsonInclude.Include.NON_NULL)

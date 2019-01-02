@@ -81,7 +81,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
 
         // TODO SelectKey로 한번에 처리 가능.
         // ReceiptId 생성.
-        int receiptId = purchaseMapper.selectReceiptId();
+        long receiptId = purchaseMapper.selectReceiptId();
 
         // TODO ReceiptIdVo가 아니라 Dto가 맞음. Mybatis에서 SelectKey로 Before 때문에 Set이 필요하기 때문에 Vo가 아님.
         // instance ReceiptIdVo
@@ -99,7 +99,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         }
 
         ReceiptIdDto receiptIdDto = new ReceiptIdDto();
-        receiptIdDto.setReceipt_id(insertZeroString(receiptId));
+        receiptIdDto.setReceipt_id(receiptId);
         receiptIdDto.setName(userDto.getName());
         receiptIdDto.setCompany(userDto.getCompany());
         receiptIdDto.setDate(new TimeFormat().getCurrent());
@@ -245,13 +245,13 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         Timestamp tomorrow = new TimeFormat().toTomorrow(today);
 
         if (!purchaseMapper.existReceiptId(receiptId, today, tomorrow)) {
-            throw new NotFindException("not find receipt_id");
+            throw new NotFindException(String.format("not find receipt_id(%s)", receiptId));
         }
 
         LinkedList<PurchaseDto> results = purchaseMapper
                 .updateReceiptCancelApprovalStatus(receiptId, today, tomorrow);
         if (results == null || results.size() == 0) {
-            throw new NotFindException("not find cancel' purchase using receipt_id");
+            throw new NotFindException(String.format("not find cancel' purchase using receipt_id(%s)", receiptId));
         }
 
         return results;
