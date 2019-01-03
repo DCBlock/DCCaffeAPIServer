@@ -9,11 +9,11 @@ import java.sql.Timestamp;
  */
 public interface ReceiptIdDao {
 
-  int insertByReceipt(ReceiptIdVo vo);
+    int insertByReceipt(ReceiptIdVo vo);
 
-  ReceiptIdDto selectByReceipt(int receiptId);
+    ReceiptIdDto selectByReceipt(int receiptId);
 
-  int deleteByReceiptId(int receiptId);
+    int deleteByReceiptId(int receiptId);
 
-  int deleteByRegdate(Timestamp regDate);
+    int deleteByRegdate(Timestamp regDate);
 }
