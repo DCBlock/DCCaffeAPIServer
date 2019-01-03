@@ -9,5 +9,5 @@ import lombok.ToString;
 @ToString
 public class RfidDto {
 
-    private String rfid;
+  private String rfid;
 }

@@ -29,50 +29,50 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class CategoryController {
 
-    private CategoryService categoryService;
+  private CategoryService categoryService;
 
-    @Autowired
-    public CategoryController(CategoryService categoryService) {
-        this.categoryService = categoryService;
+  @Autowired
+  public CategoryController(CategoryService categoryService) {
+    this.categoryService = categoryService;
+  }
+
+  @GetMapping("/api/caffe/categories")
+  LinkedList<CategoryVo> getAllCategory() {
+    LinkedList<CategoryVo> categoriesDao = null;
+
+    try {
+      categoriesDao = categoryService.getAllCategories();
+    } catch (MyBatisSystemException | NotFindException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new UnknownException(e.getMessage());
     }
 
-    @GetMapping("/api/caffe/categories")
-    LinkedList<CategoryVo> getAllCategory() {
-        LinkedList<CategoryVo> categoriesDao = null;
+    return categoriesDao;
+  }
 
-        try {
-            categoriesDao = categoryService.getAllCategories();
-        } catch (MyBatisSystemException | NotFindException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new UnknownException(e.getMessage());
-        }
-
-        return categoriesDao;
+  @PostMapping(value = "/api/caffe/categories", consumes = "application/json; charset=utf-8")
+  CategoryVo createCategory(@RequestBody CategoryVo categoryVo) {
+    // Check Parameter.
+    if (categoryVo.getName().replaceAll(" ", "").isEmpty()) {
+      throw new InvalidParameterException("name is empty");
     }
 
-    @PostMapping(value = "/api/caffe/categories", consumes = "application/json; charset=utf-8")
-    CategoryVo createCategory(@RequestBody CategoryVo categoryVo) {
-        // Check Parameter.
-        if (categoryVo.getName().replaceAll(" ", "").isEmpty()) {
-            throw new InvalidParameterException("name is empty");
-        }
+    CategoryVo result = categoryService.postCategory(categoryVo.getName());
+    return result;
+  }
 
-        CategoryVo result = categoryService.postCategory(categoryVo.getName());
-        return result;
-    }
+  @DeleteMapping("/api/caffe/categories/{code}")
+  MenusInCategoryDto deleteCategory(@PathVariable("code") int code) {
+    // Check Argument.
+    Preconditions.checkArgument(code >= 0, "invalid code(%d)", code);
 
-    @DeleteMapping("/api/caffe/categories/{code}")
-    MenusInCategoryDto deleteCategory(@PathVariable("code") int code) {
-        // Check Argument.
-        Preconditions.checkArgument(code >= 0, "invalid code(%d)", code);
+    MenusInCategoryDto result = categoryService.deleteCategory(code);
+    return result;
+  }
 
-        MenusInCategoryDto result = categoryService.deleteCategory(code);
-        return result;
-    }
-
-    @PatchMapping(value = "/api/caffe/categories", consumes = "application/json; charset=utf-8")
-    void updateAllCategory(@RequestBody LinkedList<CategoryVo> categories) {
-        categoryService.updateAll(categories);
-    }
+  @PatchMapping(value = "/api/caffe/categories", consumes = "application/json; charset=utf-8")
+  void updateAllCategory(@RequestBody LinkedList<CategoryVo> categories) {
+    categoryService.updateAll(categories);
+  }
 }

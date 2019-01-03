@@ -15,18 +15,18 @@ import lombok.ToString;
 @ToString
 public class TemporaryUriDto {
 
-    private String random_uri;
+  private String random_uri;
 
-    private String name;
+  private String name;
 
-    private long userRecordIndex;
+  private long userRecordIndex;
 
-    @JsonProperty(access = Access.WRITE_ONLY)
-    private Date regDate;
+  @JsonProperty(access = Access.WRITE_ONLY)
+  private Date regDate;
 
-    @JsonProperty(access = Access.WRITE_ONLY)
-    private Timestamp searchDateBefore;
+  @JsonProperty(access = Access.WRITE_ONLY)
+  private Timestamp searchDateBefore;
 
-    @JsonProperty(access = Access.WRITE_ONLY)
-    private Timestamp searchDateAfter;
+  @JsonProperty(access = Access.WRITE_ONLY)
+  private Timestamp searchDateAfter;
 }

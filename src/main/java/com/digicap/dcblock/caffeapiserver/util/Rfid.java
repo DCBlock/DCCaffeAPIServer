@@ -9,19 +9,19 @@ import lombok.Getter;
 @Getter
 public class Rfid {
 
-    private static final int LENGTH = 10;
+  private static final int LENGTH = 10;
 
-    private String rfid;
+  private String rfid;
 
-    public Rfid(String rfid) {
-        if (rfid.length() != LENGTH) {
-            throw new InvalidParameterException("RFID length is 10.");
-        }
-
-        try {
-            Integer.valueOf(rfid);
-        } catch (NumberFormatException e) {
-            throw new InvalidParameterException("RFID only Number String.");
-        }
+  public Rfid(String rfid) {
+    if (rfid.length() != LENGTH) {
+      throw new InvalidParameterException("RFID length is 10.");
     }
+
+    try {
+      Integer.valueOf(rfid);
+    } catch (NumberFormatException e) {
+      throw new InvalidParameterException("RFID only Number String.");
+    }
+  }
 }

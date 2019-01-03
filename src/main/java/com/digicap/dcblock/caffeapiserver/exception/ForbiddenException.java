@@ -6,11 +6,11 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ForbiddenException extends RuntimeException {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 6748457581314538191L;
+  /**
+   *
+   */
+  private static final long serialVersionUID = 6748457581314538191L;
 
-    @Getter
-    private String reason;
+  @Getter
+  private String reason;
 }

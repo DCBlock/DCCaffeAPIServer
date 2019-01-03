@@ -6,11 +6,11 @@ import lombok.Getter;
 @AllArgsConstructor
 public class InvalidParameterException extends RuntimeException {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 7747637121997572488L;
+  /**
+   *
+   */
+  private static final long serialVersionUID = 7747637121997572488L;
 
-    @Getter
-    private String reason;
+  @Getter
+  private String reason;
 }

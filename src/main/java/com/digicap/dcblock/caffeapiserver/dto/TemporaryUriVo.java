@@ -11,15 +11,15 @@ import lombok.ToString;
 @ToString
 public class TemporaryUriVo {
 
-    private String randomUri;
+  private String randomUri;
 
-    private long userRecordIndex;
+  private long userRecordIndex;
 
-    private String name;
+  private String name;
 
-    private Timestamp regDate;
+  private Timestamp regDate;
 
-    private Timestamp searchDateAfter;
+  private Timestamp searchDateAfter;
 
-    private Timestamp searchDateBefore;
+  private Timestamp searchDateBefore;
 }

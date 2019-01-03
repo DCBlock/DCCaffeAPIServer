@@ -25,48 +25,48 @@ import com.digicap.dcblock.caffeapiserver.service.MenuService;
 @RestController
 public class MenuController {
 
-    private MenuService service;
+  private MenuService service;
 
-    // -------------------------------------------------------------------------
-    // Constructor
+  // -------------------------------------------------------------------------
+  // Constructor
 
-    @Autowired
-    public MenuController(MenuService service) {
-        this.service = service;
-    }
+  @Autowired
+  public MenuController(MenuService service) {
+    this.service = service;
+  }
 
-    // -------------------------------------------------------------------------
-    // Public Methods
+  // -------------------------------------------------------------------------
+  // Public Methods
 
-    @GetMapping("/api/caffe/menus")
-    LinkedHashMap<String, LinkedList<MenuDto>> getAllMenus() {
-        LinkedHashMap<String, LinkedList<MenuDto>> menus = service.getAllMenus();
-        return menus;
-    }
+  @GetMapping("/api/caffe/menus")
+  LinkedHashMap<String, LinkedList<MenuDto>> getAllMenus() {
+    LinkedHashMap<String, LinkedList<MenuDto>> menus = service.getAllMenus();
+    return menus;
+  }
 
-    @PostMapping(value = "/api/caffe/menus", consumes = "application/json; charset=utf-8")
-    MenuDto insertMenu(@RequestBody MenuDto body) {
-        MenuDto result = service.setMenu(body);
-        return result;
-    }
+  @PostMapping(value = "/api/caffe/menus", consumes = "application/json; charset=utf-8")
+  MenuDto insertMenu(@RequestBody MenuDto body) {
+    MenuDto result = service.setMenu(body);
+    return result;
+  }
 
-    @PatchMapping(value = "/api/caffe/menus/{category}", consumes = "application/json; charset=utf-8")
-    LinkedList<MenuDto> updateMenuInCategory(@PathVariable("category") int category,
-                                             @RequestBody LinkedList<MenuDto> body) {
-        // Check Argument.
-        Preconditions.checkArgument(category > 0, "invalid category(%d)", category);
+  @PatchMapping(value = "/api/caffe/menus/{category}", consumes = "application/json; charset=utf-8")
+  LinkedList<MenuDto> updateMenuInCategory(@PathVariable("category") int category,
+      @RequestBody LinkedList<MenuDto> body) {
+    // Check Argument.
+    Preconditions.checkArgument(category > 0, "invalid category(%d)", category);
 
-        return service.updateAllMenusInCategory(category, body);
-    }
+    return service.updateAllMenusInCategory(category, body);
+  }
 
-    @DeleteMapping("/api/caffe/menus/{category}/{code}")
-    HashMap<String, String> deleteMenu(@PathVariable("category") int category,
-                                       @PathVariable("code") int code) {
-        // Check Argument.
-        Preconditions.checkArgument(category >= 0, "invalid category(%d)", category);
-        Preconditions.checkArgument(code >= 0, "invalid code(%d)", code);
+  @DeleteMapping("/api/caffe/menus/{category}/{code}")
+  HashMap<String, String> deleteMenu(@PathVariable("category") int category,
+      @PathVariable("code") int code) {
+    // Check Argument.
+    Preconditions.checkArgument(category >= 0, "invalid category(%d)", category);
+    Preconditions.checkArgument(code >= 0, "invalid code(%d)", code);
 
-        service.deleteMenu(category, code);
-        return new HashMap<>();
-    }
+    service.deleteMenu(category, code);
+    return new HashMap<>();
+  }
 }

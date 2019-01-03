@@ -12,7 +12,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 //@EnableGlobalMethodSecurity(prePostEnabled = true) // for JWT
 public class CaffeApiServerApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(CaffeApiServerApplication.class, args);
-	}
+  public static void main(String[] args) {
+    SpringApplication.run(CaffeApiServerApplication.class, args);
+  }
 }

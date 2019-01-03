@@ -9,35 +9,35 @@ import lombok.Setter;
 @Getter
 public class Purchase2Dto {
 
-    private int category;
+  private int category;
 
-    private int code;
+  private int code;
 
-    private int price;
+  private int price;
 
-    private int dc_price;
+  private int dc_price;
 
-    @NonNull
-    private String type;
+  @NonNull
+  private String type;
 
-    @NonNull
-    private String size;
+  @NonNull
+  private String size;
 
-    private int count;
+  private int count;
 
-    @JsonIgnore
-    @NonNull
-    private String menu_name_kr;
+  @JsonIgnore
+  @NonNull
+  private String menu_name_kr;
 
-    @JsonIgnore
-    private String name;
+  @JsonIgnore
+  private String name;
 
-    @JsonIgnore
-    private long user_record_index;
+  @JsonIgnore
+  private long user_record_index;
 
-    @JsonIgnore
-    private int receipt_id;
+  @JsonIgnore
+  private int receipt_id;
 
-    @JsonIgnore
-    private int receipt_status;
+  @JsonIgnore
+  private int receipt_status;
 }

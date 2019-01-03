@@ -10,12 +10,12 @@ import java.util.List;
 @Getter
 public class PurchaseCancelingDto {
 
-    @JsonProperty("receipt_id")
-    private int receiptId;
+  @JsonProperty("receipt_id")
+  private int receiptId;
 
-    @JsonProperty("purchased_date")
-    private String purchasedDate;
+  @JsonProperty("purchased_date")
+  private String purchasedDate;
 
-    @JsonProperty("purchase_cancels")
-    private List<PurchaseDto> purchaseCancels;
+  @JsonProperty("purchase_cancels")
+  private List<PurchaseDto> purchaseCancels;
 }

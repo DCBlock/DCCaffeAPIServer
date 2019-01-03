@@ -6,14 +6,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 서비스하지 않는 URI Controller.
- *  
+ *
  * @author DigiCAP
  */
 @RestController
 public class NotImplementedController {
 
-    @RequestMapping("/**")
-    void getError() {
-        throw new NotImplementedException();
-    }
+  @RequestMapping("/**")
+  void getError() {
+    throw new NotImplementedException();
+  }
 }
