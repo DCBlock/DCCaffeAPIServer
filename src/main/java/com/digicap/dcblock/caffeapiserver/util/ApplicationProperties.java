@@ -15,6 +15,6 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 public class ApplicationProperties {
 
-    private List<String> allow_ip_kiosk = new ArrayList<>();
-    private List<String> allow_ip_backoffice = new ArrayList<>();
+  private List<String> allow_ip_kiosk = new ArrayList<>();
+  private List<String> allow_ip_backoffice = new ArrayList<>();
 }

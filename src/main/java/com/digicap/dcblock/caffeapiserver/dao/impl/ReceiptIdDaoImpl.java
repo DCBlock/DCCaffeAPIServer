@@ -21,30 +21,30 @@ import org.springframework.stereotype.Component;
 @Primary
 public class ReceiptIdDaoImpl implements ReceiptIdDao {
 
-    private SqlSessionTemplate sqlSession;
+  private SqlSessionTemplate sqlSession;
 
-    @Autowired
-    public ReceiptIdDaoImpl(SqlSessionTemplate sqlSession) {
-        this.sqlSession = sqlSession;
-    }
+  @Autowired
+  public ReceiptIdDaoImpl(SqlSessionTemplate sqlSession) {
+    this.sqlSession = sqlSession;
+  }
 
-    @Override
-    public int insertByReceipt(ReceiptIdVo vo) {//String name, String company, int receiptId, long index) {
-        return sqlSession.insert("insertByReceipt", vo);
-    }
+  @Override
+  public int insertByReceipt(ReceiptIdVo vo) {//String name, String company, int receiptId, long index) {
+    return sqlSession.insert("insertByReceipt", vo);
+  }
 
-    @Override
-    public ReceiptIdDto selectByReceipt(int receiptId) {
-        return sqlSession.selectOne("selectByReceipt", receiptId);
-    }
+  @Override
+  public ReceiptIdDto selectByReceipt(int receiptId) {
+    return sqlSession.selectOne("selectByReceipt", receiptId);
+  }
 
-    @Override
-    public int deleteByReceiptId(int receiptId) {
-        return sqlSession.delete("deleteByReceiptId", receiptId);
-    }
+  @Override
+  public int deleteByReceiptId(int receiptId) {
+    return sqlSession.delete("deleteByReceiptId", receiptId);
+  }
 
-    @Override
-    public int deleteByRegdate(Timestamp regDate) {
-        return sqlSession.delete("deleteByRegdate", regDate);
-    }
+  @Override
+  public int deleteByRegdate(Timestamp regDate) {
+    return sqlSession.delete("deleteByRegdate", regDate);
+  }
 }

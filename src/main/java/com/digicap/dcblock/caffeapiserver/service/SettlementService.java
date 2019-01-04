@@ -8,7 +8,7 @@ import java.util.LinkedList;
 
 public interface SettlementService {
 
-    LinkedList<SettlementReportDto> getReports(Timestamp before, Timestamp after, String company);
+  LinkedList<SettlementReportDto> getReports(Timestamp before, Timestamp after, String company);
 
-    SettlementUserReportDto getReportByRecordIndex(Timestamp before, Timestamp after, long recordIndex);
+  SettlementUserReportDto getReportByRecordIndex(Timestamp before, Timestamp after, long recordIndex);
 }

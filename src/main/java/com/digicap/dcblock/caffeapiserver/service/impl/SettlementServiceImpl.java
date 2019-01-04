@@ -9,6 +9,7 @@ import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
 import com.digicap.dcblock.caffeapiserver.service.SettlementService;
 import com.digicap.dcblock.caffeapiserver.store.PurchaseMapper;
+import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -104,14 +105,15 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
      * @return
      */
     public LinkedList<SettlementReportDto> getReports(Timestamp before, Timestamp after, String company) {
+        LinkedList<SettlementReportDto> results = new LinkedList<>();
+
         // Get purchases
         // user_record_index = -1은 모든 사용자
         LinkedList<PurchaseNewDto> purchases = purchaseMapper.selectAllUser(before, after, -1, company);
         if (purchases == null || purchases.size() == 0)  {
-            throw new NotFindException("not find purchases");
+//            throw new NotFindException("not find purchases");
+            return results;
         }
-
-        LinkedList<SettlementReportDto> results = new LinkedList<>();
 
         // 사용자별 계산을 위해 임시 정렬 HashMap
         HashMap<Long, List<PurchaseNewDto>> temp = new HashMap<>();
@@ -124,12 +126,16 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
             int receiptStatus = purchase.getReceipt_status();
 
             // 구매취소승인은 정산 대상이 아님.
-            if (receiptStatus == RECEIPT_STATUS_CANCELED) {
-                continue;
-            }
+//            if (receiptStatus == RECEIPT_STATUS_CANCELED) {
+//                // TODO 만약에 구매취소요청이 이전달 이었다면, 정산총액에서 빼야함.
+//                // 이미 이전달에서 구매취소요청 상태로 정산이 처리되었음.
+//                // 때문에 이번달 1일보다 이전에 구매취소 구매정보는 price, dc_price를 음수로 변경해야 함.
+//                continue;
+//            }
 
             // 정산대상이 아닌 정보가 있는 경우는 exception. 잘못된 정산이 진행되지 않도록.
-            if (!(receiptStatus == RECEIPT_STATUS_PURCHASE || receiptStatus == RECEIPT_STATUS_CANCEL)) {
+            if (!(receiptStatus == RECEIPT_STATUS_PURCHASE || receiptStatus == RECEIPT_STATUS_CANCEL
+                    || receiptStatus == RECEIPT_STATUS_CANCELED)) {
                 throw new UnknownException(String.format("unknown receipt_status(%s)", receiptStatus));
             }
 
@@ -152,7 +158,6 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
         Iterator<List<PurchaseNewDto>> iterator = temp.values().iterator();
         while (iterator.hasNext()) {
             SettlementReportDto s = new SettlementReportDto();
-            results.add(s);
 
             List<PurchaseNewDto> l = iterator.next();
             for (PurchaseNewDto p : l) {
@@ -161,17 +166,35 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
                 s.setCompany(p.getCompany());
                 s.setUserRecordIndex(p.getUser_record_index());
 
+                int status = p.getReceipt_status();
+
                 long price = s.getTotalPrice();
-                price += (p.getPrice() * p.getCount());
+                if (status != RECEIPT_STATUS_CANCELED) {
+                    price += (p.getPrice() * p.getCount());
+                } else {
+                    Timestamp t = new TimeFormat().getCurrentMonthOfStartDay();
+                    if (p.getCancel_date().before(t)) {
+                        price -= (p.getPrice() * p.getCount());
+                    }
+                }
                 s.setTotalPrice(price);
 
                 long dc = s.getTotalDcPrice();
-                dc += p.getDc_price() * p.getCount();
+                if (status != RECEIPT_STATUS_CANCELED) {
+                    dc += (p.getDc_price() * p.getCount());
+                } else {
+                    Timestamp t = new TimeFormat().getCurrentMonthOfStartDay();
+                    if (p.getCancel_date().before(t)) {
+                        dc -= (p.getDc_price() * p.getCount());
+                    }
+                }
                 s.setTotalDcPrice(dc);
             }
 
             // 사용자가 결재해야할 금액.
             s.setBillingAmount(s.getTotalPrice() - s.getTotalDcPrice());
+
+            results.add(s);
         }
 
         return results;
@@ -242,9 +265,14 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
 
         for (PurchaseSearchDto p : purchases) {
             switch (p.getReceipt_status()) {
-                case RECEIPT_STATUS_CANCELED:
-                    v += (p.getPrice() * p.getCount());
+                case RECEIPT_STATUS_CANCELED: {
+                    Timestamp t = new TimeFormat().getCurrentMonthOfStartDay();
+                    long temp = t.getTime() / 1_000;
+                    if (p.getCancel_date() < temp) {
+                        v += (p.getPrice() * p.getCount());
+                    }
                     break;
+                }
             }
         }
 
@@ -262,9 +290,14 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
 
         for (PurchaseSearchDto p : purchases) {
             switch (p.getReceipt_status()) {
-                case RECEIPT_STATUS_CANCELED:
-                    v += (p.getDc_price() * p.getCount());
+                case RECEIPT_STATUS_CANCELED: {
+                    Timestamp t = new TimeFormat().getCurrentMonthOfStartDay();
+                    long temp = t.getTime() / 1_000;
+                    if (p.getCancel_date() < temp) {
+                        v += (p.getDc_price() * p.getCount());
+                    }
                     break;
+                }
             }
         }
 

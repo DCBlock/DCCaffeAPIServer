@@ -83,7 +83,7 @@
         WHERE
             user_record_index = #{userRecordIndex}
         AND
-            receipt_status = #{receiptStatus}
+            (receipt_status = '0' OR receipt_status = '1')
         AND
             #{from} <= purchase_date
         AND

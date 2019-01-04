@@ -12,9 +12,9 @@ import lombok.ToString;
 @ToString
 public class CategoryVo {
 
-    private String name;
+  private String name;
 
-    private int code;
+  private int code;
 
-    private int order;
+  private int order;
 }

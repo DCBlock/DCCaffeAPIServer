@@ -11,9 +11,10 @@ import java.util.Date;
 import java.util.Locale;
 
 public class TimeFormat {
+
     /**
      * 현재 시간을 2018-11-12로 리턴
-     * 
+     *
      * @return 2018-11-01
      */
     public String getCurrent() {
@@ -27,18 +28,18 @@ public class TimeFormat {
         s.setTimeZone(getTimeZone("Asia/Seoul"));
         return s.format(timestamp);
     }
-    
+
     /**
      * timestamp + minute
-     * 
+     *
      * @param minute add minute
      * @return
      */
     public Date getAddMinute(long timestamp, int minute) {
-       Calendar c = Calendar.getInstance(Locale.KOREA);
-       c.setTime(new Date(timestamp));
-       c.add(Calendar.MINUTE, minute);
-       return c.getTime();
+        Calendar c = Calendar.getInstance(Locale.KOREA);
+        c.setTime(new Date(timestamp));
+        c.add(Calendar.MINUTE, minute);
+        return c.getTime();
     }
 
     public String fromLong(long timestamp) {
@@ -83,5 +84,13 @@ public class TimeFormat {
         LocalDate l = t.toLocalDateTime().toLocalDate();
         LocalDate y = l.minus(1, ChronoUnit.DAYS);
         return Timestamp.valueOf(y.atStartOfDay());
+    }
+
+    public Timestamp getCurrentMonthOfStartDay() {
+        LocalDate currentDate = LocalDate.now();
+        currentDate.getYear();
+        currentDate.getMonth();
+        LocalDate t = LocalDate.of(currentDate.getYear(), currentDate.getMonth(), 1);
+        return Timestamp.valueOf(t.atStartOfDay());
     }
 }

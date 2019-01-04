@@ -17,7 +17,7 @@ public class PurchaseSearchDto {
 
   private long date;
 
-  private String receipt_id;
+  private int receipt_id;
 
   @NonNull
   private String name;
@@ -49,7 +49,7 @@ public class PurchaseSearchDto {
 
   public PurchaseSearchDto(PurchaseNewDto p) {
     this.date = p.getUpdate_date().getTime() / 1_000;
-    this.receipt_id = insertZeroString(p.getReceipt_id());
+    this.receipt_id = p.getReceipt_id();
     this.name = p.getName();
     this.menu_name_kr = p.getMenu_name_kr();
     this.price = p.getPrice();

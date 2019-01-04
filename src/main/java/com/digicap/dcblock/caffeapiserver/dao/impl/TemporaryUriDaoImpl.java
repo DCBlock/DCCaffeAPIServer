@@ -11,27 +11,27 @@ import com.digicap.dcblock.caffeapiserver.dto.TemporaryUriVo;
 
 /**
  * temporary_uri table DAO Implement Class. 
- * 
+ *
  * @author DigiCAP
  */
 @Component
 @Primary
 public class TemporaryUriDaoImpl implements TemporaryUriDao {
 
-    private SqlSessionTemplate sqlSession;
-    
-    @Autowired
-    public TemporaryUriDaoImpl(SqlSessionTemplate sqlSession) {
-        this.sqlSession = sqlSession;
-    }
+  private SqlSessionTemplate sqlSession;
 
-    @Override
-    public int insert(TemporaryUriVo temporaryUriVo) {
-        return sqlSession.insert("insert", temporaryUriVo);
-    }
-    
-    @Override
-    public TemporaryUriDto selectAndDelete(TemporaryUriVo temporaryUriVo) {
-        return sqlSession.selectOne("selectAndDelete", temporaryUriVo);
-    }
+  @Autowired
+  public TemporaryUriDaoImpl(SqlSessionTemplate sqlSession) {
+    this.sqlSession = sqlSession;
+  }
+
+  @Override
+  public int insert(TemporaryUriVo temporaryUriVo) {
+    return sqlSession.insert("insert", temporaryUriVo);
+  }
+
+  @Override
+  public TemporaryUriDto selectAndDelete(TemporaryUriVo temporaryUriVo) {
+    return sqlSession.selectOne("selectAndDelete", temporaryUriVo);
+  }
 }

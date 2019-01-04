@@ -11,19 +11,19 @@ import org.apache.ibatis.annotations.Select;
  */
 public interface CategoryMapper {
 
-    @Select("SELECT * FROM category ORDER BY category.order ASC")
-    LinkedList<CategoryVo> selectAllCategory();
+  @Select("SELECT * FROM category ORDER BY category.order ASC")
+  LinkedList<CategoryVo> selectAllCategory();
 
-    CategoryVo insertCategory(@Param("name") String name);
+  CategoryVo insertCategory(@Param("name") String name);
 
-    @Select("SELECT * FROM category WHERE code = #{code}")
-    CategoryVo selectByCode(@Param("code") int code);
+  @Select("SELECT * FROM category WHERE code = #{code}")
+  CategoryVo selectByCode(@Param("code") int code);
 
-    @Delete("DELETE FROM category WHERE code = #{code}")
-    Integer deleteCategory(@Param("code") int code);
+  @Delete("DELETE FROM category WHERE code = #{code}")
+  Integer deleteCategory(@Param("code") int code);
 
-    Integer updateCategories(LinkedList<CategoryVo> categories);
+  Integer updateCategories(LinkedList<CategoryVo> categories);
 
-    @Select("SELECT COUNT(*) FROM category")
-    Integer selectAllCategorySize();
+  @Select("SELECT COUNT(*) FROM category")
+  Integer selectAllCategorySize();
 }

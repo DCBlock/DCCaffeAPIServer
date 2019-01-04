@@ -10,37 +10,37 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * Set Logging Config for All Request. 
- * 
+ *
  * @author DigiCAP
  *
  */
 @Configuration
 public class ControllerHandlerConfig implements WebMvcConfigurer {
 
-    private final static int MAX_PAYLOAD = 10000;
+  private final static int MAX_PAYLOAD = 10000;
 
-    private HandlerInterceptor interceptor;
+  private HandlerInterceptor interceptor;
 
-    @Autowired
-    public ControllerHandlerConfig(HandlerInterceptor interceptor) {
-        this.interceptor = interceptor;
-    }
+  @Autowired
+  public ControllerHandlerConfig(HandlerInterceptor interceptor) {
+    this.interceptor = interceptor;
+  }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(interceptor)
-            .addPathPatterns("/api/caffe/**");
+  @Override
+  public void addInterceptors(InterceptorRegistry registry) {
+    registry.addInterceptor(interceptor)
+        .addPathPatterns("/api/caffe/**");
 //            .excludePathPatterns("/public/**");
-    }
+  }
 
-    @Bean
-    public CommonsRequestLoggingFilter requestLoggingFilter() {
-        CommonsRequestLoggingFilter filter = new CommonsRequestLoggingFilter();
-        filter.setIncludeClientInfo(true);
-        filter.setIncludeHeaders(true);
-        filter.setIncludePayload(true);
-        filter.setIncludeQueryString(true);
-        filter.setMaxPayloadLength(MAX_PAYLOAD);
-        return filter;
-    }
+  @Bean
+  public CommonsRequestLoggingFilter requestLoggingFilter() {
+    CommonsRequestLoggingFilter filter = new CommonsRequestLoggingFilter();
+    filter.setIncludeClientInfo(true);
+    filter.setIncludeHeaders(true);
+    filter.setIncludePayload(true);
+    filter.setIncludeQueryString(true);
+    filter.setMaxPayloadLength(MAX_PAYLOAD);
+    return filter;
+  }
 }

@@ -9,7 +9,7 @@ import com.digicap.dcblock.caffeapiserver.dto.TemporaryUriDto;
  */
 public interface TemporaryUriService {
 
-    String createTemporaryUri(String rfid, Timestamp before, Timestamp after);
+  String createTemporaryUri(String rfid, Timestamp before, Timestamp after);
 
-    TemporaryUriDto existTemporary(String uuid);
+  TemporaryUriDto existTemporary(String uuid);
 }

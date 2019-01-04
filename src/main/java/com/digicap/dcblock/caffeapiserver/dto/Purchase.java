@@ -7,47 +7,49 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
-import java.sql.Time;
 import java.sql.Timestamp;
 
 @Setter
 @Getter
-public class PurchaseDto {
+public class Purchase {
 
-  private int category;
-
-  private int code;
+  private int count;
 
   private int price;
 
   private int dc_price;
 
-  private int opt_type;
-
-  private int opt_size;
-
-  private int count;
-
-  @NonNull
-  private String menu_name_kr;
-
-  @JsonIgnore
   private String name;
 
   private long user_record_index;
 
-  @JsonIgnore
-  private int receipt_id;
+  private int code;
+
+  private String menu_name_kr;
 
   private int receipt_status;
 
-  private int purchase_type;
+  private int opt_size;
 
-  @JsonProperty(access = Access.WRITE_ONLY)
-  private String email;
+  private int opt_type;
 
-  @JsonProperty(access = Access.WRITE_ONLY)
-  private String company;
+  private Timestamp update_date;
+
+  private Timestamp cancel_date;
 
   private Timestamp purchase_date;
+
+  private Timestamp canceled_date;
+
+  private long index;
+
+  private int receipt_id;
+
+  private int category;
+
+  private int purchase_type;
+
+  private String email;
+
+  private String company;
 }

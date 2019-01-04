@@ -7,13 +7,13 @@ import com.digicap.dcblock.caffeapiserver.dto.MenuDto;
 
 public interface MenuService {
 
-    LinkedHashMap<String, LinkedList<MenuDto>> getAllMenus();
+  LinkedHashMap<String, LinkedList<MenuDto>> getAllMenus();
 
-    LinkedHashMap<Integer, LinkedList<MenuDto>> getAllMenusUsingCode();
+  LinkedHashMap<Integer, LinkedList<MenuDto>> getAllMenusUsingCode();
 
-    void deleteMenu(int category, int code);
+  void deleteMenu(int category, int code);
 
-    MenuDto setMenu(MenuDto menuVo);
+  MenuDto setMenu(MenuDto menuVo);
 
-    LinkedList<MenuDto> updateAllMenusInCategory(int category, LinkedList<MenuDto> menus);
+  LinkedList<MenuDto> updateAllMenusInCategory(int category, LinkedList<MenuDto> menus);
 }

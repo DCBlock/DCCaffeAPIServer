@@ -11,37 +11,37 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PurchaseOldDto {
 
-    private final int code;
+  private final int code;
 
-    private final int price;
+  private final int price;
 
-    @JsonProperty("dc_price")
-    private final int dcPrice;
+  @JsonProperty("dc_price")
+  private final int dcPrice;
 
-    @JsonProperty("opt_type")
-    private final int optType;
+  @JsonProperty("opt_type")
+  private final int optType;
 
-    @JsonProperty("opt_size")
-    private final int optSize;
+  @JsonProperty("opt_size")
+  private final int optSize;
 
-    private final int count;
+  private final int count;
 
-    @NonNull
-    @JsonProperty("menu_name_kr")
-    private String menuNameKr;
+  @NonNull
+  @JsonProperty("menu_name_kr")
+  private String menuNameKr;
 
-    @JsonProperty("purchase_type")
-    private final int purchaseType;
+  @JsonProperty("purchase_type")
+  private final int purchaseType;
 
-    @JsonIgnore
-    private Timestamp purchaseDate;
+  @JsonIgnore
+  private Timestamp purchaseDate;
 
-    @JsonIgnore
-    private String name;
+  @JsonIgnore
+  private String name;
 
-    @JsonIgnore
-    private long userRecordIndex;
+  @JsonIgnore
+  private long userRecordIndex;
 
-    @JsonIgnore
-    private int receiptId;
+  @JsonIgnore
+  private int receiptId;
 }

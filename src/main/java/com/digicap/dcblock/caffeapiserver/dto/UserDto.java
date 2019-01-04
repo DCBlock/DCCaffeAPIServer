@@ -9,12 +9,12 @@ import lombok.ToString;
 @ToString
 public class UserDto {
 
-    private int index;
-    private String email;
-    private String rfid;
-    private String name;
-    private String company;
-    private boolean isLeave;
-    private long regdate;
-    private long updatedate;
+  private int index;
+  private String email;
+  private String rfid;
+  private String name;
+  private String company;
+  private boolean isLeave;
+  private long regdate;
+  private long updatedate;
 }

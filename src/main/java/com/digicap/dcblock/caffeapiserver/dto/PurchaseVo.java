@@ -11,27 +11,27 @@ import java.sql.Timestamp;
 @ToString
 public class PurchaseVo {
 
-    private int code;
+  private int code;
 
-    private int price;
+  private int price;
 
-    private int dcPrice;
+  private int dcPrice;
 
-    private int optType;
+  private int optType;
 
-    private int optSize;
+  private int optSize;
 
-    private int count;
+  private int count;
 
-    private String menuNameKr;
+  private String menuNameKr;
 
-    private int purchaseType;
+  private int purchaseType;
 
-    private Timestamp purchaseDate;
+  private Timestamp purchaseDate;
 
-    private String name;
+  private String name;
 
-    private long userRecordIndex;
+  private long userRecordIndex;
 
-    private int receiptId;
+  private int receiptId;
 }

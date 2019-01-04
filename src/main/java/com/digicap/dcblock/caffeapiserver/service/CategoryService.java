@@ -12,11 +12,11 @@ import org.mybatis.spring.MyBatisSystemException;
 
 public interface CategoryService {
 
-    LinkedList<CategoryVo> getAllCategories() throws MyBatisSystemException, NotFindException;
+  LinkedList<CategoryVo> getAllCategories() throws MyBatisSystemException, NotFindException;
 
-    CategoryVo postCategory(String name) throws MyBatisSystemException;
+  CategoryVo postCategory(String name) throws MyBatisSystemException;
 
-    MenusInCategoryDto deleteCategory(int code) throws MyBatisSystemException, UnknownException, NotFindException;
+  MenusInCategoryDto deleteCategory(int code) throws MyBatisSystemException, UnknownException, NotFindException;
 
-    void updateAll(LinkedList<CategoryVo> categories) throws MyBatisSystemException, InvalidParameterException;
+  void updateAll(LinkedList<CategoryVo> categories) throws MyBatisSystemException, InvalidParameterException;
 }

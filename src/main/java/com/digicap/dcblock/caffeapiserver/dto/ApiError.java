@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ApiError {
 
-    @Getter
-    private int code;
+  @Getter
+  private int code;
 
-    @Getter
-    private String reason;
+  @Getter
+  private String reason;
 }

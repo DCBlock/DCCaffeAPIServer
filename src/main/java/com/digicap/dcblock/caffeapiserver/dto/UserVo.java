@@ -7,9 +7,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public class UserVo {
 
-    private String name;
+  private String name;
 
-    private String company;
+  private String company;
 
-    private long index;
+  private long index;
 }

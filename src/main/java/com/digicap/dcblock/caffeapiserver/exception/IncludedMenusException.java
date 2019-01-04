@@ -6,11 +6,11 @@ import lombok.Getter;
 @AllArgsConstructor
 public class IncludedMenusException extends RuntimeException {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = -8238523850906116370L;
+  /**
+   *
+   */
+  private static final long serialVersionUID = -8238523850906116370L;
 
-    @Getter
-    private String reason;
+  @Getter
+  private String reason;
 }
