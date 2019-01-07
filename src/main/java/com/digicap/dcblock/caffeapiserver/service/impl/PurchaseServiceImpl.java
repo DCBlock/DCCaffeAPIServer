@@ -315,22 +315,35 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
 
     @Override
     public
-    LinkedList<PurchaseSearchDto> getPurchasesBySearch(PurchaseWhere w) {
+//    LinkedList<PurchaseSearchDto>
+    PurchaseSearchPageDto getPurchasesBySearch(PurchaseWhere w) {
         /* userRecordIndex 는 filter 가 -1인 경우에만 사용 */
 
-        LinkedList<PurchaseNewDto> r = null;
+        LinkedList<PurchaseSearchDto> results = new LinkedList<>();
 
         if (w.getFilter() == 3) { // 3 is cancel and canceled
             // Get cancel, canceled
             // ORDER BY update DESC
-            r = purchaseMapper.selectAllCancel(w.getBefore(), w.getAfter(), w.getCompany());
+            LinkedList<PurchaseNewDto> r = purchaseMapper.selectAllCancel(w.getBefore(), w.getAfter(), w.getCompany());
             if (r == null) {
                 throw new NotFindException("not find purchases");
             }
+
+            // 정의된 응답으로 변경.
+            for (PurchaseNewDto p : r) {
+                PurchaseSearchDto ps = new PurchaseSearchDto(p);
+                results.add(ps);
+            }
         } else if (w.getFilter() == -1) { // -1 is all
-            r = purchaseMapper.selectAllUser(w.getBefore(), w.getAfter(), w.getUserRecordIndex(), w.getCompany());
-            if (r == null || r.size() == 0) {
+            LinkedList<PurchaseVo> r = purchaseMapper.selectSearchBy(w);
+            if (r == null) {
                 throw new NotFindException(String.format("not find purchases for user(%s)", w.getUserRecordIndex()));
+            }
+
+            // 정의된 응답으로 변경.
+            for (PurchaseVo p : r) {
+                PurchaseSearchDto ps = new PurchaseSearchDto(p);
+                results.add(ps);
             }
         }
 
@@ -352,15 +365,18 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
 //            today = yesterday;
 //            yesterday = new TimeFormat().toYesterday(yesterday);
 //        }
-        LinkedList<PurchaseSearchDto> results = new LinkedList<>();
 
-        // 정의된 응답으로 변경.
-        for (PurchaseNewDto p : r) {
-            PurchaseSearchDto ps = new PurchaseSearchDto(p);
-            results.add(ps);
+        PurchaseSearchPageDto result = new PurchaseSearchPageDto();
+        result.setList(results);
+
+        try {
+            int totalCount = purchaseMapper.selectCount(w);
+            result.setTotalCount(totalCount);
+        } catch (Exception e) {
+            throw e;
         }
 
-        return results;
+        return result;
     }
 
     // -------------------------------------------------------------------------

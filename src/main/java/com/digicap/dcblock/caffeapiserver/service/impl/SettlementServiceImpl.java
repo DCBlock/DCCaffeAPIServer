@@ -197,6 +197,77 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
         return results;
     }
 
+    @Override
+    public SettlementReportGuestsDto getReportForGuests(Timestamp before, Timestamp after, long recordIndex) {
+        // Set Where for Query
+        PurchaseWhere w = PurchaseWhere.builder()
+                .page(0) // unused pagination
+                .before(before)
+                .after(after)
+                .company(COMPANY_DIGICAP) // guest purchase only digicap
+                .userRecordIndex(recordIndex)
+                .purchaseType(PURCHASE_TYPE_GUEST)
+                .build();
+
+        SettlementReportGuestsDto result = new SettlementReportGuestsDto();
+
+        // Get Purchases
+        LinkedList<PurchaseVo> purchases = purchaseMapper.selectSearchBy(w);
+        if (purchases == null) {
+            throw new NotFindException("not find purchases for guests");
+        }
+
+        // Set User
+        if (recordIndex > 0 && purchases.size() > 0) {
+            result.setName(purchases.get(0).getName());
+            result.setEmail(purchases.get(0).getEmail());
+        }
+
+        // Set TotalCount
+        result.setTotalCount(purchases.size());
+
+        // Count & Calculation
+        long totalPurchasePrice = 0;
+        long totalCancelPrice = 0;
+        long totalCanceledPrice = 0;
+
+        int totalPurchaseCount = 0;
+        int totalCancelCount = 0;
+        int totalCanceledCount = 0;
+
+        for (PurchaseVo p : purchases) {
+            long temp = p.getPrice() * p.getCount();
+
+            switch (p.getReceipt_status()) {
+                case RECEIPT_STATUS_PURCHASE:
+                    totalPurchasePrice += temp;
+                    totalPurchaseCount++;
+                    break;
+                case RECEIPT_STATUS_CANCEL:
+                    totalCancelPrice += temp;
+                    totalCancelCount++;
+                    break;
+                case RECEIPT_STATUS_CANCELED:
+                    totalCanceledPrice += temp;
+                    totalCanceledCount++;
+                    break;
+            }
+        }
+
+        // Set Prices
+        result.setTotalPurchasePrice(totalPurchasePrice);
+        result.setTotalCancelPrice(totalCancelPrice);
+        result.setTotalCanceledPrice(totalCanceledPrice);
+        result.setTotalPrice(totalPurchasePrice + totalCancelPrice + totalCanceledPrice);
+
+        // Set Counties
+        result.setTotalPurchaseCount(totalPurchaseCount);
+        result.setTotalCancelCount(totalCancelCount);
+        result.setTotalCanceledCount(totalCanceledCount);
+
+        return result;
+    }
+
     // -----------------------------------------------------------------------
     // Private Methods
 

@@ -2,6 +2,7 @@ package com.digicap.dcblock.caffeapiserver.controller;
 
 import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
 import com.digicap.dcblock.caffeapiserver.dto.SettlementReportDto;
+import com.digicap.dcblock.caffeapiserver.dto.SettlementReportGuestsDto;
 import com.digicap.dcblock.caffeapiserver.dto.SettlementReportPageDto;
 import com.digicap.dcblock.caffeapiserver.dto.SettlementUserReportDto;
 import com.digicap.dcblock.caffeapiserver.service.SettlementService;
@@ -97,6 +98,36 @@ public class SettlementController implements CaffeApiServerApplicationConstants 
         Preconditions.checkArgument(!b.after(a), "before(%s) is bigger then after(%s)", b.toString(), a.toString());
 
         SettlementUserReportDto result = settlementService.getReportByRecordIndex(b, a, userRecordIndex);
+        return result;
+    }
+
+    /**
+     * 기간동안의 손님결제된 금액 정산.
+     *
+     * @param before
+     * @param after
+     * @param userRecordIndex
+     * @return
+     */
+    @GetMapping("/api/caffe/settlement/guests")
+    SettlementReportGuestsDto getSettlementsForGuests(@RequestParam(value = "before", defaultValue = "0") long before,
+                                                      @RequestParam(value = "after", defaultValue = "0") long after,
+                                                      @RequestParam(value = "user_index", defaultValue = "0") long userRecordIndex) {
+        // Check Argument
+        Preconditions.checkArgument(before > 0, "before is empty");
+        Preconditions.checkArgument(after > 0, "after is empty");
+        if (userRecordIndex > 0) {
+            Preconditions.checkArgument(userRecordIndex > 0, "invalid user_index(%s)", userRecordIndex);
+        }
+
+        // unix time to timestamp
+        Timestamp b = new Timestamp(before * 1_000L);
+        Timestamp a = new Timestamp(after * 1_000L);
+
+        Preconditions.checkArgument(!b.after(a), "before(%s) is bigger then after(%s)", b.toString(), a.toString());
+
+        // Get Result
+        SettlementReportGuestsDto result = settlementService.getReportForGuests(b, a, userRecordIndex);
         return result;
     }
 

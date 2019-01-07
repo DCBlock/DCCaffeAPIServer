@@ -205,8 +205,8 @@
             purchase_date
         DESC
     </select>
-    <!--
-    <select id="selectSearchBy" resultType="com.digicap.dcblock.caffeapiserver.dto.Purchase">
+
+    <select id="selectSearchBy" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseVo">
         SELECT
             *
         FROM
@@ -218,20 +218,45 @@
             update_date <= #{after}
         ]]>
         <if test = "userRecordIndex > 0">
-            AND
+        AND
             user_record_index = #{userRecordIndex}
         </if>
         <if test = 'company != null and company != ""'>
-            AND
+        AND
             company = #{company}
+        </if>
+        <if test="purchaseType > -1">
+        AND
+            purchase_type = #{purchaseType}
         </if>
         ORDER BY
             purchase_date
         DESC
+        <if test = 'page > 0'>
         LIMIT
             #{perPage}
         OFFSET
             (#{page} - 1) * #{perPage}
+        </if>
     </select>
-    -->
+    <select id="selectCount" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM
+            purchases
+        <![CDATA[
+        WHERE
+            #{before} <= update_date
+        AND
+            update_date <= #{after}
+        ]]>
+        <if test = "userRecordIndex > 0">
+        AND
+            user_record_index = #{userRecordIndex}
+        </if>
+        <if test = 'company != null and company != ""'>
+        AND
+            company = #{company}
+        </if>
+    </select>
 </mapper>

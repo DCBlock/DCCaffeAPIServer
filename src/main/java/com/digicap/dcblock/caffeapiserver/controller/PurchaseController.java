@@ -152,21 +152,20 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
     // Purchases API
 
     @GetMapping("/api/caffe/purchases/purchase/search")
-    LinkedList<PurchaseSearchDto>
-    getPurchases(@RequestParam(value = "before", defaultValue = "0") long before,
-                 @RequestParam(value = "after", defaultValue = "0") long after,
-                 @RequestParam(value = "filter", defaultValue = "-2") int filter,
-                 @RequestParam(value = "user_index", defaultValue = "0") int userRecordIndex,
-                 @RequestParam(value = "company", defaultValue = "") String company) {
+    PurchaseSearchPageDto getPurchases(@RequestParam(value = "before", defaultValue = "0") long before,
+                                       @RequestParam(value = "after", defaultValue = "0") long after,
+                                       @RequestParam(value = "filter", defaultValue = "-2") int filter,
+                                       @RequestParam(value = "user_index", defaultValue = "0") int userRecordIndex,
+                                       @RequestParam(value = "company", defaultValue = "") String company,
+                                       @RequestParam(value = "page", defaultValue = "1") int page,
+                                       @RequestParam(value = "per_page", defaultValue = "10") int perPage) {
         // Check Argument.
         Preconditions.checkArgument(before > 0, "invalid before(%s)", before);
         Preconditions.checkArgument(after > 0, "invalid after(%s)", after);
         Preconditions.checkArgument(filter == 3 || filter == -1, "unknown filter(%s)", filter);
         if (!company.isEmpty()) { // empty 경우는 무시.
-            Preconditions.checkArgument(
-                    company.toLowerCase().equals(COMPANY_DIGICAP)
-                            || company.toLowerCase().equals(COMPANY_COVISION),
-                    "unknown company(%s)", company);
+            Preconditions.checkArgument(company.toLowerCase().equals(COMPANY_DIGICAP)
+                    || company.toLowerCase().equals(COMPANY_COVISION), "unknown company(%s)", company);
         }
 
         if (filter == -1 && userRecordIndex <= 0) {
@@ -182,8 +181,10 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         Timestamp _before = new Timestamp(before * 1_000);
         Timestamp _after = new Timestamp(after * 1_000);
 
-        Preconditions.checkArgument(!_before.after(_after),
-                "before(%s) is bigger than after(%s)", _before.toString(), _after.toString());
+        Preconditions.checkArgument(!_before.after(_after), "before(%s) is bigger than after(%s)", _before.toString(), _after.toString());
+
+        Preconditions.checkArgument(page > 0, "page is %s. page start is 1", page);
+        Preconditions.checkArgument(10 <= perPage && perPage <= 50, "size is %s. size is 10 ~ 50", perPage);
 
         // Query Where
         PurchaseWhere w = PurchaseWhere.builder()
@@ -192,11 +193,14 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
                 .userRecordIndex(userRecordIndex)
                 .before(_before)
                 .after(_after)
+                .perPage(perPage)
+                .page(page)
                 .build();
 
         // Get Purchases.
-        LinkedList<PurchaseSearchDto> results = service.getPurchasesBySearch(w);
-        return results;
+//        LinkedList<PurchaseSearchDto> results = service.getPurchasesBySearch(w);
+        PurchaseSearchPageDto result = service.getPurchasesBySearch(w);
+        return result;
     }
 
     //-----------------------------------------------------------------------------------------------

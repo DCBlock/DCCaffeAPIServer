@@ -48,5 +48,7 @@ public interface PurchaseMapper {
                                              @Param("userRecordIndex") long index,
                                              @Param("company") String company);
 
-    LinkedList<Purchase> selectSearchBy(PurchaseWhere w);
+    LinkedList<PurchaseVo> selectSearchBy(PurchaseWhere w);
+
+    int selectCount(PurchaseWhere w);
 }

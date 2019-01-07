@@ -23,4 +23,6 @@ public class PurchaseWhere {
     private int perPage;
 
     private int page;
+
+    private int purchaseType = -1;
 }
