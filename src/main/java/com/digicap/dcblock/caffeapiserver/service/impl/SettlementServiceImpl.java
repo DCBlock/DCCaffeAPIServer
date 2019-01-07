@@ -268,6 +268,35 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
         return result;
     }
 
+    @Override
+    public PurchaseSearchPageDto getReportsBySearch(PurchaseWhere w) {
+        // Query
+        LinkedList<PurchaseVo> r = purchaseMapper.selectSearchBy(w);
+        if (r == null) {
+            throw new NotFindException(String.format("not find purchases for user(%s)", w.getUserRecordIndex()));
+        }
+
+        LinkedList<PurchaseSearchDto> purchases = new LinkedList<>();
+
+        // 정의된 응답으로 변경.
+        for (PurchaseVo p : r) {
+            PurchaseSearchDto ps = new PurchaseSearchDto(p);
+            purchases.add(ps);
+        }
+
+        PurchaseSearchPageDto result = new PurchaseSearchPageDto();
+        result.setList(purchases);
+
+        try {
+            int totalCount = purchaseMapper.selectCount(w);
+            result.setTotalCount(totalCount);
+        } catch (Exception e) {
+            throw e;
+        }
+
+        return result;
+    }
+
     // -----------------------------------------------------------------------
     // Private Methods
 

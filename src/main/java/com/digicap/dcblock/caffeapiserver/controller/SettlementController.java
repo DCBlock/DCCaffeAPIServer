@@ -1,10 +1,7 @@
 package com.digicap.dcblock.caffeapiserver.controller;
 
 import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
-import com.digicap.dcblock.caffeapiserver.dto.SettlementReportDto;
-import com.digicap.dcblock.caffeapiserver.dto.SettlementReportGuestsDto;
-import com.digicap.dcblock.caffeapiserver.dto.SettlementReportPageDto;
-import com.digicap.dcblock.caffeapiserver.dto.SettlementUserReportDto;
+import com.digicap.dcblock.caffeapiserver.dto.*;
 import com.digicap.dcblock.caffeapiserver.service.SettlementService;
 import com.google.common.base.Preconditions;
 import java.util.LinkedList;
@@ -109,14 +106,14 @@ public class SettlementController implements CaffeApiServerApplicationConstants 
      * @param userRecordIndex
      * @return
      */
-    @GetMapping("/api/caffe/settlement/guests")
+    @GetMapping("/api/caffe/settlement/guests/amount")
     SettlementReportGuestsDto getSettlementsForGuests(@RequestParam(value = "before", defaultValue = "0") long before,
                                                       @RequestParam(value = "after", defaultValue = "0") long after,
                                                       @RequestParam(value = "user_index", defaultValue = "0") long userRecordIndex) {
         // Check Argument
         Preconditions.checkArgument(before > 0, "before is empty");
         Preconditions.checkArgument(after > 0, "after is empty");
-        if (userRecordIndex > 0) {
+        if (userRecordIndex != 0) {
             Preconditions.checkArgument(userRecordIndex > 0, "invalid user_index(%s)", userRecordIndex);
         }
 
@@ -128,6 +125,52 @@ public class SettlementController implements CaffeApiServerApplicationConstants 
 
         // Get Result
         SettlementReportGuestsDto result = settlementService.getReportForGuests(b, a, userRecordIndex);
+        return result;
+    }
+
+    /**
+     * 기간동안의 손님결제 목록을 조회
+     * @param before
+     * @param after
+     * @param userRecordIndex
+     * @param page
+     * @param perPage
+     * @return
+     */
+    @GetMapping("/api/caffe/settlement/guests")
+    PurchaseSearchPageDto getSettlementsPageForGuests(@RequestParam(value = "before", defaultValue = "0") long before,
+                                                      @RequestParam(value = "after", defaultValue = "0") long after,
+                                                      @RequestParam(value = "user_index", defaultValue = "0") long userRecordIndex,
+                                                      @RequestParam(value = "page", defaultValue = "0") int page,
+                                                      @RequestParam(value = "per_page", defaultValue = "0") int perPage) {
+        // Check Argument
+        Preconditions.checkArgument(before > 0, "before is empty");
+        Preconditions.checkArgument(after > 0, "after is empty");
+        if (userRecordIndex != 0) {
+            Preconditions.checkArgument(userRecordIndex > 0, "invalid user_index(%s)", userRecordIndex);
+        }
+
+        // unix time to timestamp
+        Timestamp b = new Timestamp(before * 1_000L);
+        Timestamp a = new Timestamp(after * 1_000L);
+
+        Preconditions.checkArgument(!b.after(a), "before(%s) is bigger then after(%s)", b.toString(), a.toString());
+
+        Preconditions.checkArgument(page > 0, "page is %s. page start is 1", page);
+        Preconditions.checkArgument(10 <= perPage && perPage <= 50, "size is %s. size is 10 ~ 50", perPage);
+
+        PurchaseWhere w = PurchaseWhere.builder()
+                .before(b)
+                .after(a)
+                .userRecordIndex(userRecordIndex)
+                .page(page)
+                .perPage(perPage)
+                .company(COMPANY_DIGICAP)
+                .purchaseType(PURCHASE_TYPE_GUEST)
+                .build();
+
+        // Get Result
+        PurchaseSearchPageDto result = settlementService.getReportsBySearch(w);
         return result;
     }
 

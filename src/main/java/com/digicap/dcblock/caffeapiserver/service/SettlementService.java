@@ -1,9 +1,6 @@
 package com.digicap.dcblock.caffeapiserver.service;
 
-import com.digicap.dcblock.caffeapiserver.dto.SettlementReportDto;
-import com.digicap.dcblock.caffeapiserver.dto.SettlementReportGuestsDto;
-import com.digicap.dcblock.caffeapiserver.dto.SettlementReportPageDto;
-import com.digicap.dcblock.caffeapiserver.dto.SettlementUserReportDto;
+import com.digicap.dcblock.caffeapiserver.dto.*;
 
 import java.sql.Timestamp;
 import java.util.LinkedList;
@@ -15,4 +12,6 @@ public interface SettlementService {
     SettlementUserReportDto getReportByRecordIndex(Timestamp before, Timestamp after, long recordIndex);
 
     SettlementReportGuestsDto getReportForGuests(Timestamp before, Timestamp after, long recordIndex);
+
+    PurchaseSearchPageDto getReportsBySearch(PurchaseWhere w);
 }

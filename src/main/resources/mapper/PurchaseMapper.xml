@@ -258,5 +258,9 @@
         AND
             company = #{company}
         </if>
+        <if test="purchaseType > -1">
+        AND
+            purchase_type = #{purchaseType}
+        </if>
     </select>
 </mapper>
