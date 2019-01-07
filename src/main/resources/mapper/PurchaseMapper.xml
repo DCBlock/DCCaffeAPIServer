@@ -124,7 +124,7 @@
         AND
             (receipt_status = '1' OR receipt_status = '2')
         ORDER BY
-            update_date
+            purchase_date
         DESC
     </select>
     <select id="selectByReceiptId" resultType="java.sql.Timestamp">
@@ -202,7 +202,36 @@
             company = #{company}
         </if>
         ORDER BY
-            update_date
+            purchase_date
         DESC
     </select>
+    <!--
+    <select id="selectSearchBy" resultType="com.digicap.dcblock.caffeapiserver.dto.Purchase">
+        SELECT
+            *
+        FROM
+            purchases
+        <![CDATA[
+        WHERE
+            #{before} <= update_date
+        AND
+            update_date <= #{after}
+        ]]>
+        <if test = "userRecordIndex > 0">
+            AND
+            user_record_index = #{userRecordIndex}
+        </if>
+        <if test = 'company != null and company != ""'>
+            AND
+            company = #{company}
+        </if>
+        ORDER BY
+            purchase_date
+        DESC
+        LIMIT
+            #{perPage}
+        OFFSET
+            (#{page} - 1) * #{perPage}
+    </select>
+    -->
 </mapper>

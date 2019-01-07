@@ -12,12 +12,12 @@ import org.springframework.context.annotation.Configuration;
 @MapperScan("com.digicap.dcblock.caffeapiserver")
 public class DataSourceConfig {
 
-  @Bean
-  public SqlSessionFactory sqlSessionFactory(DataSource dataSource, ApplicationContext applicationContext) throws Exception {
-    // mybatis의 xml들의 위치를 Bean에 등록.
-    SqlSessionFactoryBean sqlSessionFactory = new SqlSessionFactoryBean();
-    sqlSessionFactory.setDataSource(dataSource);
-    sqlSessionFactory.setMapperLocations(applicationContext.getResources("classpath:mapper/*.xml"));
-    return (SqlSessionFactory) sqlSessionFactory.getObject();
-  }
+    @Bean
+    public SqlSessionFactory sqlSessionFactory(DataSource dataSource, ApplicationContext applicationContext) throws Exception {
+        // mybatis의 xml들의 위치를 Bean에 등록.
+        SqlSessionFactoryBean sqlSessionFactory = new SqlSessionFactoryBean();
+        sqlSessionFactory.setDataSource(dataSource);
+        sqlSessionFactory.setMapperLocations(applicationContext.getResources("classpath:mapper/*.xml"));
+        return (SqlSessionFactory) sqlSessionFactory.getObject();
+    }
 }
