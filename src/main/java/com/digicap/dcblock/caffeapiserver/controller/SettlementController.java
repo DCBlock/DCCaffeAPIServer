@@ -80,21 +80,29 @@ public class SettlementController implements CaffeApiServerApplicationConstants 
      * @return
      */
     @GetMapping("/api/caffe/settlement/report")
-    SettlementUserReportDto getPurchases(@RequestParam(value = "before", defaultValue = "0") long before,
-                                         @RequestParam(value = "after", defaultValue = "0") long after,
-                                         @RequestParam(value = "user_index", defaultValue = "0") long userRecordIndex) {
+    SettlementUserReportPageDto getPurchases(@RequestParam(value = "before", defaultValue = "0") long before,
+                                             @RequestParam(value = "after", defaultValue = "0") long after,
+                                             @RequestParam(value = "user_index", defaultValue = "0") long userRecordIndex,
+                                             @RequestParam(value = "page", defaultValue = "0") int page,
+                                             @RequestParam(value = "per_page", defaultValue = "0") int perPage) {
         // Check Argument
         Preconditions.checkArgument(before > 0, "before is empty");
         Preconditions.checkArgument(after > 0, "after is empty");
+        Preconditions.checkArgument(before < after, "before(%s) is bigger then after(%s)", before, after);
         Preconditions.checkArgument(userRecordIndex > 0, "invalid user_index(%d)", userRecordIndex);
+        Preconditions.checkArgument(page >= 1, "page is %s. page start is 1", page);
+        Preconditions.checkArgument(10 <= perPage && perPage <= 50, "size is %s. size is 10 ~ 50", perPage);
 
-        // unix time to timestamp
-        Timestamp b = new Timestamp(before * 1_000L);
-        Timestamp a = new Timestamp(after * 1_000L);
+        // Set Where for Query
+        PurchaseWhere w = PurchaseWhere.builder()
+                .before(new Timestamp(before * 1_000L))
+                .after(new Timestamp(after * 1_000L))
+                .userRecordIndex(userRecordIndex)
+                .page(page)
+                .perPage(perPage)
+                .build();
 
-        Preconditions.checkArgument(!b.after(a), "before(%s) is bigger then after(%s)", b.toString(), a.toString());
-
-        SettlementUserReportDto result = settlementService.getReportByRecordIndex(b, a, userRecordIndex);
+        SettlementUserReportPageDto result = settlementService.getReportByRecordIndex(w);
         return result;
     }
 

@@ -12,8 +12,8 @@ import java.util.LinkedList;
 @Setter
 @Getter
 @ToString
-@JsonPropertyOrder({"name", "total_price", "total_dc_price", "purchases"})
-public class SettlementUserReportDto {
+@JsonPropertyOrder({"name", "total_price", "total_dc_price", "total_pages", "purchases"})
+public class SettlementUserReportPageDto {
 
     private String name;
 
@@ -23,13 +23,8 @@ public class SettlementUserReportDto {
     @JsonProperty("total_dc_price")
     private long totalDcPrice;
 
-    @JsonInclude
-    @JsonProperty("before_date")
-    private long beforeDate;
-
-    @JsonInclude
-    @JsonProperty("after_date")
-    private long afterDate;
+    @JsonProperty("total_pages")
+    private int totalPages;
 
     private LinkedList<PurchaseSearchDto> purchases;
 }

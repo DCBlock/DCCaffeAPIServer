@@ -10,7 +10,7 @@ public interface SettlementService {
 
     LinkedList<SettlementReportDto> getReports(Timestamp before, Timestamp after, String company);
 
-    SettlementUserReportDto getReportByRecordIndex(Timestamp before, Timestamp after, long recordIndex);
+    SettlementUserReportPageDto getReportByRecordIndex(PurchaseWhere w);
 
     SettlementReportGuestsDto getReportForGuests(Timestamp before, Timestamp after, long recordIndex);
 

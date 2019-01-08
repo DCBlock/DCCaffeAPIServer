@@ -4,7 +4,9 @@ import com.digicap.dcblock.caffeapiserver.dto.*;
 
 import java.sql.Timestamp;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
@@ -52,6 +54,8 @@ public interface PurchaseMapper {
     int selectCount(PurchaseWhere w);
 
     int selectAllCancelCount(PurchaseWhere w);
+
+    HashMap<String, Long> selectBalanceAccounts(PurchaseWhere w);
 
     HashMap<Long, Long> selectSettlesAccount();
 }

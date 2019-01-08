@@ -37,60 +37,69 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
     /**
      * 사용자의 구매 보고서를 처리.
      *
-     * @param before
-     * @param after
-     * @param recordIndex
+     * @param w
      * @return
      */
     @Override
-    public SettlementUserReportDto getReportByRecordIndex(Timestamp before, Timestamp after, long recordIndex) {
-        SettlementUserReportDto reportDto = new SettlementUserReportDto();
+    public SettlementUserReportPageDto getReportByRecordIndex(PurchaseWhere w) {
+        SettlementUserReportPageDto result = new SettlementUserReportPageDto();
 
         // Get purchases by user
         try {
             // TODO company
-            LinkedList<PurchaseNewDto> r = purchaseMapper.selectAllUser(before, after, recordIndex, "");
-            if (r == null || r.size() == 0)  {
+//            LinkedList<PurchaseNewDto> r = purchaseMapper.selectAllUser(w.getBefore(), w.getAfter(), w.getUserRecordIndex(), "");
+            LinkedList<PurchaseVo> r = purchaseMapper.selectSearchBy(w);
+            if (r == null) {
                 throw new NotFindException("not find purchases by user");
             }
 
             LinkedList<PurchaseSearchDto> purchases = new LinkedList<>();
 
             // 정의된 응답으로 변경.
-            for (PurchaseNewDto p : r) {
+            for (PurchaseVo p : r) {
                 PurchaseSearchDto ps = new PurchaseSearchDto(p);
                 purchases.add(ps);
             }
 
             // Set
-            reportDto.setPurchases(purchases);
+            result.setPurchases(purchases);
 
             // Set name
-            String name = r.get(0).getName();
-            reportDto.setName(name);
+            if (r.size() > 0) {
+                String name = r.get(0).getName();
+                result.setName(name);
+            }
         } catch (NotFindException e) {
             throw e;
         } catch (Exception e) {
             throw new UnknownException(e.getMessage());
         }
 
-        // Get Canceled price
-        long canceledPrice = calcTotalCanceledPrice(reportDto.getPurchases());
-        long canceledDcPrice = calcDcTotalCanceledPrice(reportDto.getPurchases());
+        // Get totalPage
+        try {
+            int totalCount = purchaseMapper.selectCount(w);
+            int totalPage = totalCount / w.getPerPage();
+            if (totalCount % w.getPerPage() > 0) {
+                totalCount = ++totalPage;
+            }
+            result.setTotalPages(totalCount);
+        } catch (Exception e) {
+            throw e;
+        }
 
         // Get total price
-        long price = calcTotalPrice(reportDto.getPurchases()) - canceledPrice;
-        reportDto.setTotalPrice(price);
-
         // Get total dc_price
-        price = calcTotalDcPrice(reportDto.getPurchases()) - canceledDcPrice;
-        reportDto.setTotalDcPrice(price);
+        try {
+            HashMap<String, Long> balance = purchaseMapper.selectBalanceAccounts(w);
+            if (balance != null) {
+                result.setTotalPrice(balance.getOrDefault("balance", 0L));
+                result.setTotalDcPrice(balance.getOrDefault("dcbalance",0L));
+            }
+        } catch (Exception e) {
+            throw e;
+        }
 
-        // Set time
-        reportDto.setBeforeDate(before.getTime() / 1_000);
-        reportDto.setAfterDate(after.getTime() / 1_000);
-
-        return reportDto;
+        return result;
     }
 
     /**

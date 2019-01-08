@@ -290,6 +290,33 @@
         </if>
     </select>
 
+    <select id="selectBalanceAccounts" resultType="hashmap">
+        SELECT
+            user_record_index AS index,
+            SUM(price * count) AS balance,
+            SUM(dc_price * count) AS dcbalance
+        FROM
+            purchases
+        WHERE
+            1=1
+        AND
+        <![CDATA[
+            #{before} <= purchase_date
+        AND
+            purchase_date <= #{after}
+        ]]>
+        AND
+            (purchase_type = 0 OR purchase_type = 2)
+        AND
+            (receipt_status = 0 OR receipt_status = 1)
+        AND
+            user_record_index = #{userRecordIndex}
+        GROUP BY
+            user_record_index
+        ORDER BY
+            user_record_index DESC
+    </select>
+
     <select id="selectSettlesAccount" resultType="hashmap">
         SELECT
             user_record_index, SUM((price * count) - (dc_price * count))
