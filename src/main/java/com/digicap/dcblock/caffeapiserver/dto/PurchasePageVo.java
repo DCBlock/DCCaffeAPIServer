@@ -9,7 +9,7 @@ import java.util.LinkedList;
 @AllArgsConstructor
 public class PurchasePageVo {
 
-    private int total_count;
+    private int total_pages;
 
     private LinkedList<PurchaseVo> list;
 }

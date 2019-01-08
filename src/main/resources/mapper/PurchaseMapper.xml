@@ -113,9 +113,9 @@
             purchases
         <![CDATA[
         WHERE
-            #{from} <= update_date
+            #{before} <= update_date
         AND
-            update_date <= #{to}
+            update_date <= #{after}
         ]]>
         <if test = 'company != null and company != ""'>
         AND
@@ -126,6 +126,12 @@
         ORDER BY
             purchase_date
         DESC
+        <if test = 'page > 0'>
+        LIMIT
+            #{perPage}
+        OFFSET
+            (#{page} - 1) * #{perPage}
+        </if>
     </select>
     <select id="selectByReceiptId" resultType="java.sql.Timestamp">
         <![CDATA[
@@ -239,6 +245,7 @@
             (#{page} - 1) * #{perPage}
         </if>
     </select>
+
     <select id="selectCount" resultType="int">
         SELECT
             COUNT(*)
@@ -262,5 +269,49 @@
         AND
             purchase_type = #{purchaseType}
         </if>
+    </select>
+
+    <select id="selectAllCancelCount" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM
+            purchases
+        <![CDATA[
+        WHERE
+            #{before} <= update_date
+        AND
+            update_date <= #{after}
+        ]]>
+        AND
+            (receipt_status = '1' OR receipt_status = '2')
+        <if test = 'company != null and company != ""'>
+        AND
+            company = #{company}
+        </if>
+    </select>
+
+    <select id="selectSettlesAccount" resultType="hashmap">
+        SELECT
+            user_record_index, SUM((price * count) - (dc_price * count))
+        FROM
+            purchases
+        WHERE
+            company = 'digicap'
+        AND
+        <![CDATA[
+            (SELECT ((SELECT date_trunc('month', timestamp 'today')) - interval '1 month')) <= purchase_date
+        AND
+            purchase_date < (SELECT date_trunc('month', timestamp 'today'))
+        ]]>
+        AND
+            (purchase_type = 0 OR purchase_type = 2)
+        AND
+            (receipt_status = 0 OR receipt_status = 1)
+        GROUP BY
+            user_record_index
+        HAVING BY
+            SUM((price * count) - (dc_price * count))
+        ORDER BY
+            user_record_index DESC
     </select>
 </mapper>

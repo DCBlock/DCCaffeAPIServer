@@ -3,6 +3,7 @@ package com.digicap.dcblock.caffeapiserver.store;
 import com.digicap.dcblock.caffeapiserver.dto.*;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.apache.ibatis.annotations.Insert;
@@ -40,9 +41,7 @@ public interface PurchaseMapper {
     LinkedList<PurchaseOldDto> selectAllByUser(@Param("from") Timestamp from, @Param("to") Timestamp to,
                                                @Param("userRecordIndex") long userRecordIndex, @Param("receiptStatus") int receiptStatus);
 
-    LinkedList<PurchaseNewDto> selectAllCancel(@Param("from") Timestamp from,
-                                               @Param("to") Timestamp to,
-                                               @Param("company") String company);
+    LinkedList<PurchaseNewDto> selectAllCancel(PurchaseWhere w);
 
     LinkedList<PurchaseNewDto> selectAllUser(@Param("before") Timestamp before, @Param("after") Timestamp after,
                                              @Param("userRecordIndex") long index,
@@ -51,4 +50,8 @@ public interface PurchaseMapper {
     LinkedList<PurchaseVo> selectSearchBy(PurchaseWhere w);
 
     int selectCount(PurchaseWhere w);
+
+    int selectAllCancelCount(PurchaseWhere w);
+
+    HashMap<Long, Long> selectSettlesAccount();
 }

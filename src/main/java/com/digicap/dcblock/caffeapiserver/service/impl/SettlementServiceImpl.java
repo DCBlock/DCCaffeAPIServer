@@ -289,12 +289,26 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
 
         try {
             int totalCount = purchaseMapper.selectCount(w);
-            result.setTotalCount(totalCount);
+            result.setTotalPages(totalCount);
         } catch (Exception e) {
             throw e;
         }
 
         return result;
+    }
+
+    /**
+     * 매월 1일 이월정산 기능
+     * @return 이월정산된 purchase table 에 index
+     */
+    @Override
+    public HashMap<Long, Long> getSettleAccount() {
+        // 1. get 지난달 모든 구매목록
+        // 2. 사용자별(user_record_index) paring
+
+        // 3. paring된 사용자의 총금액이 마이너스면 해당 금액을
+        // 4. purchase table 이번달에 insert
+        return null;
     }
 
     // -----------------------------------------------------------------------

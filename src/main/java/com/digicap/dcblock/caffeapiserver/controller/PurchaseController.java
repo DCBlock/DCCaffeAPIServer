@@ -177,6 +177,10 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
             company = "";
         }
 
+        if (filter == 3) {
+            userRecordIndex = 0;
+        }
+
         // String time to java.sql.Date.
         Timestamp _before = new Timestamp(before * 1_000);
         Timestamp _after = new Timestamp(after * 1_000);

@@ -13,11 +13,11 @@ import static com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConsta
 
 @Setter
 @Getter
-@JsonPropertyOrder({"total_count", "lists"})
+@JsonPropertyOrder({"total_pages", "lists"})
 public class PurchaseSearchPageDto {
 
-    @JsonProperty("total_count")
-    private int totalCount;
+    @JsonProperty("total_pages")
+    private int totalPages;
 
     private LinkedList<PurchaseSearchDto> list;
 }

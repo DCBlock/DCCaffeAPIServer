@@ -7,6 +7,7 @@ import java.util.*;
 
 import com.digicap.dcblock.caffeapiserver.dao.ReceiptIdDao;
 import com.digicap.dcblock.caffeapiserver.dto.*;
+import lombok.SneakyThrows;
 import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -319,12 +320,14 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     PurchaseSearchPageDto getPurchasesBySearch(PurchaseWhere w) {
         /* userRecordIndex 는 filter 가 -1인 경우에만 사용 */
 
+        PurchaseSearchPageDto result = new PurchaseSearchPageDto();
+
         LinkedList<PurchaseSearchDto> results = new LinkedList<>();
 
         if (w.getFilter() == 3) { // 3 is cancel and canceled
             // Get cancel, canceled
             // ORDER BY update DESC
-            LinkedList<PurchaseNewDto> r = purchaseMapper.selectAllCancel(w.getBefore(), w.getAfter(), w.getCompany());
+            LinkedList<PurchaseNewDto> r = purchaseMapper.selectAllCancel(w);
             if (r == null) {
                 throw new NotFindException("not find purchases");
             }
@@ -333,6 +336,19 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
             for (PurchaseNewDto p : r) {
                 PurchaseSearchDto ps = new PurchaseSearchDto(p);
                 results.add(ps);
+            }
+
+            try {
+                int totalCount = purchaseMapper.selectAllCancelCount(w);
+                if (totalCount % w.getPerPage() > 0) {
+                    totalCount /= w.getPerPage();
+                    totalCount++;
+                } else {
+                   totalCount /= w.getPerPage();
+                }
+                result.setTotalPages(totalCount);
+            } catch (Exception e) {
+                throw e;
             }
         } else if (w.getFilter() == -1) { // -1 is all
             LinkedList<PurchaseVo> r = purchaseMapper.selectSearchBy(w);
@@ -345,36 +361,22 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
                 PurchaseSearchDto ps = new PurchaseSearchDto(p);
                 results.add(ps);
             }
+
+            try {
+                int totalCount = purchaseMapper.selectCount(w);
+                int t = totalCount / w.getPerPage();
+                if (totalCount % w.getPerPage() > 0) {
+                    totalCount = t++;
+                }
+                result.setTotalPages(totalCount);
+            } catch (Exception e) {
+                throw e;
+            }
         }
 
-        // Grouping Date and ReceiptId
-//        Timestamp yesterday = new TimeFormat().toYesterday(before);
-//        Timestamp today = before;
-//        while (after.equals(yesterday) || after.before(yesterday)) { // after <= yesterday
-//            // p에는 목록에서 기간에 해당하는 목록만 존재
-//            LinkedList<PurchaseNewDto> p = getPurchasePeriod(yesterday, today, r);
-//
-//            if (p != null && p.size() > 0) {
-//                LinkedHashMap<String, LinkedList<PurchaseSearchDto>> lh = getGroupByReceiptId(p);
-//                if (lh != null && lh.size() > 0) {
-//                    results.put(yesterday.toLocalDateTime().toLocalDate().toString(), lh);
-//                }
-//            }
-//
-//            // Refresh today, yesterday
-//            today = yesterday;
-//            yesterday = new TimeFormat().toYesterday(yesterday);
-//        }
-
-        PurchaseSearchPageDto result = new PurchaseSearchPageDto();
         result.setList(results);
 
-        try {
-            int totalCount = purchaseMapper.selectCount(w);
-            result.setTotalCount(totalCount);
-        } catch (Exception e) {
-            throw e;
-        }
+
 
         return result;
     }
