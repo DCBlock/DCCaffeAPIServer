@@ -86,9 +86,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
                     .map(s -> new ObjectMapper().convertValue(s, List.class))
                     .orElseThrow(() -> new InvalidParameterException("not find purchases."));
 
-            purchases = new ObjectMapper().convertValue(temp,
-                    new TypeReference<List<LinkedHashMap<String, Object>>>() {
-                    });
+            purchases = new ObjectMapper().convertValue(temp, new TypeReference<List<LinkedHashMap<String, Object>>>() {});
         } catch (Exception e) {
             throw new InvalidParameterException("fail casting purchases");
         }
@@ -97,11 +95,8 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         return purchasedDto;
     }
 
-    @PatchMapping(value = "/api/caffe/purchases/purchase/receipt/{receiptId}/cancel",
-            consumes = "application/json; charset=utf-8")
-    PurchaseCancelingDto cancelPurchaseByReceiptId(
-            @PathVariable("receiptId") int receiptId,
-            @RequestBody RfidDto rfidDto) {
+    @PatchMapping(value = "/api/caffe/purchases/purchase/receipt/{receiptId}/cancel", consumes = "application/json; charset=utf-8")
+    PurchaseCancelingDto cancelPurchaseByReceiptId(@PathVariable("receiptId") int receiptId, @RequestBody RfidDto rfidDto) {
         // Check Argument.
         Preconditions.checkArgument(1 <= receiptId && receiptId <= 999999, "invalid receiptId(%s)", receiptId);
         Preconditions.checkNotNull(rfidDto == null || rfidDto.getRfid() == null, "rfid is null");
@@ -115,8 +110,6 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         }
 
         PurchaseCancelingDto result  = new PurchaseCancelingDto();
-//        LinkedHashMap<String, List<Purchase2Dto>> result = new LinkedHashMap<>();
-//        result.put(KEY_PURCHASE_CANCELS, cancels2);
         result.setReceiptId(receiptId);
         if (cancels2.size() > 0) {
             result.setPurchasedDate(new TimeFormat().timestampToString(cancels.get(0).getPurchase_date()));
@@ -134,7 +127,6 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
 
         // unix time to Timestamp
         Timestamp purchaseTime = new TimeFormat().toTimeStampExcludeTime(purchaseDate * 1_000);
-//    Timestamp purchaseTime = new Timestamp(purchaseDate * 1_000);
 
         List<PurchaseDto> canceleds = service.cancelApprovalPurchases(receiptId, purchaseTime);
 
@@ -163,6 +155,11 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         Preconditions.checkArgument(before > 0, "invalid before(%s)", before);
         Preconditions.checkArgument(after > 0, "invalid after(%s)", after);
         Preconditions.checkArgument(filter == 3 || filter == -1, "unknown filter(%s)", filter);
+        Preconditions.checkArgument(page > 0, "page is %s. page start is 1", page);
+        Preconditions.checkArgument(10 <= perPage && perPage <= 50, "size is %s. size is 10 ~ 50", perPage);
+        Preconditions.checkArgument(before <= after, "before(%s) is bigger than after(%s)", before, after);
+
+        // Check Option Argument.
         if (!company.isEmpty()) { // empty 경우는 무시.
             Preconditions.checkArgument(company.toLowerCase().equals(COMPANY_DIGICAP)
                     || company.toLowerCase().equals(COMPANY_COVISION), "unknown company(%s)", company);
@@ -175,34 +172,22 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         // 사용자의 구매목록은 검색조건에서 company를 제외
         if (filter == -1) {
             company = "";
-        }
-
-        if (filter == 3) {
+        } else if (filter == 3)  {
             userRecordIndex = 0;
         }
-
-        // String time to java.sql.Date.
-        Timestamp _before = new Timestamp(before * 1_000);
-        Timestamp _after = new Timestamp(after * 1_000);
-
-        Preconditions.checkArgument(!_before.after(_after), "before(%s) is bigger than after(%s)", _before.toString(), _after.toString());
-
-        Preconditions.checkArgument(page > 0, "page is %s. page start is 1", page);
-        Preconditions.checkArgument(10 <= perPage && perPage <= 50, "size is %s. size is 10 ~ 50", perPage);
 
         // Query Where
         PurchaseWhere w = PurchaseWhere.builder()
                 .filter(filter)
                 .company(company)
                 .userRecordIndex(userRecordIndex)
-                .before(_before)
-                .after(_after)
+                .before(new Timestamp(before * 1_000L))
+                .after(new Timestamp(before * 1_000L))
                 .perPage(perPage)
                 .page(page)
                 .build();
 
         // Get Purchases.
-//        LinkedList<PurchaseSearchDto> results = service.getPurchasesBySearch(w);
         PurchaseSearchPageDto result = service.getPurchasesBySearch(w);
         return result;
     }
@@ -292,11 +277,11 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         // Check Augment
         Preconditions.checkArgument(_before > 0, "invalid purchaseBefore(%s)", _before);
         Preconditions.checkArgument(_after > 0, "invalid purchaseAfter(%s)", _after);
+        Preconditions.checkArgument(_before <= _after, "purchase_before(%s) is bigger than purchase_after(%s)", _before, _after);
 
+        // long to java.sql.Timestamp.
         Timestamp before = new Timestamp(_before * 1000);
         Timestamp after = new Timestamp(_after * 1000);
-
-        Preconditions.checkArgument(!before.after(after), "purchase_before(%s) is bigger than purchase_after(%s)", before.toString(), after.toString());
 
         return service.getBalanceByRfid(rfid, before, after);
     }
