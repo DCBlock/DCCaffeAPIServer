@@ -4,9 +4,7 @@ import com.digicap.dcblock.caffeapiserver.dto.*;
 
 import java.sql.Timestamp;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.Map;
 
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
@@ -57,5 +55,22 @@ public interface PurchaseMapper {
 
     HashMap<String, Long> selectBalanceAccounts(PurchaseWhere w);
 
-    HashMap<Long, Long> selectSettlesAccount();
+    /**
+     * 지난 달 구매목록에서 사용자, 정산 금액을 조회
+     * @return
+     */
+    LinkedList<HashMap<String, Object>> selectBalanceAccountLastMonth();
+
+    /**
+     * 전전달 구매목록 중에 전달에 취소된 금액 조회
+     * @return
+     */
+    LinkedList<HashMap<String, Object>> selectBalanceAccountMonthBeforeLast();
+
+    /**
+     * 이월금액을 DB에 저장한다. insert and update.
+     * @param params HashMap "record_index", "balance", "email", "name" of Key
+     * @return
+     */
+    int insertCarriedBalanceForward(HashMap<String, Object> params);
 }

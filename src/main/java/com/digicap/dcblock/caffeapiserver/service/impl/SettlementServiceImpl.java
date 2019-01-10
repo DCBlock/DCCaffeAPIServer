@@ -7,6 +7,7 @@ import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
 import com.digicap.dcblock.caffeapiserver.service.SettlementService;
 import com.digicap.dcblock.caffeapiserver.store.PurchaseMapper;
 import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.*;
  */
 @Service
 @Primary
+@Slf4j
 public class SettlementServiceImpl implements CaffeApiServerApplicationConstants, SettlementService {
 
     private PurchaseMapper purchaseMapper;
@@ -308,16 +310,59 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
 
     /**
      * 매월 1일 이월정산 기능
-     * @return 이월정산된 purchase table 에 index
+     * @return 이월정산 user_record_index, balance HashMap
      */
     @Override
-    public HashMap<Long, Long> getSettleAccount() {
-        // 1. get 지난달 모든 구매목록
-        // 2. 사용자별(user_record_index) paring
+    public int getBalanceAccountLastMonth() {
+        int result = 0;
 
-        // 3. paring된 사용자의 총금액이 마이너스면 해당 금액을
-        // 4. purchase table 이번달에 insert
-        return null;
+        try {
+            // 1. Get 지난 달 모든 사용자의 구매총액
+            LinkedList<HashMap<String, Object>> lastbalances = purchaseMapper.selectBalanceAccountLastMonth();
+
+            // 2. Get 지지난 달 구매, 취소하고 지난 달에 취소 완료된 모든 사용자의 취소완료금액
+            LinkedList<HashMap<String, Object>> lastBeforebalances = purchaseMapper.selectBalanceAccountMonthBeforeLast();
+            if (lastBeforebalances != null) {
+                for (HashMap<String, Object> b : lastBeforebalances) {
+                    long recordIndex = (long)b.getOrDefault("user_record_index", 0);
+                    if (recordIndex <= 0) {
+                        continue;
+                    }
+
+                    long llb = (long)b.getOrDefault("balance", 0);
+
+                    // 구매목록에서 검색
+                    for (HashMap<String, Object> last : lastbalances) {
+                        Long i = (long)last.getOrDefault("user_record_index", 0);
+
+                        if (recordIndex == i) {
+                            long lb = (long)last.getOrDefault("balance", 0);
+                            llb -= lb;
+                        }
+                    }
+
+                    if (llb > 0) {
+                        log.info(String.format("Carried Forward. name: %s, recordIndex: %s, balance: %s",
+                                b.getOrDefault("name", ""), recordIndex, llb * -1));
+
+                        // Update balance.
+                        b.put("balance", llb * -1);
+
+                        log.debug(b.toString());
+
+                        purchaseMapper.insertCarriedBalanceForward(b);
+
+                        // Update result count.
+                        result++;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw e;
+        }
+
+        // 2. purchase table 이번달에 insert
+        return result;
     }
 
     // -----------------------------------------------------------------------

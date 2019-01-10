@@ -1,6 +1,7 @@
 package com.digicap.dcblock.caffeapiserver.config;
 
 import com.digicap.dcblock.caffeapiserver.dao.ReceiptIdDao;
+import com.digicap.dcblock.caffeapiserver.service.SettlementService;
 import com.digicap.dcblock.caffeapiserver.store.PurchaseMapper;
 import java.sql.Timestamp;
 import lombok.extern.slf4j.Slf4j;
@@ -19,11 +20,15 @@ public class ScheduledConfig {
 
     private ReceiptIdDao receiptIdDao;
 
+    private SettlementService settlementService;
+
     @Autowired
-    public ScheduledConfig(PurchaseMapper mapper, ReceiptIdDao receiptIdDao) {
+    public ScheduledConfig(PurchaseMapper mapper, ReceiptIdDao receiptIdDao, SettlementService settlementService) {
         this.purchaseMapper = mapper;
 
         this.receiptIdDao = receiptIdDao;
+
+        this.settlementService = settlementService;
     }
 
     /**
@@ -53,7 +58,13 @@ public class ScheduledConfig {
      * 매월 1일 0시 0분 0초에 동작
      */
     @Scheduled(cron="0 0 0 1 * *")
-    public void settleAccount() {
-        log.info("settle accounts");
+//    @Scheduled(cron="*/10 * * * * *") // for test 10s
+    public void carriedBalanceForword() {
+        try {
+            int result = settlementService.getBalanceAccountLastMonth();
+            log.info("CarriedForward Balance Count: " + result);
+        } catch (Exception e) {
+           throw e;
+        }
     }
 }

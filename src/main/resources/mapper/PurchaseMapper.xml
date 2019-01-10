@@ -317,14 +317,12 @@
             user_record_index DESC
     </select>
 
-    <select id="selectSettlesAccount" resultType="hashmap">
+    <select id="selectBalanceAccountLastMonth" resultType="hashmap">
         SELECT
-            user_record_index, SUM((price * count) - (dc_price * count))
+            user_record_index, email, name, company, SUM((price * count) - (dc_price * count)) AS balance
         FROM
             purchases
         WHERE
-            company = 'digicap'
-        AND
         <![CDATA[
             (SELECT ((SELECT date_trunc('month', timestamp 'today')) - interval '1 month')) <= purchase_date
         AND
@@ -335,10 +333,53 @@
         AND
             (receipt_status = 0 OR receipt_status = 1)
         GROUP BY
-            user_record_index
-        HAVING BY
-            SUM((price * count) - (dc_price * count))
+            user_record_index, email, name, company
         ORDER BY
             user_record_index DESC
     </select>
+
+    <select id="selectBalanceAccountMonthBeforeLast" resultType="hashmap">
+        SELECT
+            user_record_index, email, name, company, SUM((price * count) - (dc_price * count)) AS balance
+        FROM
+            purchases
+        WHERE
+        <!-- 지지난 달에 구입은 했고 -->
+        <![CDATA[
+            (SELECT ((SELECT date_trunc('month', timestamp 'today')) - interval '2 month')) <= purchase_date
+        AND
+            purchase_date < (SELECT ((SELECT date_trunc('month', timestamp 'today')) - interval '1 month'))
+        AND
+            (SELECT ((SELECT date_trunc('month', timestamp 'today')) - interval '1 month')) <= canceled_date
+        AND
+            canceled_date < (SELECT date_trunc('month', timestamp 'today'))
+        ]]>
+        AND
+            purchase_type = 0 
+        AND
+            receipt_status = 2
+        GROUP BY
+            user_record_index, email, name, company
+        ORDER BY
+            user_record_index DESC
+    </select>
+
+    <insert id="insertCarriedBalanceForward">
+        DELETE FROM 
+            purchases 
+        WHERE 
+            purchase_type = '2' 
+        AND 
+            user_record_index = '61' 
+        AND 
+        <![CDATA[
+            (SELECT date_trunc('month', timestamp 'today')) <= purchase_date
+        AND 
+            purchase_date < (SELECT ((SELECT date_trunc('month', timestamp 'today')) + interval '1 month'));
+        ]]>
+        INSERT INTO purchases
+            (purchase_type, name, email, company, count, price, receipt_status, user_record_index)
+        VALUES
+            ('2', #{name}, #{email}, #{company}, '1', #{balance}, '1', #{user_record_index})
+    </insert>
 </mapper>
