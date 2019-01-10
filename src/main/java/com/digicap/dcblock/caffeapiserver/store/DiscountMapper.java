@@ -1,7 +1,10 @@
 package com.digicap.dcblock.caffeapiserver.store;
 
-import com.digicap.dcblock.caffeapiserver.dto.DiscountVo;
 import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.digicap.dcblock.caffeapiserver.dto.DiscountVo;
 
 /**
  * discount table을 사용하는 query들.
@@ -14,6 +17,14 @@ public interface DiscountMapper {
      * @return count 
      */
     int insertDiscount(List<DiscountVo> discounts);
+    
+    /**
+     * category, code 메뉴의 discounts를 삭제
+     * @param category menu'cateory
+     * @param code menu'code
+     * @return deleted count
+     */
+    int deleteDiscount(@Param("category") int category, @Param("code") int code);
 
 //    @Select("SELECT category, code, name_en, name_kr, price, dc_digicap, dc_covision, opt_type, opt_size, event_name FROM menus WHERE category = #{category} ORDER BY menus.order ASC")
 //    LinkedList<MenuDto> selectAllMenus(int category);

@@ -90,10 +90,14 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
         return menus;
     }
 
+    @Transactional
     @Override
     public void deleteMenu(int category, int code) throws MyBatisSystemException, NotFindException {
-        Integer result = menuMapper.deleteCode(code, category);
-        if (result == null || result == 0) {
+        // delete discount
+        int result = discountMapper.deleteDiscount(category, code);
+        
+        result = menuMapper.deleteCode(code, category);
+        if (result == 0) {
             throw new NotFindException(String.format("not find menu for delete. Category(%d) Code(%d)", code, category));
         }
     }
