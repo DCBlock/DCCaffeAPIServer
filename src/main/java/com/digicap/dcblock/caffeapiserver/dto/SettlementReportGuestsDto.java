@@ -1,11 +1,10 @@
 package com.digicap.dcblock.caffeapiserver.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-
-import javax.validation.constraints.NotNull;
 
 @Setter
 @Getter

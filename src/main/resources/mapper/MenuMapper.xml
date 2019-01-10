@@ -2,29 +2,20 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.digicap.dcblock.caffeapiserver.store.MenuMapper">
     <select id="insertMenu" resultType="com.digicap.dcblock.caffeapiserver.dto.MenuVo">
-        INSERT
-        INTO
-            menus
-            (
-                category,
-                name_kr,
-                name_en,
-                price,
-                dc_digicap,
-                dc_covision,
-                opt_type,
-                opt_size,
-                "order",
-                event_name
-            )
-        VALUES
-        (
+        INSERT INTO menus (
+            category,
+            name_kr,
+            name_en,
+            price,
+            opt_type,
+            opt_size,
+            "order",
+            event_name
+        ) VALUES (
             #{category},
             #{name_kr},
             #{name_en},
             #{price},
-            #{dc_digicap},
-            #{dc_covision},
             #{opt_type},
             #{opt_size},
             (SELECT MAX("order") + 1 FROM menus WHERE category = #{category}),
@@ -34,8 +25,7 @@
     </select>
     <update id="updateAllMenuByCategory" parameterType="java.util.List">
         <foreach collection="list" item="item" index="index" separator=";">
-            UPDATE
-                menus
+            UPDATE menus
             SET
                 <if test="item.order > -1">"order" = #{item.order},</if>
                 <if test="item.name_en != null">name_en = #{item.name_en},</if>
@@ -46,10 +36,8 @@
                 <if test="item.opt_size > -1">opt_size = #{item.opt_size},</if>
                 <if test="item.opt_type > -1">opt_type = #{item.opt_type},</if>
                 <if test="item.event_name != null">event_name = #{item.event_name}</if>
-            WHERE
-                code = #{item.code}
-            AND
-                category = #{item.category}
+            WHERE code = #{item.code}
+            AND category = #{item.category}
         </foreach>
     </update>
 </mapper>

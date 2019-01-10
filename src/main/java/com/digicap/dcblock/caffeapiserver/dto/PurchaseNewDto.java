@@ -1,12 +1,12 @@
 package com.digicap.dcblock.caffeapiserver.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.sql.Timestamp;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-
-import java.sql.Timestamp;
 
 @Setter
 @Getter

@@ -7,7 +7,6 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -36,7 +35,6 @@ import io.jsonwebtoken.Jwts;
  *
  */
 @Component
-@Slf4j
 public class ControllerHandler implements HandlerInterceptor, CaffeApiServerApplicationConstants {
 
     private static final String ACCEPT = "Accept";

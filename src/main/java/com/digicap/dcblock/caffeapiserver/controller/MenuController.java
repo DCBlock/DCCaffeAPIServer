@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.digicap.dcblock.caffeapiserver.dto.MenuDto;
+import com.digicap.dcblock.caffeapiserver.dto.MenuVo;
 import com.digicap.dcblock.caffeapiserver.service.MenuService;
 
 /**
@@ -45,8 +46,8 @@ public class MenuController {
     }
 
     @PostMapping(value = "/api/caffe/menus", consumes = "application/json; charset=utf-8")
-    MenuDto insertMenu(@RequestBody MenuDto body) {
-        MenuDto result = service.setMenu(body);
+    MenuVo insertMenu(@RequestBody MenuDto menu) {
+        MenuVo result = service.setMenu(menu);
         return result;
     }
 
@@ -68,14 +69,5 @@ public class MenuController {
 
         service.deleteMenu(category, code);
         return new HashMap<>();
-    }
-
-    // -------------------------------------------------------------------------
-    // Version 2
-
-    @GetMapping(value = "/api/caffe/menus", produces = "application/vnd.digicap.v2+json")
-    LinkedHashMap<String, LinkedList<MenuDto>> getAllMenusV2() {
-        LinkedHashMap<String, LinkedList<MenuDto>> menus = service.getAllMenus();
-        return menus;
     }
 }

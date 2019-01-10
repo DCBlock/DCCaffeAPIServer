@@ -1,14 +1,6 @@
 package com.digicap.dcblock.caffeapiserver.controller;
 
-import com.digicap.dcblock.caffeapiserver.dto.CategoryVo;
-import com.digicap.dcblock.caffeapiserver.dto.MenusInCategoryDto;
-import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
-import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
-import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
-import com.digicap.dcblock.caffeapiserver.service.CategoryService;
-import com.google.common.base.Preconditions;
 import java.util.LinkedList;
-import lombok.extern.slf4j.Slf4j;
 
 import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +12,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.digicap.dcblock.caffeapiserver.dto.CategoryVo;
+import com.digicap.dcblock.caffeapiserver.dto.MenusInCategoryDto;
+import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
+import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
+import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
+import com.digicap.dcblock.caffeapiserver.service.CategoryService;
+import com.google.common.base.Preconditions;
+
 /**
  * 카페에서 사용하는 카테고리 관련 Controller Class
  *
  * @author DigiCAP
  */
 @RestController
-@Slf4j
 public class CategoryController {
 
     private CategoryService categoryService;

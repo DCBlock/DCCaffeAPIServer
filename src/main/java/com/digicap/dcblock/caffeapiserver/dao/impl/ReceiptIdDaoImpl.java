@@ -1,16 +1,15 @@
 package com.digicap.dcblock.caffeapiserver.dao.impl;
 
-import com.digicap.dcblock.caffeapiserver.dao.ReceiptIdDao;
-import com.digicap.dcblock.caffeapiserver.dao.TemporaryUriDao;
-import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
-import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo;
-import com.digicap.dcblock.caffeapiserver.dto.TemporaryUriDto;
-import com.digicap.dcblock.caffeapiserver.dto.TemporaryUriVo;
 import java.sql.Timestamp;
+
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import com.digicap.dcblock.caffeapiserver.dao.ReceiptIdDao;
+import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
+import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo;
 
 /**
  * receipt_ids Table DAO Implement Class.

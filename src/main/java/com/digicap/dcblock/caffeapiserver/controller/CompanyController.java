@@ -1,14 +1,13 @@
 package com.digicap.dcblock.caffeapiserver.controller;
 
+import java.util.LinkedList;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.digicap.dcblock.caffeapiserver.dto.CompanyDto;
 import com.digicap.dcblock.caffeapiserver.dto.CompanyVo;
 import com.digicap.dcblock.caffeapiserver.store.CompanyMapper;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.LinkedList;
 
 /**
  * DCaffe 를 사용할 수 있는 회사관련 Controller
@@ -16,7 +15,6 @@ import java.util.LinkedList;
  * @author DigiCAP
  */
 @RestController
-@Slf4j
 public class CompanyController {
 
     private CompanyMapper companyMapper;

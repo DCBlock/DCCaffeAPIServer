@@ -13,21 +13,18 @@ import java.util.HashMap;
 @ToString
 public class MenuDto {
 
-    private int category;
-
-    private int code;
-
     @JsonProperty(access = Access.WRITE_ONLY)
     private int order = -1;
 
-    private String name_kr;
+    private int category;
+    private int code;
 
+    private String name_kr;
     private String name_en;
 
     private int price = -1;
 
     private int dc_digicap = -1;
-
     private int dc_covision = -1;
 
     @JsonProperty("type")
@@ -38,5 +35,12 @@ public class MenuDto {
 
     private String event_name = "";
 
-    private HashMap<String, String> discounts;
+    private HashMap<String, Integer> discounts;
+
+//    public MenuDto() {
+//        discounts = new HashMap<>();
+//        discounts.put("digicap", 5000);
+//        discounts.put("covision", 3000);
+//        discounts.put("design", 1000);
+//    }
 }

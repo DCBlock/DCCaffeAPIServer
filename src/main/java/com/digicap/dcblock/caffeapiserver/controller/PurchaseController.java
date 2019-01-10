@@ -112,7 +112,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
 
         List<Purchase2Dto> cancels2 = new ArrayList<>();
         for (PurchaseDto p : cancels) {
-            cancels2.add(toPurchaseDto(p));
+            cancels2.add(new Purchase2Dto(p));
         }
 
         PurchaseCancelingDto result  = new PurchaseCancelingDto();
@@ -138,7 +138,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
 
         List<Purchase2Dto> cancels2 = new ArrayList<>();
         for (PurchaseDto p : canceleds) {
-            cancels2.add(toPurchaseDto(p));
+            cancels2.add(new Purchase2Dto(p));
         }
 
         LinkedHashMap<String, List<Purchase2Dto>> result = new LinkedHashMap<>();
@@ -311,41 +311,5 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         }
     }
 
-    private Purchase2Dto toPurchaseDto(PurchaseDto purchaseDto) {
-        Purchase2Dto p = new Purchase2Dto();
-
-        p.setCategory(purchaseDto.getCategory());
-        p.setCode(purchaseDto.getCode());
-        p.setCount(purchaseDto.getCount());
-        p.setDc_price(purchaseDto.getDc_price());
-        p.setMenu_name_kr(purchaseDto.getMenu_name_kr());
-        p.setName(purchaseDto.getName());
-        p.setPrice(purchaseDto.getPrice());
-        p.setReceipt_id(purchaseDto.getReceipt_id());
-        p.setReceipt_status(purchaseDto.getReceipt_id());
-        p.setUser_record_index(purchaseDto.getUser_record_index());
-
-        switch (purchaseDto.getOpt_size()) {
-            case 0:
-                p.setSize(OPT_SIZE_REGULAR);
-                break;
-            case 1:
-                p.setSize(OPT_SIZE_SMALL);
-                break;
-        }
-
-        switch (purchaseDto.getOpt_type()) {
-            case 0:
-                p.setType(OPT_TYPE_HOT);
-                break;
-            case 1:
-                p.setType(OPT_TYPE_ICED);
-                break;
-            case 2:
-                p.setType(OPT_TYPE_BOTH);
-                break;
-        }
-
-        return p;
-    }
+    
 }

@@ -1,15 +1,16 @@
 package com.digicap.dcblock.caffeapiserver.dto;
 
+import static com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants.OPT_SIZE_REGULAR;
+import static com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants.OPT_SIZE_SMALL;
+import static com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants.OPT_TYPE_BOTH;
+import static com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants.OPT_TYPE_HOT;
+import static com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants.OPT_TYPE_ICED;
+
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-
-import java.sql.Timestamp;
-import java.util.Optional;
-
-import static com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants.*;
 
 @Setter
 @Getter
