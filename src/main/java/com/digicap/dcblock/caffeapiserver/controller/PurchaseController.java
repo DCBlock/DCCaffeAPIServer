@@ -344,33 +344,4 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
 
         return p;
     }
-
-    private Purchase2Vo toPurchase2Vo(PurchaseOldDto p) {
-        String size = "";
-        switch (p.getOptSize()) {
-            case 0:
-                size = OPT_SIZE_REGULAR;
-                break;
-            case 1:
-                size = OPT_SIZE_SMALL;
-                break;
-        }
-
-        String type = "";
-        switch (p.getOptType()) {
-            case 0:
-                type = OPT_TYPE_HOT;
-                break;
-            case 1:
-                type = OPT_TYPE_ICED;
-                break;
-            case 2:
-                type = OPT_TYPE_BOTH;
-                break;
-        }
-
-        // TODO Warning
-        return new Purchase2Vo(p.getCode(), p.getPrice(), p.getDcPrice(), type, size, p.getCount(),
-                p.getMenuNameKr(), p.getPurchaseType());
-    }
 }

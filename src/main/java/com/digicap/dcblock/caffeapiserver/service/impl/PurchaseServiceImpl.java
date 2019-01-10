@@ -7,7 +7,6 @@ import java.util.*;
 
 import com.digicap.dcblock.caffeapiserver.dao.ReceiptIdDao;
 import com.digicap.dcblock.caffeapiserver.dto.*;
-import lombok.SneakyThrows;
 import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -269,48 +268,39 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     }
 
     @Override
-    public PurchaseBalanceDto getBalanceByRfid(String rfid, Timestamp from, Timestamp to)
+    public PurchaseBalanceDto getBalanceByRfid(String rfid, Timestamp before, Timestamp after)
             throws MyBatisSystemException, NotFindException {
+
         // Get user from AdminServer.
         UserDto userDto = null;
 
         try {
             userDto = new AdminServer(adminServer, apiVersion).getUserByRfid(rfid);
+            if (userDto == null) {
+                throw new NotFindException(String.format("not find user using rfid(%s)", rfid));
+            }
+        } catch (NotFindException e) {
+            throw e;
         } catch (Exception e) {
             throw new UnknownException(String.format("Admin Server: %s", e.getMessage()));
         }
 
-        if (userDto == null) {
-            throw new NotFindException(String.format("not find user using rfid(%s)", rfid));
-        }
+        // Set Where for Query
+        PurchaseWhere w = PurchaseWhere.builder()
+                .before(before)
+                .after(after)
+                .userRecordIndex(userDto.getIndex())
+                .build();
+        
+        // Execute Query.
+        HashMap<String, Long> balances = purchaseMapper.selectBalanceAccounts(w);
 
-        //
-        PurchaseDto purchaseDto = new PurchaseDto();
-        purchaseDto.setUser_record_index(userDto.getIndex());
-        purchaseDto.setReceipt_status(RECEIPT_STATUS_PURCHASE);
-
-        // Get Purchases.
-        LinkedList<PurchaseOldDto> purchases = purchaseMapper.selectAllByUser(from, to,
-                purchaseDto.getUser_record_index(), purchaseDto.getReceipt_status());
-
-        // Calculate total, dc_total.
-        int total = 0;
-        int dc_total = 0;
-        for (PurchaseOldDto p : purchases) {
-            if (p.getPurchaseType() == PURCHASE_TYPE_GUEST) {
-                continue;
-            }
-
-            total += p.getPrice() * p.getCount();
-            dc_total += p.getDcPrice() * p.getCount();
-        }
-
-        // Set Value.
+        // Result
         PurchaseBalanceDto balanceDto = new PurchaseBalanceDto();
-        balanceDto.setTotal_price(total);
-        balanceDto.setTotal_dc_price(dc_total);
+        balanceDto.setTotal_price(balances.getOrDefault("balance", (long) 0));
+        balanceDto.setTotal_dc_price(balances.getOrDefault("dcbalance", (long) 0));
         balanceDto.setName(userDto.getName());
-
+        
         return balanceDto;
     }
 

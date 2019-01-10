@@ -74,22 +74,7 @@
         ]]>
         RETURNING *
     </select>
-    <select id="selectAllByUser" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseOldDto">
-        <![CDATA[
-        SELECT
-            code, price, dc_price, opt_type, opt_size, count, menu_name_kr, purchase_type
-        FROM
-            purchases
-        WHERE
-            user_record_index = #{userRecordIndex}
-        AND
-            (receipt_status = '0' OR receipt_status = '1')
-        AND
-            #{from} <= purchase_date
-        AND
-            purchase_date <= #{to}
-        ]]>
-    </select>
+
     <select id="selectAllCancel" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseNewDto">
         SELECT
             count,
@@ -298,7 +283,7 @@
         FROM
             purchases
         WHERE
-            1=1
+            user_record_index = #{userRecordIndex}
         AND
         <![CDATA[
             #{before} <= purchase_date
@@ -309,8 +294,6 @@
             (purchase_type = 0 OR purchase_type = 2)
         AND
             (receipt_status = 0 OR receipt_status = 1)
-        AND
-            user_record_index = #{userRecordIndex}
         GROUP BY
             user_record_index
         ORDER BY

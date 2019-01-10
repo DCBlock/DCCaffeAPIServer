@@ -38,9 +38,6 @@ public interface PurchaseMapper {
     LinkedList<PurchaseDto> updateReceiptCancelApprovalStatus(@Param("receiptId") int receiptId,
                                                               @Param("from") Timestamp from, @Param("to") Timestamp to);
 
-    LinkedList<PurchaseOldDto> selectAllByUser(@Param("from") Timestamp from, @Param("to") Timestamp to,
-                                               @Param("userRecordIndex") long userRecordIndex, @Param("receiptStatus") int receiptStatus);
-
     LinkedList<PurchaseNewDto> selectAllCancel(PurchaseWhere w);
 
     LinkedList<PurchaseNewDto> selectAllUser(@Param("before") Timestamp before, @Param("after") Timestamp after,
@@ -53,6 +50,11 @@ public interface PurchaseMapper {
 
     int selectAllCancelCount(PurchaseWhere w);
 
+    /**
+     * 일정기간동안 사용자 구매, 구매취소요청한 구매목록들의 total_price, total_dc_price를 계산
+     * @param w
+     * @return K is index, balance, dcbalance
+     */
     HashMap<String, Long> selectBalanceAccounts(PurchaseWhere w);
 
     /**
