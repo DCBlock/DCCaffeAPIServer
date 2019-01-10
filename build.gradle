@@ -63,6 +63,9 @@ dependencies {
     // https://mvnrepository.com/artifact/com.sun.xml.bind/jaxb-impl
     // compile group: 'com.sun.xml.bind', name: 'jaxb-impl', version: '2.3.1'
 
+    // java.lang.NoClassDefFoundError: javax/activation/MimeTypeParseException
+    compile('javax.activation:activation:1.1')
+
     // for WebClient
     compile 'org.springframework.boot:spring-boot-starter-webflux'
     compile 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
