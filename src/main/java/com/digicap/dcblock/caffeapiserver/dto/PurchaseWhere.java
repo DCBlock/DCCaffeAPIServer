@@ -24,5 +24,7 @@ public class PurchaseWhere {
 
     private int page;
 
-    private int purchaseType = -1;
+    private int purchaseType;
+    
+    private int receiptStatus;
 }

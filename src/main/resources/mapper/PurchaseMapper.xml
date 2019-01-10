@@ -290,10 +290,14 @@
         AND
             purchase_date <= #{after}
         ]]>
+        <if test="purchaseType != -1">
         AND
             (purchase_type = 0 OR purchase_type = 2)
+        </if>
+        <if test="receiptStatus != -2">
         AND
             (receipt_status = 0 OR receipt_status = 1)
+        </if>
         GROUP BY
             user_record_index
         ORDER BY

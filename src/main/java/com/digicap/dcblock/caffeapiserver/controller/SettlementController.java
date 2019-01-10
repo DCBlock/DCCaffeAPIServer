@@ -99,6 +99,8 @@ public class SettlementController implements CaffeApiServerApplicationConstants 
                 .userRecordIndex(userRecordIndex)
                 .page(page)
                 .perPage(perPage)
+                .purchaseType(PURCHASE_TYPE_DEFAULT)
+                .receiptStatus(RECEIPT_STATUS_DEFAULT)
                 .build();
 
         SettlementUserReportPageDto result = settlementService.getReportByRecordIndex(w);

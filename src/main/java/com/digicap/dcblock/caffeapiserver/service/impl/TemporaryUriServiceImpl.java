@@ -30,67 +30,67 @@ import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
 @Primary
 public class TemporaryUriServiceImpl implements TemporaryUriService {
 
-  private TemporaryUriDao temporaryUriDao;
+    private TemporaryUriDao temporaryUriDao;
 
-  @Value("${random-uri-expired-minute}")
-  private int randomUriExpired;
+    @Value("${random-uri-expired-minute}")
+    private int randomUriExpired;
 
-  @Value("${admin-server}")
-  private String adminServer;
+    @Value("${admin-server}")
+    private String adminServer;
 
-  @Value("${api-version}")
-  private String apiVersion;
+    @Value("${api-version}")
+    private String apiVersion;
 
-  @Autowired
-  public TemporaryUriServiceImpl(TemporaryUriDao temporaryUriDao) {
-    this.temporaryUriDao = temporaryUriDao;
-  }
-
-  @Override
-  public String createTemporaryUri(String rfid, Timestamp before, Timestamp after)
-      throws MyBatisSystemException, NotFindException, UnknownException {
-    // Get user from AdminServer.
-    UserDto userDto = null;
-
-    try {
-      userDto = new AdminServer(adminServer, apiVersion).getUserByRfid(rfid);
-      if (userDto == null) {
-        throw new UnknownException("not find user");
-      }
-    } catch (Exception e) {
-      throw new UnknownException(String.format("Admin Server: %s", e.getMessage()));
+    @Autowired
+    public TemporaryUriServiceImpl(TemporaryUriDao temporaryUriDao) {
+        this.temporaryUriDao = temporaryUriDao;
     }
 
-    // Instance
-    TemporaryUriVo vo = new TemporaryUriVo();
-    vo.setUserRecordIndex(userDto.getIndex());
-    vo.setName(userDto.getName());
-    vo.setSearchDateAfter(after);
-    vo.setSearchDateBefore(before);
+    @Override
+    public String createTemporaryUri(String rfid, Timestamp before, Timestamp after)
+            throws MyBatisSystemException, NotFindException, UnknownException {
+        // Get user from AdminServer.
+        UserDto userDto = null;
 
-    // Insert
-    if(temporaryUriDao.insert(vo) == 0) {
-      throw new UnknownException("DB Error. insert Random URI.");
+        try {
+            userDto = new AdminServer(adminServer, apiVersion).getUserByRfid(rfid);
+            if (userDto == null) {
+                throw new UnknownException("not find user");
+            }
+        } catch (Exception e) {
+            throw new UnknownException(String.format("Admin Server: %s", e.getMessage()));
+        }
+
+        // Instance
+        TemporaryUriVo vo = new TemporaryUriVo();
+        vo.setUserRecordIndex(userDto.getIndex());
+        vo.setName(userDto.getName());
+        vo.setSearchDateAfter(after);
+        vo.setSearchDateBefore(before);
+
+        // Insert
+        if (temporaryUriDao.insert(vo) == 0) {
+            throw new UnknownException("DB Error. insert Random URI.");
+        }
+
+        return vo.getRandomUri();
     }
 
-    return vo.getRandomUri();
-  }
+    @Override
+    public TemporaryUriDto existTemporary(String uuid) throws ExpiredTimeException {
+        TemporaryUriVo vo = new TemporaryUriVo();
+        vo.setRandomUri(uuid);
 
-  @Override
-  public TemporaryUriDto existTemporary(String uuid) throws ExpiredTimeException {
-    TemporaryUriVo vo = new TemporaryUriVo();
-    vo.setRandomUri(uuid);
+        // Execute Query.
+        TemporaryUriDto uriDto = Optional.ofNullable(temporaryUriDao.selectAndDelete(vo))
+                .orElseThrow(() -> new ExpiredTimeException("expired random uri"));
 
-    // Execute Query.
-    TemporaryUriDto uriDto = Optional.ofNullable(temporaryUriDao.selectAndDelete(vo))
-        .orElseThrow(() -> new ExpiredTimeException("expired random uri"));
+        // Compare expired Date.
+        Date expired = new TimeFormat().getAddMinute(uriDto.getRegDate().getTime(), randomUriExpired);
+        if (expired.before(new Date(System.currentTimeMillis()))) {
+            throw new ExpiredTimeException("expired random uri");
+        }
 
-    // Compare expired Date.
-    Date expired = new TimeFormat().getAddMinute(uriDto.getRegDate().getTime(), randomUriExpired);
-    if (expired.before(new Date(System.currentTimeMillis()))) {
-      throw new ExpiredTimeException("expired random uri");
+        return uriDto;
     }
-
-    return uriDto;
-  }
 }

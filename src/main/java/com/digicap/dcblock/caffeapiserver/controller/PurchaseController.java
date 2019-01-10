@@ -26,8 +26,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
+import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
 import com.digicap.dcblock.caffeapiserver.service.PurchaseService;
 import com.digicap.dcblock.caffeapiserver.service.TemporaryUriService;
+import com.digicap.dcblock.caffeapiserver.store.PurchaseMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.validation.Valid;
@@ -47,13 +49,17 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
     @Value("${purchase-list-viewer-server}")
     private String viewerServer;
 
+    // TODO Service로 옮겨야함
+    private PurchaseMapper mapper;
+    
     // -------------------------------------------------------------------------
     // Constructor
 
     @Autowired
-    public PurchaseController(PurchaseService service, TemporaryUriService temporaryUriService) {
+    public PurchaseController(PurchaseService service, TemporaryUriService temporaryUriService, PurchaseMapper mapper) {
         this.service = service;
         this.temporaryUriService = temporaryUriService;
+        this.mapper = mapper;
     }
 
     // -------------------------------------------------------------------------
@@ -193,7 +199,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
     }
 
     //-----------------------------------------------------------------------------------------------
-    // 구매 token API
+    // 일회용 URI를 이용한 구매목록 API
 
     @PostMapping(value = "/api/caffe/purchases/temporary", consumes = "application/json; charset=utf-8")
     HashMap<String, String> getTemporaryUri(@RequestBody Map<String, Object> body) {
@@ -225,6 +231,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
 
     @GetMapping("/api/caffe/purchases/temporary/{randomUri}")
     LinkedHashMap<String, Object> getPurchasesByTemporaryUri(@PathVariable("randomUri") String uri) {
+        // TODO 테스트용으로 개발해서 Service에서 비즈니스 로직을 처리하는게 아니라, Controller에서 모두 처리.
         // Get registered user_record_index and name by random uri.
         TemporaryUriDto temporaryUriVo = temporaryUriService.existTemporary(uri);
 
@@ -242,32 +249,29 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
             cancels2.add(new PurchasesTemporaryDto(p));
         }
 
-        long total = 0;
-        long dc_total = 0;
+        // Set Where for Query
+        PurchaseWhere w = PurchaseWhere.builder()
+                .before(temporaryUriVo.getSearchDateBefore())
+                .after(temporaryUriVo.getSearchDateAfter())
+                .userRecordIndex(temporaryUriVo.getUserRecordIndex())
+                .purchaseType(PURCHASE_TYPE_ALL)
+                .receiptStatus(RECEIPT_STATUS_ALL)
+                .build();
+        
+        // Execute Query.
+        try {
+            HashMap<String, Long> balances = mapper.selectBalanceAccounts(w);
 
-        for (PurchasesTemporaryDto p : cancels2) {
-            // 구매종류가 Guest는 가격을 계산하지 않음.
-            // Guest는 경영지원실에서 결재함.
-            if (p.getPurchaseType() == PURCHASE_TYPE_GUEST) {
-                continue;
-            }
-
-            // 구매취소승인된 것은 계산하지 않음.
-            if (p.getReceiptStatus() == CaffeApiServerApplicationConstants.RECEIPT_STATUS_CANCELED) {
-                continue;
-            }
-
-            total += p.getPrice() * p.getCount();
-            dc_total += p.getDc_price() * p.getCount();
+            // Result
+            LinkedHashMap<String, Object> result = new LinkedHashMap<>();
+            result.put("name", temporaryUriVo.getName());
+            result.put("total", balances.getOrDefault("balance", (long) 0));
+            result.put("dc_total", balances.getOrDefault("dcbalance", (long) 0));
+            result.put("purchases", cancels2);
+            return result;
+        } catch (Throwable t) {
+            throw new UnknownException(t.getMessage());
         }
-
-        // Result
-        LinkedHashMap<String, Object> result = new LinkedHashMap<>();
-        result.put("name", temporaryUriVo.getName());
-        result.put("total", total);
-        result.put("dc_total", dc_total);
-        result.put("purchases", cancels2);
-        return result;
     }
 
     @GetMapping("/api/caffe/purchases/purchase/rfid/{rfid}")

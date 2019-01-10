@@ -290,6 +290,8 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
                 .before(before)
                 .after(after)
                 .userRecordIndex(userDto.getIndex())
+                .purchaseType(PURCHASE_TYPE_DEFAULT)
+                .receiptStatus(RECEIPT_STATUS_DEFAULT)
                 .build();
         
         // Execute Query.
