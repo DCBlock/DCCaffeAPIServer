@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -15,6 +16,7 @@ import java.util.Optional;
 @Setter
 @Getter
 @ToString
+@NoArgsConstructor
 @JsonPropertyOrder({"category", "code", "name_kr", "name_en", "price", "type", "size", "event_name", "discounts"})
 public class MenuDto implements CaffeApiServerApplicationConstants {
 

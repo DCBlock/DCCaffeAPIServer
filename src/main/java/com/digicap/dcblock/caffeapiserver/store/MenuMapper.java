@@ -1,6 +1,5 @@
 package com.digicap.dcblock.caffeapiserver.store;
 
-import com.digicap.dcblock.caffeapiserver.dto.MenuDto;
 import com.digicap.dcblock.caffeapiserver.dto.MenuVo;
 import java.util.LinkedList;
 import org.apache.ibatis.annotations.Delete;

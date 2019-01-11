@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 import com.digicap.dcblock.caffeapiserver.dto.DiscountVo;
+import com.digicap.dcblock.caffeapiserver.dto.MenuVo;
 
 /**
  * discount table을 사용하는 query들.
@@ -29,15 +30,24 @@ public interface DiscountMapper {
     
     /**
      * category, code의 discounts를 조회
+     * 
      * @param category menu'cateory
      * @param code menu'code
      * @return
      */
     LinkedList<DiscountVo> selectDiscount(@Param("category") int category, @Param("code") int code);
 
-//    @Select("SELECT category, code, name_en, name_kr, price, dc_digicap, dc_covision, opt_type, opt_size, event_name FROM menus WHERE category = #{category} ORDER BY menus.order ASC")
-//    LinkedList<MenuDto> selectAllMenus(int category);
-//
+    /**
+     * Menu(category, code에 해당하는) 의 discount를 업데이트 
+     * 
+     * @param category menu'category searching menu'index
+     * @param code menu'code searching menu'index
+     * @param company
+     * @param discount
+     * @return
+     */
+    int updateDiscounts(@Param("category") int category, @Param("code") int code, @Param("company") String compnay, @Param("discount") int discount);
+    
 //    @Select("SELECT EXISTS(SELECT 1 FROM menus WHERE code = #{code} AND category = #{category})")
 //    boolean existCode(@Param("code") int code, @Param("category") int category);
 //
@@ -49,11 +59,6 @@ public interface DiscountMapper {
 //
 //    @Select("DELETE FROM menus WHERE category = #{category} RETURNING *")
 //    LinkedList<MenuVo> deleteByCategory(@Param("category") int category);
-//
-//    MenuVo insertMenu(MenuVo menu);
-//
-//    @Select("SELECT COUNT(*) FROM menus WHERE category = #{category}")
-//    int selectMenuInCategorySize(@Param("category") int category);
 //
 //    Integer updateAllMenuByCategory(LinkedList<MenuVo> menus);
 }

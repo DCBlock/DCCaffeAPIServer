@@ -31,8 +31,6 @@
                 <if test="item.name_en != null">name_en = #{item.name_en},</if>
                 <if test="item.name_kr != null">name_kr = #{item.name_kr},</if>
                 <if test="item.price > -1">price = #{item.price},</if>
-                <if test="item.dc_digicap > -1">dc_digicap = #{item.dc_digicap},</if>
-                <if test="item.dc_covision > -1">dc_covision = #{item.dc_covision},</if>
                 <if test="item.opt_size > -1">opt_size = #{item.opt_size},</if>
                 <if test="item.opt_type > -1">opt_type = #{item.opt_type},</if>
                 <if test="item.event_name != null">event_name = #{item.event_name}</if>

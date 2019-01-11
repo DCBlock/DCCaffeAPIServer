@@ -138,6 +138,7 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
         }
     }
 
+    @Transactional
     @Override
     public LinkedList<MenuDto> updateAllMenusInCategory(int category, LinkedList<MenuDto> menus)
             throws MyBatisSystemException, InvalidParameterException {
@@ -159,6 +160,18 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
 
         // Update.
         menuMapper.updateAllMenuByCategory(menusVo);
+        
+        for (MenuVo m : menusVo) {
+            if (m.getDiscounts() != null) {
+                Set<String> keys = m.getDiscounts().keySet();
+                for (String k : keys) {
+                    int discount = m.getDiscounts().getOrDefault(k, (int) 0);
+                    // Update discounts
+                    discountMapper.updateDiscounts(m.getCategory(), m.getCode(), k, discount);
+                }
+            } 
+        }
+        
         return null;
     }
 

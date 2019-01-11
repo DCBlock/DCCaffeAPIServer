@@ -36,8 +36,10 @@ public class MenuVo implements CaffeApiServerApplicationConstants {
 
     private HashMap<String, Integer> discounts;
 
+    // -----------------------------------------------------------------------
+    // Constructor
+    
     public MenuVo() {
-        
     }
     
     public MenuVo(MenuDto m) {
@@ -48,6 +50,13 @@ public class MenuVo implements CaffeApiServerApplicationConstants {
         this.name_kr = m.getName_kr();
         this.price = m.getPrice();
         this.event_name = m.getEvent_name();
+
+        // Set discounts
+        if (m.getDiscounts() != null) {
+            this.discounts = m.getDiscounts();
+        } else {
+            this.discounts = new HashMap<>();
+        }
 
         switch (m.getOptType()) {
         case OPT_TYPE_HOT:

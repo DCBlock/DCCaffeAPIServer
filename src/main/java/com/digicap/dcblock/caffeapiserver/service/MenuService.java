@@ -10,6 +10,7 @@ public interface MenuService {
 
     /**
      * menus를 추가
+     * 
      * @param menuVo
      * @return
      */
@@ -19,8 +20,7 @@ public interface MenuService {
 
     LinkedHashMap<Integer, LinkedList<MenuDto>> getAllMenusUsingCode();
 
-    void deleteMenu(int category, int code);
-
-
     LinkedList<MenuDto> updateAllMenusInCategory(int category, LinkedList<MenuDto> menus);
+
+    void deleteMenu(int category, int code);
 }

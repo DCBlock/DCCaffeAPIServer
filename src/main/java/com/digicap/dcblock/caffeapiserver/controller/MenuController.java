@@ -39,25 +39,25 @@ public class MenuController {
     // -------------------------------------------------------------------------
     // Public Methods
 
-    @GetMapping("/api/caffe/menus")
-    LinkedHashMap<String, LinkedList<MenuDto>> getAllMenus() {
-        LinkedHashMap<String, LinkedList<MenuDto>> menus = service.getAllMenus();
-        return menus;
-    }
-
     @PostMapping(value = "/api/caffe/menus", consumes = "application/json; charset=utf-8")
     MenuVo insertMenu(@RequestBody MenuDto menu) {
         MenuVo result = service.setMenu(menu);
         return result;
     }
 
+    @GetMapping("/api/caffe/menus")
+    LinkedHashMap<String, LinkedList<MenuDto>> getAllMenus() {
+        LinkedHashMap<String, LinkedList<MenuDto>> menus = service.getAllMenus();
+        return menus;
+    }
+    
     @PatchMapping(value = "/api/caffe/menus/{category}", consumes = "application/json; charset=utf-8")
     LinkedList<MenuDto> updateMenuInCategory(@PathVariable("category") int category,
-                                             @RequestBody LinkedList<MenuDto> body) {
+                                             @RequestBody LinkedList<MenuDto> menus) {
         // Check Argument.
         Preconditions.checkArgument(category > 0, "invalid category(%d)", category);
 
-        return service.updateAllMenusInCategory(category, body);
+        return service.updateAllMenusInCategory(category, menus);
     }
 
     @DeleteMapping("/api/caffe/menus/{category}/{code}")
