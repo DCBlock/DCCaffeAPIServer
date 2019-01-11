@@ -32,9 +32,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerApplicationConstants {
 
-    private static final String COMPANY_DIGICAP = "digicap";
-    private static final String COMPANY_COVISION = "covision";
-
     private PurchaseMapper purchaseMapper;
 
     private ReceiptIdDao receiptIdDao;
@@ -160,13 +157,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
 
                     // DC 가격
                     String company = receiptIdDto.getCompany();
-                    if (company.equals(COMPANY_DIGICAP)) {
-                        purchases.get(i).setDc_price(menu.getDc_digicap());
-                    } else if (company.equals(COMPANY_COVISION)) {
-                        purchases.get(i).setDc_price(menu.getDc_covision());
-                    } else {
-                        purchases.get(i).setDc_price(0);
-                    }
+                    purchases.get(i).setDc_price(menu.getDiscounts().getOrDefault(company, 0));
                 }
             }
         }

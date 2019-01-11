@@ -20,4 +20,10 @@
             SELECT index FROM menus WHERE category = #{category} AND code = #{code}
         )
     </delete>
+    <select id="selectDiscount" resultType="com.digicap.dcblock.caffeapiserver.dto.DiscountVo">
+        SELECT * FROM discount
+        WHERE menu_index = (
+            SELECT index FROM menus WHERE category = #{category} AND code = #{code}
+        )
+    </select>
 </mapper>

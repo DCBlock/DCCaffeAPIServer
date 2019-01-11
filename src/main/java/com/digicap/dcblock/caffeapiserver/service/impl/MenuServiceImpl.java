@@ -1,5 +1,6 @@
 package com.digicap.dcblock.caffeapiserver.service.impl;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -111,7 +112,7 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
         }
 
         try {
-            MenuVo tempVo = toMenuVo(menuDto);
+            MenuVo tempVo = new MenuVo(menuDto);
             MenuVo result = menuMapper.insertMenu(tempVo);
             if (result == null) {
                 throw new Exception("fail.");
@@ -153,7 +154,7 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
 
         LinkedList<MenuVo> menusVo = new LinkedList<>();
         for (MenuDto m : menus) {
-            menusVo.add(toMenuVo(m));
+            menusVo.add(new MenuVo(m));
         }
 
         // Update.
@@ -166,16 +167,29 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
 
     /**
      *
-     * @param code
+     * @param category
      * @return
      * @throws Exception
      */
-    private LinkedList<MenuDto> getMenusByCategoryCode(int code) throws MyBatisSystemException {
-        LinkedList<MenuDto> menus = menuMapper.selectAllMenus(code);
+    private LinkedList<MenuDto> getMenusByCategoryCode(int category) throws MyBatisSystemException {
+        LinkedList<MenuVo> menus = menuMapper.selectAllMenus(category);
 
-        transTypeAndSize(menus);
+        LinkedList<MenuDto> results = transTypeAndSize(menus);
 
-        return menus;
+        for (MenuDto m : results) {
+            List<DiscountVo> discounts = discountMapper.selectDiscount(category, m.getCode());
+            if (discounts != null) {
+                HashMap<String, Integer> h = new HashMap<>();
+
+                for (DiscountVo d : discounts) {
+                    h.put(d.getCompany(), (int)d.getDiscount());
+                }
+                
+                m.setDiscounts(h);
+            }
+        }
+
+        return results;
     }
 
     /**
@@ -184,109 +198,43 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
      * @param menus
      * @return
      */
-    private LinkedList<MenuDto> transTypeAndSize(LinkedList<MenuDto> menus) {
-        for (MenuDto m : menus) {
-            switch (m.getOpt_size()) {
-            case "0":
-                m.setOpt_size(OPT_SIZE_REGULAR);
-                break;
-            case "1":
-                m.setOpt_size(OPT_SIZE_SMALL);
-                break;
-            default:
-                throw new InvalidParameterException(String.format("unknown opt_size(%s)", m.getOpt_size()));
-            }
-
-            switch (m.getOpt_type()) {
-            case "0":
-                m.setOpt_type(OPT_TYPE_HOT);
-                break;
-            case "1":
-                m.setOpt_type(OPT_TYPE_ICED);
-                break;
-            case "2":
-                m.setOpt_type(OPT_TYPE_BOTH);
-                break;
-            default:
-                throw new InvalidParameterException(String.format("unknown opt_type(%s)", m.getOpt_type()));
-            }
+    private LinkedList<MenuDto> transTypeAndSize(LinkedList<MenuVo> menus) {
+        
+        LinkedList<MenuDto> results = new LinkedList<>();
+        
+        for (MenuVo m : menus) {
+            MenuDto menuDto = new MenuDto(m);
+            results.add(menuDto);
+//            switch (m.getOpt_size()) {
+//            case 0:
+//                m.setOpt_size(OPT_SIZE_REGULAR);
+//                break;
+//            case 1:
+//                m.setOpt_size(OPT_SIZE_SMALL);
+//                break;
+//            default:
+//                throw new InvalidParameterException(String.format("unknown opt_size(%s)", m.getOpt_size()));
+//            }
+//
+//            switch (m.getOpt_type()) {
+//            case "0":
+//                m.setOpt_type(OPT_TYPE_HOT);
+//                break;
+//            case "1":
+//                m.setOpt_type(OPT_TYPE_ICED);
+//                break;
+//            case "2":
+//                m.setOpt_type(OPT_TYPE_BOTH);
+//                break;
+//            default:
+//                throw new InvalidParameterException(String.format("unknown opt_type(%s)", m.getOpt_type()));
+//            }
         }
-        return menus;
+
+        return results;
     }
 
-    private MenuDto toMenuDto(MenuVo v) {
-        MenuDto t = new MenuDto();
-        t.setCategory(v.getCategory());
-        t.setCode(v.getCode());
-        t.setOrder(v.getOrder());
-        t.setName_en(v.getName_en());
-        t.setName_kr(v.getName_en());
-        t.setPrice(v.getPrice());
-        t.setDc_digicap(v.getDc_digicap());
-        t.setDc_covision(v.getDc_covision());
-        t.setEvent_name(v.getEvent_name());
+    
 
-        switch (v.getOpt_type()) {
-        case 0:
-            t.setOpt_type(OPT_TYPE_HOT);
-            break;
-        case 1:
-            t.setOpt_type(OPT_TYPE_ICED);
-            break;
-        case 2:
-            t.setOpt_type(OPT_TYPE_BOTH);
-            break;
-        }
-
-        switch (v.getOpt_size()) {
-        case 0:
-            t.setOpt_size(OPT_SIZE_REGULAR);
-            break;
-        case 1:
-            t.setOpt_size(OPT_SIZE_SMALL);
-            break;
-        }
-
-        return t;
-    }
-
-    private MenuVo toMenuVo(MenuDto t) {
-        MenuVo v = new MenuVo();
-        v.setCategory(t.getCategory());
-        v.setCode(t.getCode());
-        v.setOrder(t.getOrder());
-        v.setName_en(t.getName_en());
-        v.setName_kr(t.getName_kr());
-        v.setPrice(t.getPrice());
-        v.setDc_digicap(t.getDc_digicap());
-        v.setDc_covision(t.getDc_covision());
-        v.setEvent_name(t.getEvent_name());
-
-        switch (t.getOpt_type()) {
-        case OPT_TYPE_HOT:
-            v.setOpt_type(0);
-            break;
-        case OPT_TYPE_ICED:
-            v.setOpt_type(1);
-            break;
-        case OPT_TYPE_BOTH:
-            v.setOpt_type(2);
-            break;
-        default:
-            throw new InvalidParameterException(String.format("unknown opt_type value(%s)", t.getOpt_type()));
-        }
-
-        switch (t.getOpt_size()) {
-        case OPT_SIZE_REGULAR:
-            v.setOpt_size(0);
-            break;
-        case OPT_SIZE_SMALL:
-            v.setOpt_size(1);
-            break;
-        default:
-            throw new InvalidParameterException(String.format("unknown opt_size value(%s)", t.getOpt_size()));
-        }
-
-        return v;
-    }
+    
 }

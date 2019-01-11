@@ -1,5 +1,6 @@
 package com.digicap.dcblock.caffeapiserver.store;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
@@ -25,6 +26,14 @@ public interface DiscountMapper {
      * @return deleted count
      */
     int deleteDiscount(@Param("category") int category, @Param("code") int code);
+    
+    /**
+     * category, code의 discounts를 조회
+     * @param category menu'cateory
+     * @param code menu'code
+     * @return
+     */
+    LinkedList<DiscountVo> selectDiscount(@Param("category") int category, @Param("code") int code);
 
 //    @Select("SELECT category, code, name_en, name_kr, price, dc_digicap, dc_covision, opt_type, opt_size, event_name FROM menus WHERE category = #{category} ORDER BY menus.order ASC")
 //    LinkedList<MenuDto> selectAllMenus(int category);
