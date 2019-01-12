@@ -30,6 +30,7 @@ import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
 import com.digicap.dcblock.caffeapiserver.service.PurchaseService;
 import com.digicap.dcblock.caffeapiserver.service.TemporaryUriService;
 import com.digicap.dcblock.caffeapiserver.store.PurchaseMapper;
+import com.digicap.dcblock.caffeapiserver.type.PurchaseType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.validation.Valid;
@@ -78,11 +79,11 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         Preconditions.checkArgument(1 <= receiptId && receiptId <= 999999, "invalid receiptId(%s)", receiptId);
 
         int type = Integer.valueOf(body.getOrDefault(KEY_PURCHASE_TYPE, -1).toString());
-        if (type == -1) {
-            throw new InvalidParameterException("not find purchase_type");
-        } else if (!(type == PURCHASE_TYPE_MONTH || type == PURCHASE_TYPE_GUEST)) {
-            throw new InvalidParameterException(String.format("unknown purchase_type(%d)", type));
-        }
+
+        PurchaseType purchaseType = PurchaseType.findByType(type);
+        if (purchaseType == PurchaseType.EMPTY) {
+            throw new InvalidParameterException(String.format("not find purchase_type(%s)", type));
+        } 
 
         // Casting
         List<LinkedHashMap<String, Object>> purchases = null;
@@ -97,7 +98,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
             throw new InvalidParameterException("fail casting purchases");
         }
 
-        PurchasedDto purchasedDto = service.requestPurchases(receiptId, type, purchases);
+        PurchasedDto purchasedDto = service.requestPurchases(receiptId, purchaseType, purchases);
         return purchasedDto;
     }
 

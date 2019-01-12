@@ -1,0 +1,4 @@
+<typeHandlers>
+  <typeHandler handler="org.apache.ibatis.type.EnumOrdinalTypeHandler" 
+    javaType="com.digicap.dcblock.caffeapiserver.type.PurchaseType"/>
+</typeHandlers>

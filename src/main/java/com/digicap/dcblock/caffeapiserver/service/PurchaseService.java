@@ -1,6 +1,7 @@
 package com.digicap.dcblock.caffeapiserver.service;
 
 import com.digicap.dcblock.caffeapiserver.dto.*;
+import com.digicap.dcblock.caffeapiserver.type.PurchaseType;
 
 import java.sql.Timestamp;
 import java.util.LinkedHashMap;
@@ -11,7 +12,7 @@ public interface PurchaseService {
 
     ReceiptIdDto getReceiptId(String rfid);
 
-    PurchasedDto requestPurchases(int receiptId, int type, List<LinkedHashMap<String, Object>> purchases);
+    PurchasedDto requestPurchases(int receiptId, PurchaseType type, List<LinkedHashMap<String, Object>> purchases);
 
     List<PurchaseDto> cancelPurchases(int receiptId, String rfid);
 

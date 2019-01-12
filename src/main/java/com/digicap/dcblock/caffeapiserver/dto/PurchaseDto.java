@@ -2,6 +2,7 @@ package com.digicap.dcblock.caffeapiserver.dto;
 
 import java.sql.Timestamp;
 
+import com.digicap.dcblock.caffeapiserver.type.PurchaseType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -43,6 +44,8 @@ public class PurchaseDto {
 
     private int purchase_type;
 
+    private PurchaseType type;
+    
     @JsonProperty(access = Access.WRITE_ONLY)
     private String email;
 
