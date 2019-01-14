@@ -33,14 +33,14 @@ public interface PurchaseMapper {
     LinkedList<Timestamp> selectByReceiptId(@Param("receiptId") int receiptId,
                                             @Param("userRecordIndex") long userRecordIndex);
 
-    LinkedList<PurchaseDto> updateReceiptCancelStatus(@Param("receiptId") int receiptId);
+    LinkedList<PurchaseVo> updateReceiptCancelStatus(@Param("receiptId") int receiptId);
 
-    LinkedList<PurchaseDto> updateReceiptCancelApprovalStatus(@Param("receiptId") int receiptId,
+    LinkedList<PurchaseVo> updateReceiptCancelApprovalStatus(@Param("receiptId") int receiptId,
                                                               @Param("from") Timestamp from, @Param("to") Timestamp to);
 
-    LinkedList<PurchaseNewDto> selectAllCancel(PurchaseWhere w);
+    LinkedList<PurchaseVo> selectAllCancel(PurchaseWhere w);
 
-    LinkedList<PurchaseNewDto> selectAllUser(@Param("before") Timestamp before, @Param("after") Timestamp after,
+    LinkedList<PurchaseVo> selectAllUser(@Param("before") Timestamp before, @Param("after") Timestamp after,
                                              @Param("userRecordIndex") long index,
                                              @Param("company") String company);
 

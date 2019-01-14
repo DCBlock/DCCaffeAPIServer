@@ -1,4 +1,12 @@
-<typeHandlers>
-  <typeHandler handler="org.apache.ibatis.type.EnumOrdinalTypeHandler" 
-    javaType="com.digicap.dcblock.caffeapiserver.type.PurchaseType"/>
-</typeHandlers>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+<!--
+    <typeHandlers>
+        <typeHandler handler="org.apache.ibatis.type.EnumOrdinalTypeHandler" 
+            javaType="com.digicap.dcblock.caffeapiserver.type.OptSize"/>
+    </typeHandlers>
+-->
+</configuration>

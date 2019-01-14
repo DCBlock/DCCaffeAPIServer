@@ -32,11 +32,9 @@ public class MenuDto implements CaffeApiServerApplicationConstants {
     private int price;
 
     @JsonProperty("type")
-//    private String optType;
     private OptType optType;
     
     @JsonProperty("size")
-//    private String optSize;
     private OptSize optSize;
     
     private String event_name = "";
@@ -53,26 +51,5 @@ public class MenuDto implements CaffeApiServerApplicationConstants {
         this.event_name = Optional.ofNullable(v.getEvent_name()).orElse("");
         this.optSize = v.getOpt_size();
         this.optType = v.getOpt_type();
-        
-//        switch (v.getOpt_type()) {
-//        case 0:
-//            this.optType = OPT_TYPE_HOT;
-//            break;
-//        case 1:
-//            this.optType = OPT_TYPE_ICED;
-//            break;
-//        case 2:
-//            this.optType = OPT_TYPE_BOTH;
-//            break;
-//        }
-//
-//        switch (v.getOpt_size()) {
-//        case 0:
-//            this.optSize = OPT_SIZE_REGULAR;
-//            break;
-//        case 1:
-//            this.optSize = OPT_SIZE_SMALL;
-//            break;
-//        }
     }
 }

@@ -1,19 +1,31 @@
 package com.digicap.dcblock.caffeapiserver.service.impl;
 
-import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
-import com.digicap.dcblock.caffeapiserver.dto.*;
-import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
-import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
-import com.digicap.dcblock.caffeapiserver.service.SettlementService;
-import com.digicap.dcblock.caffeapiserver.store.PurchaseMapper;
-import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
-import lombok.extern.slf4j.Slf4j;
+import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.util.*;
+import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseSearchDto;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseSearchPageDto;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseWhere;
+import com.digicap.dcblock.caffeapiserver.dto.SettlementReportDto;
+import com.digicap.dcblock.caffeapiserver.dto.SettlementReportGuestsDto;
+import com.digicap.dcblock.caffeapiserver.dto.SettlementUserReportPageDto;
+import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
+import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
+import com.digicap.dcblock.caffeapiserver.service.SettlementService;
+import com.digicap.dcblock.caffeapiserver.store.PurchaseMapper;
+import com.digicap.dcblock.caffeapiserver.type.PurchaseType;
+import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 정산 처리 Service Implement.
@@ -117,18 +129,18 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
 
         // Get purchases
         // user_record_index = -1은 모든 사용자
-        LinkedList<PurchaseNewDto> purchases = purchaseMapper.selectAllUser(before, after, -1, company);
+        LinkedList<PurchaseVo> purchases = purchaseMapper.selectAllUser(before, after, -1, company);
         if (purchases == null || purchases.size() == 0)  {
 //            throw new NotFindException("not find purchases");
             return results;
         }
 
         // 사용자별 계산을 위해 임시 정렬 HashMap
-        HashMap<Long, List<PurchaseNewDto>> temp = new HashMap<>();
+        HashMap<Long, List<PurchaseVo>> temp = new HashMap<>();
 
-        Iterator<PurchaseNewDto> itr = purchases.iterator();
+        Iterator<PurchaseVo> itr = purchases.iterator();
         while (itr.hasNext()) {
-            PurchaseNewDto purchase = itr.next();
+            PurchaseVo purchase = itr.next();
             long userRecordIndex = purchase.getUser_record_index();
 
             int receiptStatus = purchase.getReceipt_status();
@@ -148,27 +160,27 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
             }
 
             // 손님 결재는 정산 대상이 아님.
-            if (purchase.getPurchase_type() == PURCHASE_TYPE_GUEST) {
+            if (purchase.getPurchase_type() == PurchaseType.GUEST) {
                 continue;
             }
 
             if (!temp.containsKey(userRecordIndex)) {
-                List<PurchaseNewDto> l = new LinkedList<>();
+                List<PurchaseVo> l = new LinkedList<>();
                 l.add(purchase);
                 temp.put(userRecordIndex, l);
             } else {
-                List<PurchaseNewDto> l = temp.get(userRecordIndex);
+                List<PurchaseVo> l = temp.get(userRecordIndex);
                 l.add(purchase);
             }
         }
 
         // 사용자별로 total_price, total_dc_price, billing 계산
-        Iterator<List<PurchaseNewDto>> iterator = temp.values().iterator();
+        Iterator<List<PurchaseVo>> iterator = temp.values().iterator();
         while (iterator.hasNext()) {
             SettlementReportDto s = new SettlementReportDto();
 
-            List<PurchaseNewDto> l = iterator.next();
-            for (PurchaseNewDto p : l) {
+            List<PurchaseVo> l = iterator.next();
+            for (PurchaseVo p : l) {
                 s.setName(p.getName());
                 s.setEmail(p.getEmail());
                 s.setCompany(p.getCompany());

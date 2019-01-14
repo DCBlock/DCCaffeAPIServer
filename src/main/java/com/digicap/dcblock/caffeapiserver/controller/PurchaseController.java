@@ -1,7 +1,5 @@
 package com.digicap.dcblock.caffeapiserver.controller;
 
-import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
-import com.google.common.base.Preconditions;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,8 +10,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import com.digicap.dcblock.caffeapiserver.dto.*;
-import com.fasterxml.jackson.core.type.TypeReference;
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,15 +23,28 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
+import com.digicap.dcblock.caffeapiserver.dto.PurchasePartialDto;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseBalanceDto;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseCancelingDto;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseSearchPageDto;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseWhere;
+import com.digicap.dcblock.caffeapiserver.dto.PurchasedDto;
+import com.digicap.dcblock.caffeapiserver.dto.PurchasesTemporaryDto;
+import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
+import com.digicap.dcblock.caffeapiserver.dto.RfidDto;
+import com.digicap.dcblock.caffeapiserver.dto.TemporaryUriDto;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
 import com.digicap.dcblock.caffeapiserver.service.PurchaseService;
 import com.digicap.dcblock.caffeapiserver.service.TemporaryUriService;
 import com.digicap.dcblock.caffeapiserver.store.PurchaseMapper;
 import com.digicap.dcblock.caffeapiserver.type.PurchaseType;
+import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import javax.validation.Valid;
+import com.google.common.base.Preconditions;
 
 /**
  * 구매 관련 Controller
@@ -109,25 +120,26 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         Preconditions.checkNotNull(rfidDto == null || rfidDto.getRfid() == null, "rfid is null");
         Preconditions.checkNotNull(rfidDto.getRfid().isEmpty(), "rfid is empty");
 
-        List<PurchaseDto> cancels = service.cancelPurchases(receiptId, rfidDto.getRfid());
+        List<PurchaseVo> cancels = service.cancelPurchases(receiptId, rfidDto.getRfid());
 
-        List<Purchase2Dto> cancels2 = new ArrayList<>();
-        for (PurchaseDto p : cancels) {
-            cancels2.add(new Purchase2Dto(p));
+        List<PurchasePartialDto> cancels2 = new ArrayList<>();
+        for (PurchaseVo p : cancels) {
+            cancels2.add(new PurchasePartialDto(p));
         }
 
         PurchaseCancelingDto result  = new PurchaseCancelingDto();
         result.setReceiptId(receiptId);
-        if (cancels2.size() > 0) {
-            result.setPurchasedDate(new TimeFormat().timestampToString(cancels.get(0).getPurchase_date()));
+        if (cancels.size() > 0) {
+            result.setPurchasedDate(new TimeFormat().timestampToString(cancels.get(0).getUpdate_date()));
         }
-        result.setPurchaseCancels(cancels);
+        
+        result.setPurchaseCancels(cancels2);
 
         return result;
     }
 
     @PatchMapping("/api/caffe/purchases/purchase/receipt/{receiptId}/cancel-approval")
-    HashMap<String, List<Purchase2Dto>> canceledPurchaseByReceiptId(@PathVariable("receiptId") int receiptId,
+    HashMap<String, List<PurchasePartialDto>> canceledPurchaseByReceiptId(@PathVariable("receiptId") int receiptId,
                                                                     @RequestParam("purchaseDate") long purchaseDate) {
         // Check Argument.
         Preconditions.checkArgument(1 <= receiptId && receiptId <= 999999, "invalid receiptId(%s)", receiptId);
@@ -135,14 +147,14 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         // unix time to Timestamp
         Timestamp purchaseTime = new TimeFormat().toTimeStampExcludeTime(purchaseDate * 1_000);
 
-        List<PurchaseDto> canceleds = service.cancelApprovalPurchases(receiptId, purchaseTime);
+        List<PurchaseVo> canceleds = service.cancelApprovalPurchases(receiptId, purchaseTime);
 
-        List<Purchase2Dto> cancels2 = new ArrayList<>();
-        for (PurchaseDto p : canceleds) {
-            cancels2.add(new Purchase2Dto(p));
+        List<PurchasePartialDto> cancels2 = new ArrayList<>();
+        for (PurchaseVo p : canceleds) {
+            cancels2.add(new PurchasePartialDto(p));
         }
 
-        LinkedHashMap<String, List<Purchase2Dto>> result = new LinkedHashMap<>();
+        LinkedHashMap<String, List<PurchasePartialDto>> result = new LinkedHashMap<>();
         result.put(KEY_PURCHASE_CANCELEDS, cancels2);
         return result;
     }
@@ -242,11 +254,11 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         purchaseDto.setReceipt_status(RECEIPT_STATUS_ALL);
 
         // Get Purchased List.
-        LinkedList<PurchaseNewDto> purchases = service.getPurchases(purchaseDto, temporaryUriVo.getSearchDateBefore(),
+        LinkedList<PurchaseVo> purchases = service.getPurchases(purchaseDto, temporaryUriVo.getSearchDateBefore(),
                 temporaryUriVo.getSearchDateAfter());
 
         List<PurchasesTemporaryDto> cancels2 = new ArrayList<>();
-        for (PurchaseNewDto p : purchases) {
+        for (PurchaseVo p : purchases) {
             cancels2.add(new PurchasesTemporaryDto(p));
         }
 

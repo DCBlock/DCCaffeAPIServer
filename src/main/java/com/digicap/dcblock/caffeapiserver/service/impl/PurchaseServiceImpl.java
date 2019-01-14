@@ -3,10 +3,13 @@ package com.digicap.dcblock.caffeapiserver.service.impl;
 import java.sql.Timestamp;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 
-import com.digicap.dcblock.caffeapiserver.dao.ReceiptIdDao;
-import com.digicap.dcblock.caffeapiserver.dto.*;
 import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +17,19 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
+import com.digicap.dcblock.caffeapiserver.dao.ReceiptIdDao;
+import com.digicap.dcblock.caffeapiserver.dto.MenuDto;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseBalanceDto;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseNewDto;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseSearchDto;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseSearchPageDto;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseWhere;
+import com.digicap.dcblock.caffeapiserver.dto.PurchasedDto;
+import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
+import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo;
+import com.digicap.dcblock.caffeapiserver.dto.UserDto;
 import com.digicap.dcblock.caffeapiserver.exception.ExpiredTimeException;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
 import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
@@ -23,6 +39,8 @@ import com.digicap.dcblock.caffeapiserver.service.MenuService;
 import com.digicap.dcblock.caffeapiserver.service.PurchaseService;
 import com.digicap.dcblock.caffeapiserver.store.MenuMapper;
 import com.digicap.dcblock.caffeapiserver.store.PurchaseMapper;
+import com.digicap.dcblock.caffeapiserver.type.OptSize;
+import com.digicap.dcblock.caffeapiserver.type.OptType;
 import com.digicap.dcblock.caffeapiserver.type.PurchaseType;
 import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
 
@@ -167,9 +185,8 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         for (PurchaseDto p : purchases) {
             try {
                 p.setReceipt_status(RECEIPT_STATUS_PURCHASE);
-//                p.setPurchase_type(type);
-                p.setPurchase_type(1);
-                p.setType(type);
+                p.setPurchase_type(type.ordinal());
+
                 int result = purchaseMapper.insertPurchase(p);
                 if (result == 0) {
                     // TODO receipt id db delete
@@ -192,7 +209,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
      * 구매된 목록 중에서 취소 요청
      */
     @Override
-    public List<PurchaseDto> cancelPurchases(int receiptId, String rfid) throws MyBatisSystemException,
+    public LinkedList<PurchaseVo> cancelPurchases(int receiptId, String rfid) throws MyBatisSystemException,
             NotFindException, ExpiredTimeException {
         // find User by rfid
         UserDto userDto = null;
@@ -219,12 +236,12 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
             throw new ExpiredTimeException("expired time for cancel purchase");
         }
 
-        LinkedList<PurchaseDto> results = purchaseMapper.updateReceiptCancelStatus(receiptId);
-        if (results == null || results.size() == 0) {
+        LinkedList<PurchaseVo> r = purchaseMapper.updateReceiptCancelStatus(receiptId);
+        if (r == null || r.size() == 0) {
             throw new NotFindException("not find purchases by receiptId");
         }
 
-        return results;
+        return r;
     }
 
     /**
@@ -233,7 +250,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
      * @param receiptId receipt id
      */
     @Override
-    public List<PurchaseDto> cancelApprovalPurchases(int receiptId, Timestamp today)
+    public List<PurchaseVo> cancelApprovalPurchases(int receiptId, Timestamp today)
             throws MyBatisSystemException, NotFindException {
         // Get Tomorrow
         Timestamp tomorrow = new TimeFormat().toTomorrow(today);
@@ -242,7 +259,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
             throw new NotFindException(String.format("not find receipt_id(%s)", receiptId));
         }
 
-        LinkedList<PurchaseDto> results = purchaseMapper
+        LinkedList<PurchaseVo> results = purchaseMapper
                 .updateReceiptCancelApprovalStatus(receiptId, today, tomorrow);
         if (results == null || results.size() == 0) {
             throw new NotFindException(String.format("not find cancel' purchase using receipt_id(%s)", receiptId));
@@ -252,12 +269,9 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     }
 
     @Override
-    public LinkedList<PurchaseNewDto> getPurchases(PurchaseDto purchaseDto, Timestamp from, Timestamp to)
+    public LinkedList<PurchaseVo> getPurchases(PurchaseDto purchaseDto, Timestamp from, Timestamp to)
             throws MyBatisSystemException {
-//        LinkedList<PurchaseOldDto> purchases = purchaseMapper.selectAllByUser(from, to,
-//                purchaseDto.getUser_record_index(), purchaseDto.getReceipt_status());
-
-        LinkedList<PurchaseNewDto> purchases = purchaseMapper.selectAllUser(from, to, purchaseDto.getUser_record_index(), "");
+        LinkedList<PurchaseVo> purchases = purchaseMapper.selectAllUser(from, to, purchaseDto.getUser_record_index(), "");
         return purchases;
     }
 
@@ -313,13 +327,13 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         if (w.getFilter() == 3) { // 3 is cancel and canceled
             // Get cancel, canceled
             // ORDER BY update DESC
-            LinkedList<PurchaseNewDto> r = purchaseMapper.selectAllCancel(w);
+            LinkedList<PurchaseVo> r = purchaseMapper.selectAllCancel(w);
             if (r == null) {
                 throw new NotFindException("not find purchases");
             }
 
             // 정의된 응답으로 변경.
-            for (PurchaseNewDto p : r) {
+            for (PurchaseVo p : r) {
                 PurchaseSearchDto ps = new PurchaseSearchDto(p);
                 results.add(ps);
             }
@@ -361,8 +375,6 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         }
 
         result.setList(results);
-
-
 
         return result;
     }
@@ -407,31 +419,33 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
             pp.setEmail(email);
             pp.setCompany(company);
 
-            String size = p.getOrDefault("size", -1).toString().toUpperCase();
-            switch (size) {
-                case OPT_SIZE_REGULAR:
-                    pp.setOpt_size(0);
-                    break;
-                case OPT_SIZE_SMALL:
-                    pp.setOpt_size(1);
-                    break;
-                default:
-                    throw new InvalidParameterException(String.format("unknown size(%s)", size));
-            }
+            pp.setOpt_size(OptSize.valueOf(p.getOrDefault("size", OptSize.REGULAR).toString()));
+            pp.setOpt_type(OptType.valueOf(p.getOrDefault("type", OptType.BOTH).toString()));
+//            String size = p.getOrDefault("size", -1).toString().toUpperCase();
+//            switch (size) {
+//                case OPT_SIZE_REGULAR:
+//                    pp.setOpt_size(0);
+//                    break;
+//                case OPT_SIZE_SMALL:
+//                    pp.setOpt_size(1);
+//                    break;
+//                default:
+//                    throw new InvalidParameterException(String.format("unknown size(%s)", size));
+//            }
 
-            String type = p.getOrDefault("type", -1).toString().toUpperCase();
-            switch (type) {
-                case OPT_TYPE_HOT:
-                    pp.setOpt_type(0);
-                    break;
-                case OPT_TYPE_ICED:
-                    pp.setOpt_type(1);
-                    break;
-                case OPT_TYPE_BOTH:
-                    pp.setOpt_type(2);
-                default:
-                    throw new InvalidParameterException(String.format("unknown type(%s)", type));
-            }
+//            String type = p.getOrDefault("type", -1).toString().toUpperCase();
+//            switch (type) {
+//                case OPT_TYPE_HOT:
+//                    pp.setOpt_type(0);
+//                    break;
+//                case OPT_TYPE_ICED:
+//                    pp.setOpt_type(1);
+//                    break;
+//                case OPT_TYPE_BOTH:
+//                    pp.setOpt_type(2);
+//                default:
+//                    throw new InvalidParameterException(String.format("unknown type(%s)", type));
+//            }
 
             results.add(pp);
         }

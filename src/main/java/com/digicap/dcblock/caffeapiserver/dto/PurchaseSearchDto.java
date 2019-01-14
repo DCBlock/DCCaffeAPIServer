@@ -1,12 +1,7 @@
 package com.digicap.dcblock.caffeapiserver.dto;
 
-import static com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants.OPT_SIZE_REGULAR;
-import static com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants.OPT_SIZE_SMALL;
-import static com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants.OPT_TYPE_BOTH;
-import static com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants.OPT_TYPE_HOT;
-import static com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants.OPT_TYPE_ICED;
-
-import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
+import com.digicap.dcblock.caffeapiserver.type.OptSize;
+import com.digicap.dcblock.caffeapiserver.type.OptType;
 
 import lombok.Getter;
 import lombok.NonNull;
@@ -31,10 +26,12 @@ public class PurchaseSearchDto {
     private int dc_price;
 
     @NonNull
-    private String type;
+//    private String type;
+    private OptType type;
 
     @NonNull
-    private String size;
+//    private String size;
+    private OptSize size;
 
     private int count;
 
@@ -57,8 +54,11 @@ public class PurchaseSearchDto {
         this.dc_price = p.getDc_price();
         this.count = p.getCount();
         this.receipt_status = p.getReceipt_status();
-        this.purchase_type = p.getPurchase_type();
 
+        this.purchase_type = p.getPurchase_type();
+        this.size = p.getOpt_size();
+        this.type = p.getOpt_type();
+        
         this.purchase_date = p.getPurchase_date().getTime() / 1_000;
         if (p.getCancel_date() == null) {
             this.cancel_date = 0;
@@ -70,31 +70,6 @@ public class PurchaseSearchDto {
             this.canceled_date = 0;
         } else {
             this.canceled_date = p.getCanceled_date().getTime() / 1_000;
-        }
-
-        switch (p.getOpt_size()) {
-            case 0:
-                this.size = OPT_SIZE_REGULAR;
-                break;
-            case 1:
-                this.size = OPT_SIZE_SMALL;
-                break;
-            default:
-                throw new InvalidParameterException(String.format("unknown opt_size(%s)", p.getOpt_size()));
-        }
-
-        switch (p.getOpt_type()) {
-            case 0:
-                this.type = OPT_TYPE_HOT;
-                break;
-            case 1:
-                this.type = OPT_TYPE_ICED;
-                break;
-            case 2:
-                this.type = OPT_TYPE_BOTH;
-                break;
-            default:
-                throw new InvalidParameterException(String.format("unknown opt_type(%s)", p.getOpt_type()));
         }
     }
 
@@ -107,8 +82,11 @@ public class PurchaseSearchDto {
         this.dc_price = p.getDc_price();
         this.count = p.getCount();
         this.receipt_status = p.getReceipt_status();
-        this.purchase_type = p.getPurchase_type();
 
+        this.purchase_type = p.getPurchase_type().ordinal();
+        this.size = p.getOpt_size();
+        this.type = p.getOpt_type();
+        
         this.purchase_date = p.getPurchase_date().getTime() / 1_000;
         if (p.getCancel_date() == null) {
             this.cancel_date = 0;
@@ -120,31 +98,6 @@ public class PurchaseSearchDto {
             this.canceled_date = 0;
         } else {
             this.canceled_date = p.getCanceled_date().getTime() / 1_000;
-        }
-
-        switch (p.getOpt_size()) {
-            case 0:
-                this.size = OPT_SIZE_REGULAR;
-                break;
-            case 1:
-                this.size = OPT_SIZE_SMALL;
-                break;
-            default:
-                throw new InvalidParameterException(String.format("unknown opt_size(%s)", p.getOpt_size()));
-        }
-
-        switch (p.getOpt_type()) {
-            case 0:
-                this.type = OPT_TYPE_HOT;
-                break;
-            case 1:
-                this.type = OPT_TYPE_ICED;
-                break;
-            case 2:
-                this.type = OPT_TYPE_BOTH;
-                break;
-            default:
-                throw new InvalidParameterException(String.format("unknown opt_type(%s)", p.getOpt_type()));
         }
     }
 

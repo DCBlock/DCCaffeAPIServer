@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.digicap.dcblock.caffeapiserver.store.PurchaseMapper">
+    <resultMap type="com.digicap.dcblock.caffeapiserver.dto.PurchaseVo" id="purchase">
+        <result column="opt_type" property="opt_type" typeHandler="org.apache.ibatis.type.EnumOrdinalTypeHandler" />
+        <result column="opt_size" property="opt_size" typeHandler="org.apache.ibatis.type.EnumOrdinalTypeHandler" />
+        <result column="purchase_type" property="purchase_type" typeHandler="org.apache.ibatis.type.EnumOrdinalTypeHandler" />
+    </resultMap>
 
     <insert id="insertPurchase" parameterType="com.digicap.dcblock.caffeapiserver.dto.PurchaseDto">
         INSERT INTO purchases (
@@ -28,15 +33,16 @@
             #{category},
             #{code},
             #{menu_name_kr},
-            #{opt_size},
-            #{opt_type},
+            #{opt_size.code},
+            #{opt_type.code},
             #{receipt_id},
-            #{type.code},
+            #{purchase_type},
             #{email},
             #{company}
         )
     </insert>
-    <select id="updateReceiptCancelStatus" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseDto">
+
+    <select id="updateReceiptCancelStatus" resultMap="purchase">
         <![CDATA[
         UPDATE
             purchases
@@ -56,7 +62,7 @@
         RETURNING *
     </select>
 
-    <select id="updateReceiptCancelApprovalStatus" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseDto">
+    <select id="updateReceiptCancelApprovalStatus" resultMap="purchase">
         <![CDATA[
         UPDATE
             purchases
@@ -76,7 +82,7 @@
         RETURNING *
     </select>
 
-    <select id="selectAllCancel" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseNewDto">
+    <select id="selectAllCancel" resultMap="purchase">
         SELECT
             count,
             price,
@@ -156,7 +162,7 @@
         )
         ]]>
     </select>
-    <select id="selectAllUser" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseNewDto">
+    <select id="selectAllUser" resultMap="purchase">
         SELECT
             count,
             price,
@@ -198,7 +204,7 @@
         DESC
     </select>
 
-    <select id="selectSearchBy" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseVo">
+    <select id="selectSearchBy" resultMap="purchase">
         SELECT
             *
         FROM

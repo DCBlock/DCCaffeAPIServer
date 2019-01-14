@@ -29,11 +29,7 @@ public class MenuVo implements CaffeApiServerApplicationConstants {
 
     private int price = -1;
 
-//    private int opt_size = -1;
-
     private OptSize opt_size;
-
-//    private int opt_type = -1;
 
     private OptType opt_type;
 
@@ -63,30 +59,5 @@ public class MenuVo implements CaffeApiServerApplicationConstants {
         } else {
             this.discounts = new HashMap<>();
         }
-
-//        switch (m.getOptType()) {
-//        case OPT_TYPE_HOT:
-//            this.opt_type = 0;
-//            break;
-//        case OPT_TYPE_ICED:
-//            this.opt_type = 1;
-//            break;
-//        case OPT_TYPE_BOTH:
-//            this.opt_type = 2;
-//            break;
-//        default:
-//            throw new InvalidParameterException(String.format("unknown opt_type value(%s)", m.getOptType()));
-//        }
-//
-//        switch (m.getOptSize()) {
-//        case OPT_SIZE_REGULAR:
-//            this.opt_size = 0;
-//            break;
-//        case OPT_SIZE_SMALL:
-//            this.opt_size = 1;
-//            break;
-//        default:
-//            throw new InvalidParameterException(String.format("unknown opt_size value(%s)", m.getOptSize()));
-//        }
     }
 }

@@ -14,11 +14,11 @@ public interface PurchaseService {
 
     PurchasedDto requestPurchases(int receiptId, PurchaseType type, List<LinkedHashMap<String, Object>> purchases);
 
-    List<PurchaseDto> cancelPurchases(int receiptId, String rfid);
+    LinkedList<PurchaseVo> cancelPurchases(int receiptId, String rfid);
 
-    List<PurchaseDto> cancelApprovalPurchases(int receiptId, Timestamp purchaseDate);
+    List<PurchaseVo> cancelApprovalPurchases(int receiptId, Timestamp purchaseDate);
 
-    LinkedList<PurchaseNewDto> getPurchases(PurchaseDto purchaseDto, Timestamp before, Timestamp after);
+    LinkedList<PurchaseVo> getPurchases(PurchaseDto purchaseDto, Timestamp before, Timestamp after);
 
     PurchaseBalanceDto getBalanceByRfid(String rfid, Timestamp before, Timestamp after);
 

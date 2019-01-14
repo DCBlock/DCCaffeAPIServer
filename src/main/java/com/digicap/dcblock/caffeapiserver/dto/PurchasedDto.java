@@ -7,9 +7,9 @@ import lombok.Setter;
 @Getter
 public class PurchasedDto {
 
-  private int total_price;
+    private int total_price;
 
-  private int total_dc_price;
+    private int total_dc_price;
 
-  private String purchased_date;
+    private String purchased_date;
 }
