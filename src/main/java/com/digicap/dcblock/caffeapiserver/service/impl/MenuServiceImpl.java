@@ -179,7 +179,8 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
     // Private Methods
 
     /**
-     *
+     * Category에 해당하는 메뉴를 조회.
+     * 
      * @param category
      * @return
      * @throws Exception
@@ -246,8 +247,4 @@ public class MenuServiceImpl implements MenuService, CaffeApiServerApplicationCo
 
         return results;
     }
-
-    
-
-    
 }

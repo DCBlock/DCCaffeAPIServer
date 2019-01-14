@@ -1,6 +1,11 @@
 package com.digicap.dcblock.caffeapiserver.dto;
 
+import java.util.HashMap;
+import java.util.Optional;
+
 import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
+import com.digicap.dcblock.caffeapiserver.type.OptSize;
+import com.digicap.dcblock.caffeapiserver.type.OptType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -9,9 +14,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
-import java.util.HashMap;
-import java.util.Optional;
 
 @Setter
 @Getter
@@ -30,11 +32,13 @@ public class MenuDto implements CaffeApiServerApplicationConstants {
     private int price;
 
     @JsonProperty("type")
-    private String optType;
+//    private String optType;
+    private OptType optType;
     
     @JsonProperty("size")
-    private String optSize;
-
+//    private String optSize;
+    private OptSize optSize;
+    
     private String event_name = "";
 
     private HashMap<String, Integer> discounts;
@@ -44,29 +48,31 @@ public class MenuDto implements CaffeApiServerApplicationConstants {
         this.code = v.getCode();
         this.order = v.getOrder();
         this.name_en = v.getName_en();
-        this.name_kr = v.getName_en();
+        this.name_kr = v.getName_kr();
         this.price = v.getPrice();
         this.event_name = Optional.ofNullable(v.getEvent_name()).orElse("");
-
-        switch (v.getOpt_type()) {
-        case 0:
-            this.optType = OPT_TYPE_HOT;
-            break;
-        case 1:
-            this.optType = OPT_TYPE_ICED;
-            break;
-        case 2:
-            this.optType = OPT_TYPE_BOTH;
-            break;
-        }
-
-        switch (v.getOpt_size()) {
-        case 0:
-            this.optSize = OPT_SIZE_REGULAR;
-            break;
-        case 1:
-            this.optSize = OPT_SIZE_SMALL;
-            break;
-        }
+        this.optSize = v.getOpt_size();
+        this.optType = v.getOpt_type();
+        
+//        switch (v.getOpt_type()) {
+//        case 0:
+//            this.optType = OPT_TYPE_HOT;
+//            break;
+//        case 1:
+//            this.optType = OPT_TYPE_ICED;
+//            break;
+//        case 2:
+//            this.optType = OPT_TYPE_BOTH;
+//            break;
+//        }
+//
+//        switch (v.getOpt_size()) {
+//        case 0:
+//            this.optSize = OPT_SIZE_REGULAR;
+//            break;
+//        case 1:
+//            this.optSize = OPT_SIZE_SMALL;
+//            break;
+//        }
     }
 }

@@ -1,7 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.digicap.dcblock.caffeapiserver.store.MenuMapper">
-    <select id="insertMenu" resultType="com.digicap.dcblock.caffeapiserver.dto.MenuVo">
+    <resultMap type="com.digicap.dcblock.caffeapiserver.dto.MenuVo" id="menu2">
+        <result column="category" property="category"/>
+        <result column="name_en" property="name_en"/>
+        <result column="name_kr" property="name_kr"/>
+        <result column="price" property="price"/>
+        <result column="opt_type" property="opt_type" typeHandler="org.apache.ibatis.type.EnumOrdinalTypeHandler" />
+        <result column="opt_size" property="opt_size" typeHandler="org.apache.ibatis.type.EnumOrdinalTypeHandler" />
+        <result column="order" property="order"/>
+        <result column="index" property="index"/>
+        <result column="event_name" property="event_name"/>
+    </resultMap>
+    <select id="insertMenu" resultMap="menu2">
         INSERT INTO menus (
             category,
             name_kr,
@@ -16,13 +27,41 @@
             #{name_kr},
             #{name_en},
             #{price},
-            #{opt_type},
-            #{opt_size},
+            #{opt_type.code},
+            #{opt_size.code},
             (SELECT MAX("order") + 1 FROM menus WHERE category = #{category}),
             #{event_name}
         )
         RETURNING *
     </select>
+
+    <resultMap type="com.digicap.dcblock.caffeapiserver.dto.MenuVo" id="menu">
+        <result column="category" property="category"/>
+        <result column="code" property="code"/>
+        <result column="name_en" property="name_en"/>
+        <result column="name_kr" property="name_kr"/>
+        <result column="price" property="price"/>
+        <result column="opt_type" property="opt_type" typeHandler="org.apache.ibatis.type.EnumOrdinalTypeHandler" />
+        <result column="opt_size" property="opt_size" typeHandler="org.apache.ibatis.type.EnumOrdinalTypeHandler" />
+        <result column="event_name" property="event_name"/>
+    </resultMap>
+    <select id="selectAllMenus" resultMap="menu">
+        SELECT 
+            category,
+            code, 
+            name_en,
+            name_kr,
+            price,
+            opt_type,
+            opt_size,
+            event_name
+        FROM 
+            menus
+        WHERE category = #{category}
+        ORDER BY
+            menus.order ASC
+    </select>
+
     <update id="updateAllMenuByCategory" parameterType="java.util.List">
         <foreach collection="list" item="item" index="index" separator=";">
             UPDATE menus
@@ -31,8 +70,8 @@
                 <if test="item.name_en != null">name_en = #{item.name_en},</if>
                 <if test="item.name_kr != null">name_kr = #{item.name_kr},</if>
                 <if test="item.price > -1">price = #{item.price},</if>
-                <if test="item.opt_size > -1">opt_size = #{item.opt_size},</if>
-                <if test="item.opt_type > -1">opt_type = #{item.opt_type},</if>
+                <if test="item.opt_size != null">opt_size = #{item.opt_size.code},</if>
+                <if test="item.opt_type != null">opt_type = #{item.opt_type.code},</if>
                 <if test="item.event_name != null">event_name = #{item.event_name}</if>
             WHERE code = #{item.code}
             AND category = #{item.category}

@@ -11,7 +11,6 @@ import org.apache.ibatis.annotations.Select;
  */
 public interface MenuMapper {
 
-    @Select("SELECT category, code, name_en, name_kr, price, opt_type, opt_size, event_name FROM menus WHERE category = #{category} ORDER BY menus.order ASC")
     LinkedList<MenuVo> selectAllMenus(int category);
 
     @Select("SELECT EXISTS(SELECT 1 FROM menus WHERE code = #{code} AND category = #{category})")
