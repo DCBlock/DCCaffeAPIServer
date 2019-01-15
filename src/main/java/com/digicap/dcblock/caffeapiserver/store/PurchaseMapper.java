@@ -18,8 +18,8 @@ public interface PurchaseMapper {
     @Select("SELECT setval('purchase_receipt_id', '0')")
     int updateReceiptId();
 
-    @Select("SELECT nextval('purchase_receipt_id')")
-    int selectReceiptId();
+//    @Select("SELECT nextval('purchase_receipt_id')")
+//    int selectReceiptId();
 
     @Insert("INSERT INTO purchases (receipt_id, name, user_record_index) VALUES (#{receiptId}, #{userName}, #{userRecordIndex)")
     int insertReceiptId(@Param("receiptId") int receiptId, @Param("userName") String userName,

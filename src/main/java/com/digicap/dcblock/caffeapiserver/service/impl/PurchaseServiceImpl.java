@@ -28,7 +28,6 @@ import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseWhere;
 import com.digicap.dcblock.caffeapiserver.dto.PurchasedDto;
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
-import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo;
 import com.digicap.dcblock.caffeapiserver.dto.UserDto;
 import com.digicap.dcblock.caffeapiserver.exception.ExpiredTimeException;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
@@ -81,8 +80,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     }
 
     @Override
-    public ReceiptIdDto getReceiptId(String rfid) throws UnknownException, MyBatisSystemException,
-            NotFindException {
+    public ReceiptIdDto getReceiptId(String rfid) throws UnknownException, MyBatisSystemException, NotFindException {
         UserDto userDto = null;
 
         try {
@@ -95,34 +93,16 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
             throw new NotFindException("not find user using rfid");
         }
 
-        // TODO SelectKey로 한번에 처리 가능.
-        // ReceiptId 생성.
-        long receiptId = purchaseMapper.selectReceiptId();
-
-        // TODO ReceiptIdVo가 아니라 Dto가 맞음. Mybatis에서 SelectKey로 Before 때문에 Set이 필요하기 때문에 Vo가 아님.
         // instance ReceiptIdVo
-        ReceiptIdVo receiptIdVo = new ReceiptIdVo();
-        receiptIdVo.setName(userDto.getName());
-        receiptIdVo.setCompany(userDto.getCompany().toLowerCase());
-        receiptIdVo.setReceiptId(receiptId);
-        receiptIdVo.setUserRecordIndex(userDto.getIndex());
-        receiptIdVo.setEmail(userDto.getEmail());
+        ReceiptIdDto receiptId = new ReceiptIdDto(userDto);
 
         // receipts table에 insert
-        int result = receiptIdDao.insertByReceipt(receiptIdVo);
+        int result = receiptIdDao.insertByReceipt(receiptId);
         if (result == 0) {
             throw new UnknownException("db error");
         }
 
-        ReceiptIdDto receiptIdDto = new ReceiptIdDto();
-        receiptIdDto.setReceipt_id(receiptId);
-        receiptIdDto.setName(userDto.getName());
-        receiptIdDto.setCompany(userDto.getCompany());
-        receiptIdDto.setDate(new TimeFormat().getCurrent());
-        // RandomId는 생성해서 DB에 저장하지만, 사용하지는 않음.
-//        receiptIdDto.setRandomId(receiptIdVo.getRandomId());
-
-        return receiptIdDto;
+        return receiptId;
     }
 
     /**
@@ -315,9 +295,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     }
 
     @Override
-    public
-//    LinkedList<PurchaseSearchDto>
-    PurchaseSearchPageDto getPurchasesBySearch(PurchaseWhere w) {
+    public PurchaseSearchPageDto getPurchasesBySearch(PurchaseWhere w) {
         /* userRecordIndex 는 filter 가 -1인 경우에만 사용 */
 
         PurchaseSearchPageDto result = new PurchaseSearchPageDto();

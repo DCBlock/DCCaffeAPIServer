@@ -3,7 +3,7 @@ package com.digicap.dcblock.caffeapiserver.type;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Receipt Status를 정의한다.
+ * Receipt Status를 정의
  * @author DigiCAP
  *
  */

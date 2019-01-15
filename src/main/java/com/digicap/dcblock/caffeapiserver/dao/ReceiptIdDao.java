@@ -1,19 +1,19 @@
 package com.digicap.dcblock.caffeapiserver.dao;
 
-import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
-import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo;
 import java.sql.Timestamp;
+
+import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
 
 /**
  * receipt_ids table Dao interface
  */
 public interface ReceiptIdDao {
 
-  int insertByReceipt(ReceiptIdVo vo);
+    int insertByReceipt(ReceiptIdDto Dto);
 
-  ReceiptIdDto selectByReceipt(int receiptId);
+    ReceiptIdDto selectByReceipt(int receiptId);
 
-  int deleteByReceiptId(int receiptId);
+    int deleteByReceiptId(int receiptId);
 
-  int deleteByRegdate(Timestamp regDate);
+    int deleteByRegdate(Timestamp regDate);
 }
