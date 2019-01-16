@@ -3,7 +3,7 @@
 <mapper namespace="com.digicap.dcblock.caffeapiserver.dao.ReceiptIdDao">
     <insert id="insertByReceipt" parameterType="com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto">
         <selectKey keyProperty="receiptId" resultType="long" order="BEFORE">
-            SELECT nextval('purchase_receipt_id') AS receiptId
+            SELECT nextval('purchase_receipt_id')
         </selectKey>
         INSERT INTO
             receipt_ids (

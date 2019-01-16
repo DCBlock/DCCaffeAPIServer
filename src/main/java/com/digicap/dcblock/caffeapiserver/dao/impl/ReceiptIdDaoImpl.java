@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import com.digicap.dcblock.caffeapiserver.dao.ReceiptIdDao;
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
-import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo;
 
 /**
  * receipt_ids Table DAO Implement Class.

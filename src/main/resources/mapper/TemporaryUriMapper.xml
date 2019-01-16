@@ -3,7 +3,7 @@
 <mapper namespace="com.digicap.dcblock.caffeapiserver.dao.TemporaryUriDao">
     <insert id="insert">
         <selectKey keyProperty="randomUri" resultType="string" order="BEFORE">
-            SELECT uuid_generate_v1()
+            SELECT uuid_generate_v4()
         </selectKey>
         INSERT 
         INTO 

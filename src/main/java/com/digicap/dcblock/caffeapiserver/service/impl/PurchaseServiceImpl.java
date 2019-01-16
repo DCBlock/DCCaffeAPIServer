@@ -239,8 +239,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
             throw new NotFindException(String.format("not find receipt_id(%s)", receiptId));
         }
 
-        LinkedList<PurchaseVo> results = purchaseMapper
-                .updateReceiptCancelApprovalStatus(receiptId, today, tomorrow);
+        LinkedList<PurchaseVo> results = purchaseMapper.updateReceiptCancelApprovalStatus(receiptId, today, tomorrow);
         if (results == null || results.size() == 0) {
             throw new NotFindException(String.format("not find cancel' purchase using receipt_id(%s)", receiptId));
         }
