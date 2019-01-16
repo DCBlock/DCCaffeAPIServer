@@ -1,0 +1,56 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: 
+    username: 
+    password: 
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10 
+      connectionTimeout: 30000
+
+#logging:
+#  level:
+#    org:
+#     springframework:
+#       web:
+#         filter:
+#           CommonsRequestLoggingFilter: DEBUG
+
+#mybatis:
+#  config-location: classpath:mybatis-config2.xml
+
+logging:
+  level:
+    org:
+      zalando:
+        logbook: TRACE
+
+allow_ip_kiosk:
+  - 127.0.0.1
+
+allow_ip_backoffice:
+  - 10.1.203.12
+  - 10.2.3.113
+  - 10.51.6.20
+  - 10.51.2.10
+
+api-version: application/vnd.digicap.v1+json
+
+purchase-list-viewer-server: http://10.51.6.20:8080/my_order
+
+admin-server: http://10.1.91.101:8090/api
+
+random-uri-expired-minute: 60
+
+cancel-able-minute: 10
+
+check-allow-ip: false
+
+check-version-api: false
+
+check-jwt: false
+
+
