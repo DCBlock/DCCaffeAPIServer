@@ -1,31 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.digicap.dcblock.caffeapiserver.dao.ReceiptIdDao">
-    <insert id="insertByReceipt" parameterType="com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo">
-        <selectKey keyProperty="randomId" resultType="string" order="BEFORE">
-            SELECT uuid_generate_v1()
+    <insert id="insertByReceipt" parameterType="com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto">
+        <selectKey keyProperty="receiptId" resultType="long" order="BEFORE">
+            SELECT nextval('purchase_receipt_id')
         </selectKey>
-        INSERT
-        INTO
+        INSERT INTO
             receipt_ids (
                 name,
                 company,
                 email,
                 receipt_id,
-                user_record_index,
-                random_id
+                user_record_index
             )
         VALUES (
             #{name},
             #{company},
             #{email},
             #{receiptId},
-            #{userRecordIndex},
-            #{randomId}
+            #{userRecordIndex}
         )
     </insert>
 
-    <select id="selectByReceipt" resultType="com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto">
+    <select id="selectByReceipt" resultType="com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo">
         SELECT
             name,
             company,
@@ -41,8 +38,7 @@
     </select>
 
     <delete id="deleteByReceiptId">
-        DELETE
-        FROM
+        DELETE FROM
             receipt_ids
         WHERE
             receipt_id = #{receiptId}
@@ -50,8 +46,7 @@
 
     <delete id="deleteByRegdate">
         <![CDATA[
-        DELETE
-        FROM
+        DELETE FROM
             receipt_ids
         WHERE
             regdate < #{regDate}

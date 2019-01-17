@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.digicap.dcblock.caffeapiserver.store.PurchaseMapper">
+    <resultMap type="com.digicap.dcblock.caffeapiserver.dto.PurchaseVo" id="purchase">
+        <result column="opt_type" property="opt_type" typeHandler="org.apache.ibatis.type.EnumOrdinalTypeHandler" />
+        <result column="opt_size" property="opt_size" typeHandler="org.apache.ibatis.type.EnumOrdinalTypeHandler" />
+        <result column="purchase_type" property="purchase_type" typeHandler="org.apache.ibatis.type.EnumOrdinalTypeHandler" />
+    </resultMap>
+
     <insert id="insertPurchase" parameterType="com.digicap.dcblock.caffeapiserver.dto.PurchaseDto">
         INSERT INTO purchases (
             count,
@@ -27,15 +33,16 @@
             #{category},
             #{code},
             #{menu_name_kr},
-            #{opt_size},
-            #{opt_type},
+            #{opt_size.code},
+            #{opt_type.code},
             #{receipt_id},
             #{purchase_type},
             #{email},
             #{company}
         )
     </insert>
-    <select id="updateReceiptCancelStatus" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseDto">
+
+    <select id="updateReceiptCancelStatus" resultMap="purchase">
         <![CDATA[
         UPDATE
             purchases
@@ -55,7 +62,7 @@
         RETURNING *
     </select>
 
-    <select id="updateReceiptCancelApprovalStatus" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseDto">
+    <select id="updateReceiptCancelApprovalStatus" resultMap="purchase">
         <![CDATA[
         UPDATE
             purchases
@@ -74,23 +81,8 @@
         ]]>
         RETURNING *
     </select>
-    <select id="selectAllByUser" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseOldDto">
-        <![CDATA[
-        SELECT
-            code, price, dc_price, opt_type, opt_size, count, menu_name_kr, purchase_type
-        FROM
-            purchases
-        WHERE
-            user_record_index = #{userRecordIndex}
-        AND
-            (receipt_status = '0' OR receipt_status = '1')
-        AND
-            #{from} <= purchase_date
-        AND
-            purchase_date <= #{to}
-        ]]>
-    </select>
-    <select id="selectAllCancel" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseNewDto">
+
+    <select id="selectAllCancel" resultMap="purchase">
         SELECT
             count,
             price,
@@ -113,9 +105,9 @@
             purchases
         <![CDATA[
         WHERE
-            #{from} <= update_date
+            #{before} <= update_date
         AND
-            update_date <= #{to}
+            update_date <= #{after}
         ]]>
         <if test = 'company != null and company != ""'>
         AND
@@ -124,8 +116,14 @@
         AND
             (receipt_status = '1' OR receipt_status = '2')
         ORDER BY
-            update_date
+            purchase_date
         DESC
+        <if test = 'page > 0'>
+        LIMIT
+            #{perPage}
+        OFFSET
+            (#{page} - 1) * #{perPage}
+        </if>
     </select>
     <select id="selectByReceiptId" resultType="java.sql.Timestamp">
         <![CDATA[
@@ -164,7 +162,7 @@
         )
         ]]>
     </select>
-    <select id="selectAllUser" resultType="com.digicap.dcblock.caffeapiserver.dto.PurchaseNewDto">
+    <select id="selectAllUser" resultMap="purchase">
         SELECT
             count,
             price,
@@ -202,7 +200,180 @@
             company = #{company}
         </if>
         ORDER BY
-            update_date
+            purchase_date
         DESC
     </select>
+
+    <select id="selectSearchBy" resultMap="purchase">
+        SELECT
+            *
+        FROM
+            purchases
+        <![CDATA[
+        WHERE
+            #{before} <= update_date
+        AND
+            update_date <= #{after}
+        ]]>
+        <if test = "userRecordIndex > 0">
+        AND
+            user_record_index = #{userRecordIndex}
+        </if>
+        <if test = 'company != null and company != ""'>
+        AND
+            company = #{company}
+        </if>
+        <if test="purchaseType > -1">
+        AND
+            purchase_type = #{purchaseType}
+        </if>
+        ORDER BY
+            purchase_date
+        DESC
+        <if test = 'page > 0'>
+        LIMIT
+            #{perPage}
+        OFFSET
+            (#{page} - 1) * #{perPage}
+        </if>
+    </select>
+
+    <select id="selectCount" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM
+            purchases
+        <![CDATA[
+        WHERE
+            #{before} <= update_date
+        AND
+            update_date <= #{after}
+        ]]>
+        <if test = "userRecordIndex > 0">
+        AND
+            user_record_index = #{userRecordIndex}
+        </if>
+        <if test = 'company != null and company != ""'>
+        AND
+            company = #{company}
+        </if>
+        <if test="purchaseType > -1">
+        AND
+            purchase_type = #{purchaseType}
+        </if>
+    </select>
+
+    <select id="selectAllCancelCount" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM
+            purchases
+        <![CDATA[
+        WHERE
+            #{before} <= update_date
+        AND
+            update_date <= #{after}
+        ]]>
+        AND
+            (receipt_status = '1' OR receipt_status = '2')
+        <if test = 'company != null and company != ""'>
+        AND
+            company = #{company}
+        </if>
+    </select>
+
+    <select id="selectBalanceAccounts" resultType="hashmap">
+        SELECT
+            user_record_index AS index,
+            SUM(price * count) AS balance,
+            SUM(dc_price * count) AS dcbalance
+        FROM
+            purchases
+        WHERE
+            user_record_index = #{userRecordIndex}
+        AND
+        <![CDATA[
+            #{before} <= purchase_date
+        AND
+            purchase_date <= #{after}
+        ]]>
+        <if test="purchaseType != -1">
+        AND
+            (purchase_type = 0 OR purchase_type = 2)
+        </if>
+        <if test="receiptStatus != -2">
+        AND
+            (receipt_status = 0 OR receipt_status = 1)
+        </if>
+        GROUP BY
+            user_record_index
+        ORDER BY
+            user_record_index DESC
+    </select>
+
+    <select id="selectBalanceAccountLastMonth" resultType="hashmap">
+        SELECT
+            user_record_index, email, name, company, SUM((price * count) - (dc_price * count)) AS balance
+        FROM
+            purchases
+        WHERE
+        <![CDATA[
+            (SELECT ((SELECT date_trunc('month', timestamp 'today')) - interval '1 month')) <= purchase_date
+        AND
+            purchase_date < (SELECT date_trunc('month', timestamp 'today'))
+        ]]>
+        AND
+            (purchase_type = 0 OR purchase_type = 2)
+        AND
+            (receipt_status = 0 OR receipt_status = 1)
+        GROUP BY
+            user_record_index, email, name, company
+        ORDER BY
+            user_record_index DESC
+    </select>
+
+    <select id="selectBalanceAccountMonthBeforeLast" resultType="hashmap">
+        SELECT
+            user_record_index, email, name, company, SUM((price * count) - (dc_price * count)) AS balance
+        FROM
+            purchases
+        WHERE
+        <!-- 지지난 달에 구입은 했고 -->
+        <![CDATA[
+            (SELECT ((SELECT date_trunc('month', timestamp 'today')) - interval '2 month')) <= purchase_date
+        AND
+            purchase_date < (SELECT ((SELECT date_trunc('month', timestamp 'today')) - interval '1 month'))
+        AND
+            (SELECT ((SELECT date_trunc('month', timestamp 'today')) - interval '1 month')) <= canceled_date
+        AND
+            canceled_date < (SELECT date_trunc('month', timestamp 'today'))
+        ]]>
+        AND
+            purchase_type = 0 
+        AND
+            receipt_status = 2
+        GROUP BY
+            user_record_index, email, name, company
+        ORDER BY
+            user_record_index DESC
+    </select>
+
+    <insert id="insertCarriedBalanceForward">
+        DELETE FROM 
+            purchases 
+        WHERE 
+            purchase_type = '2' 
+        AND 
+            user_record_index = '61' 
+        AND 
+        <![CDATA[
+            (SELECT date_trunc('month', timestamp 'today')) <= purchase_date
+        AND 
+            purchase_date < (SELECT ((SELECT date_trunc('month', timestamp 'today')) + interval '1 month'));
+        ]]>
+        INSERT INTO purchases
+            (purchase_type, name, email, company, count, price, receipt_status, user_record_index)
+        VALUES
+            ('2', #{name}, #{email}, #{company}, '1', #{balance}, '1', #{user_record_index})
+    </insert>
 </mapper>

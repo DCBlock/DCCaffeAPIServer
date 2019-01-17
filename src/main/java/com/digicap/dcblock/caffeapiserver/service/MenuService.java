@@ -4,16 +4,23 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
 import com.digicap.dcblock.caffeapiserver.dto.MenuDto;
+import com.digicap.dcblock.caffeapiserver.dto.MenuVo;
 
 public interface MenuService {
 
-  LinkedHashMap<String, LinkedList<MenuDto>> getAllMenus();
+    /**
+     * menus를 추가
+     * 
+     * @param menuVo
+     * @return
+     */
+    MenuVo setMenu(MenuDto menuVo);
 
-  LinkedHashMap<Integer, LinkedList<MenuDto>> getAllMenusUsingCode();
+    LinkedHashMap<String, LinkedList<MenuDto>> getAllMenus();
 
-  void deleteMenu(int category, int code);
+    LinkedHashMap<Integer, LinkedList<MenuDto>> getAllMenusUsingCode();
 
-  MenuDto setMenu(MenuDto menuVo);
+    LinkedList<MenuDto> updateAllMenusInCategory(int category, LinkedList<MenuDto> menus);
 
-  LinkedList<MenuDto> updateAllMenusInCategory(int category, LinkedList<MenuDto> menus);
+    void deleteMenu(int category, int code);
 }

@@ -1,5 +1,6 @@
 package com.digicap.dcblock.caffeapiserver.dto;
 
+import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -12,21 +13,34 @@ import lombok.ToString;
 @ToString
 public class ReceiptIdDto {
 
-  private String name;
+    private String name;
 
-  private String company;
+    private String company;
 
-  @JsonInclude(JsonInclude.Include.NON_NULL)
-  private String email;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty(access = Access.WRITE_ONLY)
+    private String email;
 
-  private long receipt_id;
+    @JsonProperty("receipt_id")
+    private long receiptId;
 
-  @JsonProperty("random_id")
-  @JsonInclude(JsonInclude.Include.NON_NULL)
-  private String randomId;
+    @JsonProperty("random_id")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String randomId;
 
-  @JsonProperty(access = Access.WRITE_ONLY)
-  private long userRecordIndex;
+    @JsonProperty(access = Access.WRITE_ONLY)
+    private long userRecordIndex;
 
-  private String date;
+    private String date;
+    
+    //------------------------------------------------------------------------
+    // Constructor
+    
+    public ReceiptIdDto(UserDto user) {
+        this.name = user.getName();
+        this.company = user.getCompany().toLowerCase();
+        this.userRecordIndex = user.getIndex();
+        this.email = user.getEmail();
+        this.date = new TimeFormat().getCurrent();
+    }
 }

@@ -1,14 +1,6 @@
 package com.digicap.dcblock.caffeapiserver.controller;
 
-import com.digicap.dcblock.caffeapiserver.dto.CategoryVo;
-import com.digicap.dcblock.caffeapiserver.dto.MenusInCategoryDto;
-import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
-import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
-import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
-import com.digicap.dcblock.caffeapiserver.service.CategoryService;
-import com.google.common.base.Preconditions;
 import java.util.LinkedList;
-import lombok.extern.slf4j.Slf4j;
 
 import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,59 +12,66 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.digicap.dcblock.caffeapiserver.dto.CategoryVo;
+import com.digicap.dcblock.caffeapiserver.dto.MenusInCategoryDto;
+import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
+import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
+import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
+import com.digicap.dcblock.caffeapiserver.service.CategoryService;
+import com.google.common.base.Preconditions;
+
 /**
  * 카페에서 사용하는 카테고리 관련 Controller Class
  *
  * @author DigiCAP
  */
 @RestController
-@Slf4j
 public class CategoryController {
 
-  private CategoryService categoryService;
+    private CategoryService categoryService;
 
-  @Autowired
-  public CategoryController(CategoryService categoryService) {
-    this.categoryService = categoryService;
-  }
-
-  @GetMapping("/api/caffe/categories")
-  LinkedList<CategoryVo> getAllCategory() {
-    LinkedList<CategoryVo> categoriesDao = null;
-
-    try {
-      categoriesDao = categoryService.getAllCategories();
-    } catch (MyBatisSystemException | NotFindException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new UnknownException(e.getMessage());
+    @Autowired
+    public CategoryController(CategoryService categoryService) {
+        this.categoryService = categoryService;
     }
 
-    return categoriesDao;
-  }
+    @GetMapping("/api/caffe/categories")
+    LinkedList<CategoryVo> getAllCategory() {
+        LinkedList<CategoryVo> categoriesDao = null;
 
-  @PostMapping(value = "/api/caffe/categories", consumes = "application/json; charset=utf-8")
-  CategoryVo createCategory(@RequestBody CategoryVo categoryVo) {
-    // Check Parameter.
-    if (categoryVo.getName().replaceAll(" ", "").isEmpty()) {
-      throw new InvalidParameterException("name is empty");
+        try {
+            categoriesDao = categoryService.getAllCategories();
+        } catch (MyBatisSystemException | NotFindException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new UnknownException(e.getMessage());
+        }
+
+        return categoriesDao;
     }
 
-    CategoryVo result = categoryService.postCategory(categoryVo.getName());
-    return result;
-  }
+    @PostMapping(value = "/api/caffe/categories", consumes = "application/json; charset=utf-8")
+    CategoryVo createCategory(@RequestBody CategoryVo categoryVo) {
+        // Check Parameter.
+        if (categoryVo.getName().replaceAll(" ", "").isEmpty()) {
+            throw new InvalidParameterException("name is empty");
+        }
 
-  @DeleteMapping("/api/caffe/categories/{code}")
-  MenusInCategoryDto deleteCategory(@PathVariable("code") int code) {
-    // Check Argument.
-    Preconditions.checkArgument(code >= 0, "invalid code(%d)", code);
+        CategoryVo result = categoryService.postCategory(categoryVo.getName());
+        return result;
+    }
 
-    MenusInCategoryDto result = categoryService.deleteCategory(code);
-    return result;
-  }
+    @DeleteMapping("/api/caffe/categories/{code}")
+    MenusInCategoryDto deleteCategory(@PathVariable("code") int code) {
+        // Check Argument.
+        Preconditions.checkArgument(code >= 0, "invalid code(%d)", code);
 
-  @PatchMapping(value = "/api/caffe/categories", consumes = "application/json; charset=utf-8")
-  void updateAllCategory(@RequestBody LinkedList<CategoryVo> categories) {
-    categoryService.updateAll(categories);
-  }
+        MenusInCategoryDto result = categoryService.deleteCategory(code);
+        return result;
+    }
+
+    @PatchMapping(value = "/api/caffe/categories", consumes = "application/json; charset=utf-8")
+    void updateAllCategory(@RequestBody LinkedList<CategoryVo> categories) {
+        categoryService.updateAll(categories);
+    }
 }

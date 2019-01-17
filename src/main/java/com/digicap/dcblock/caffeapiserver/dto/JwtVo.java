@@ -9,12 +9,12 @@ import lombok.*;
 @RequiredArgsConstructor
 public class JwtVo {
 
-  @NonNull
-  private List<String> authorities;
+    @NonNull
+    private List<String> authorities;
 
-  @NonNull
-  private String company;
+    @NonNull
+    private String company;
 
-  @NonNull
-  private String scope;
+    @NonNull
+    private String scope;
 }

@@ -10,17 +10,21 @@ import lombok.Setter;
 @Builder
 public class PurchaseWhere {
 
-  private Timestamp before;
+    private Timestamp before;
 
-  private Timestamp after;
+    private Timestamp after;
 
-  private int filter;
+    private int filter;
 
-  private String company;
+    private String company;
 
-  private long userRecordIndex;
+    private long userRecordIndex;
 
-  private int size;
+    private int perPage;
 
-  private int page;
+    private int page;
+
+    private int purchaseType;
+    
+    private int receiptStatus;
 }

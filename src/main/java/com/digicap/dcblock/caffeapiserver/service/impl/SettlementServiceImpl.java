@@ -1,27 +1,38 @@
 package com.digicap.dcblock.caffeapiserver.service.impl;
 
-import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
-import com.digicap.dcblock.caffeapiserver.dto.PurchaseNewDto;
-import com.digicap.dcblock.caffeapiserver.dto.PurchaseSearchDto;
-import com.digicap.dcblock.caffeapiserver.dto.SettlementReportDto;
-import com.digicap.dcblock.caffeapiserver.dto.SettlementUserReportDto;
-import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
-import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
-import com.digicap.dcblock.caffeapiserver.service.SettlementService;
-import com.digicap.dcblock.caffeapiserver.store.PurchaseMapper;
-import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
+import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.util.*;
+import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseSearchDto;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseSearchPageDto;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
+import com.digicap.dcblock.caffeapiserver.dto.PurchaseWhere;
+import com.digicap.dcblock.caffeapiserver.dto.SettlementReportDto;
+import com.digicap.dcblock.caffeapiserver.dto.SettlementReportGuestsDto;
+import com.digicap.dcblock.caffeapiserver.dto.SettlementUserReportPageDto;
+import com.digicap.dcblock.caffeapiserver.exception.NotFindException;
+import com.digicap.dcblock.caffeapiserver.exception.UnknownException;
+import com.digicap.dcblock.caffeapiserver.service.SettlementService;
+import com.digicap.dcblock.caffeapiserver.store.PurchaseMapper;
+import com.digicap.dcblock.caffeapiserver.type.PurchaseType;
+import com.digicap.dcblock.caffeapiserver.util.TimeFormat;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 정산 처리 Service Implement.
  */
 @Service
 @Primary
+@Slf4j
 public class SettlementServiceImpl implements CaffeApiServerApplicationConstants, SettlementService {
 
     private PurchaseMapper purchaseMapper;
@@ -40,60 +51,69 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
     /**
      * 사용자의 구매 보고서를 처리.
      *
-     * @param before
-     * @param after
-     * @param recordIndex
+     * @param w
      * @return
      */
     @Override
-    public SettlementUserReportDto getReportByRecordIndex(Timestamp before, Timestamp after, long recordIndex) {
-        SettlementUserReportDto reportDto = new SettlementUserReportDto();
+    public SettlementUserReportPageDto getReportByRecordIndex(PurchaseWhere w) {
+        SettlementUserReportPageDto result = new SettlementUserReportPageDto();
 
         // Get purchases by user
         try {
             // TODO company
-            LinkedList<PurchaseNewDto> r = purchaseMapper.selectAllUser(before, after, recordIndex, "");
-            if (r == null || r.size() == 0)  {
+//            LinkedList<PurchaseNewDto> r = purchaseMapper.selectAllUser(w.getBefore(), w.getAfter(), w.getUserRecordIndex(), "");
+            LinkedList<PurchaseVo> r = purchaseMapper.selectSearchBy(w);
+            if (r == null) {
                 throw new NotFindException("not find purchases by user");
             }
 
             LinkedList<PurchaseSearchDto> purchases = new LinkedList<>();
 
             // 정의된 응답으로 변경.
-            for (PurchaseNewDto p : r) {
+            for (PurchaseVo p : r) {
                 PurchaseSearchDto ps = new PurchaseSearchDto(p);
                 purchases.add(ps);
             }
 
             // Set
-            reportDto.setPurchases(purchases);
+            result.setPurchases(purchases);
 
             // Set name
-            String name = r.get(0).getName();
-            reportDto.setName(name);
+            if (r.size() > 0) {
+                String name = r.get(0).getName();
+                result.setName(name);
+            }
         } catch (NotFindException e) {
             throw e;
         } catch (Exception e) {
             throw new UnknownException(e.getMessage());
         }
 
-        // Get Canceled price
-        long canceledPrice = calcTotalCanceledPrice(reportDto.getPurchases());
-        long canceledDcPrice = calcDcTotalCanceledPrice(reportDto.getPurchases());
+        // Get totalPage
+        try {
+            int totalCount = purchaseMapper.selectCount(w);
+            int totalPage = totalCount / w.getPerPage();
+            if (totalCount % w.getPerPage() > 0) {
+                totalCount = ++totalPage;
+            }
+            result.setTotalPages(totalCount);
+        } catch (Exception e) {
+            throw e;
+        }
 
         // Get total price
-        long price = calcTotalPrice(reportDto.getPurchases()) - canceledPrice;
-        reportDto.setTotalPrice(price);
-
         // Get total dc_price
-        price = calcTotalDcPrice(reportDto.getPurchases()) - canceledDcPrice;
-        reportDto.setTotalDcPrice(price);
+        try {
+            HashMap<String, Long> balance = purchaseMapper.selectBalanceAccounts(w);
+            if (balance != null) {
+                result.setTotalPrice(balance.getOrDefault("balance", 0L));
+                result.setTotalDcPrice(balance.getOrDefault("dcbalance",0L));
+            }
+        } catch (Exception e) {
+            throw e;
+        }
 
-        // Set time
-        reportDto.setBeforeDate(before.getTime() / 1_000);
-        reportDto.setAfterDate(after.getTime() / 1_000);
-
-        return reportDto;
+        return result;
     }
 
     /**
@@ -109,18 +129,18 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
 
         // Get purchases
         // user_record_index = -1은 모든 사용자
-        LinkedList<PurchaseNewDto> purchases = purchaseMapper.selectAllUser(before, after, -1, company);
+        LinkedList<PurchaseVo> purchases = purchaseMapper.selectAllUser(before, after, -1, company);
         if (purchases == null || purchases.size() == 0)  {
 //            throw new NotFindException("not find purchases");
             return results;
         }
 
         // 사용자별 계산을 위해 임시 정렬 HashMap
-        HashMap<Long, List<PurchaseNewDto>> temp = new HashMap<>();
+        HashMap<Long, List<PurchaseVo>> temp = new HashMap<>();
 
-        Iterator<PurchaseNewDto> itr = purchases.iterator();
+        Iterator<PurchaseVo> itr = purchases.iterator();
         while (itr.hasNext()) {
-            PurchaseNewDto purchase = itr.next();
+            PurchaseVo purchase = itr.next();
             long userRecordIndex = purchase.getUser_record_index();
 
             int receiptStatus = purchase.getReceipt_status();
@@ -140,27 +160,27 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
             }
 
             // 손님 결재는 정산 대상이 아님.
-            if (purchase.getPurchase_type() == PURCHASE_TYPE_GUEST) {
+            if (purchase.getPurchase_type() == PurchaseType.GUEST) {
                 continue;
             }
 
             if (!temp.containsKey(userRecordIndex)) {
-                List<PurchaseNewDto> l = new LinkedList<>();
+                List<PurchaseVo> l = new LinkedList<>();
                 l.add(purchase);
                 temp.put(userRecordIndex, l);
             } else {
-                List<PurchaseNewDto> l = temp.get(userRecordIndex);
+                List<PurchaseVo> l = temp.get(userRecordIndex);
                 l.add(purchase);
             }
         }
 
         // 사용자별로 total_price, total_dc_price, billing 계산
-        Iterator<List<PurchaseNewDto>> iterator = temp.values().iterator();
+        Iterator<List<PurchaseVo>> iterator = temp.values().iterator();
         while (iterator.hasNext()) {
             SettlementReportDto s = new SettlementReportDto();
 
-            List<PurchaseNewDto> l = iterator.next();
-            for (PurchaseNewDto p : l) {
+            List<PurchaseVo> l = iterator.next();
+            for (PurchaseVo p : l) {
                 s.setName(p.getName());
                 s.setEmail(p.getEmail());
                 s.setCompany(p.getCompany());
@@ -198,6 +218,163 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
         }
 
         return results;
+    }
+
+    @Override
+    public SettlementReportGuestsDto getReportForGuests(Timestamp before, Timestamp after, long recordIndex) {
+        // Set Where for Query
+        PurchaseWhere w = PurchaseWhere.builder()
+                .page(0) // unused pagination
+                .before(before)
+                .after(after)
+                .company(COMPANY_DIGICAP) // guest purchase only digicap
+                .userRecordIndex(recordIndex)
+                .purchaseType(PURCHASE_TYPE_GUEST)
+                .build();
+
+        SettlementReportGuestsDto result = new SettlementReportGuestsDto();
+
+        // Get Purchases
+        LinkedList<PurchaseVo> purchases = purchaseMapper.selectSearchBy(w);
+        if (purchases == null) {
+            throw new NotFindException("not find purchases for guests");
+        }
+
+        // Set User
+        if (recordIndex > 0 && purchases.size() > 0) {
+            result.setName(purchases.get(0).getName());
+            result.setEmail(purchases.get(0).getEmail());
+        }
+
+        // Set TotalCount
+        result.setTotalCount(purchases.size());
+
+        // Count & Calculation
+        long totalPurchasePrice = 0;
+        long totalCancelPrice = 0;
+        long totalCanceledPrice = 0;
+
+        int totalPurchaseCount = 0;
+        int totalCancelCount = 0;
+        int totalCanceledCount = 0;
+
+        for (PurchaseVo p : purchases) {
+            long temp = p.getPrice() * p.getCount();
+
+            switch (p.getReceipt_status()) {
+                case RECEIPT_STATUS_PURCHASE:
+                    totalPurchasePrice += temp;
+                    totalPurchaseCount++;
+                    break;
+                case RECEIPT_STATUS_CANCEL:
+                    totalCancelPrice += temp;
+                    totalCancelCount++;
+                    break;
+                case RECEIPT_STATUS_CANCELED:
+                    totalCanceledPrice += temp;
+                    totalCanceledCount++;
+                    break;
+            }
+        }
+
+        // Set Prices
+        result.setTotalPurchasePrice(totalPurchasePrice);
+        result.setTotalCancelPrice(totalCancelPrice);
+        result.setTotalCanceledPrice(totalCanceledPrice);
+        result.setTotalPrice(totalPurchasePrice + totalCancelPrice + totalCanceledPrice);
+
+        // Set Counties
+        result.setTotalPurchaseCount(totalPurchaseCount);
+        result.setTotalCancelCount(totalCancelCount);
+        result.setTotalCanceledCount(totalCanceledCount);
+
+        return result;
+    }
+
+    @Override
+    public PurchaseSearchPageDto getReportsBySearch(PurchaseWhere w) {
+        // Query
+        LinkedList<PurchaseVo> r = purchaseMapper.selectSearchBy(w);
+        if (r == null) {
+            throw new NotFindException(String.format("not find purchases for user(%s)", w.getUserRecordIndex()));
+        }
+
+        LinkedList<PurchaseSearchDto> purchases = new LinkedList<>();
+
+        // 정의된 응답으로 변경.
+        for (PurchaseVo p : r) {
+            PurchaseSearchDto ps = new PurchaseSearchDto(p);
+            purchases.add(ps);
+        }
+
+        PurchaseSearchPageDto result = new PurchaseSearchPageDto();
+        result.setList(purchases);
+
+        try {
+            int totalCount = purchaseMapper.selectCount(w);
+            result.setTotalPages(totalCount);
+        } catch (Exception e) {
+            throw e;
+        }
+
+        return result;
+    }
+
+    /**
+     * 매월 1일 이월정산 기능
+     * @return 이월정산 user_record_index, balance HashMap
+     */
+    @Override
+    public int getBalanceAccountLastMonth() {
+        int result = 0;
+
+        try {
+            // 1. Get 지난 달 모든 사용자의 구매총액
+            LinkedList<HashMap<String, Object>> lastbalances = purchaseMapper.selectBalanceAccountLastMonth();
+
+            // 2. Get 지지난 달 구매, 취소하고 지난 달에 취소 완료된 모든 사용자의 취소완료금액
+            LinkedList<HashMap<String, Object>> lastBeforebalances = purchaseMapper.selectBalanceAccountMonthBeforeLast();
+            if (lastBeforebalances != null) {
+                for (HashMap<String, Object> b : lastBeforebalances) {
+                    long recordIndex = (long)b.getOrDefault("user_record_index", 0);
+                    if (recordIndex <= 0) {
+                        continue;
+                    }
+
+                    long llb = (long)b.getOrDefault("balance", 0);
+
+                    // 구매목록에서 검색
+                    for (HashMap<String, Object> last : lastbalances) {
+                        Long i = (long)last.getOrDefault("user_record_index", 0);
+
+                        if (recordIndex == i) {
+                            long lb = (long)last.getOrDefault("balance", 0);
+                            llb -= lb;
+                        }
+                    }
+
+                    if (llb > 0) {
+                        log.info(String.format("Carried Forward. name: %s, recordIndex: %s, balance: %s",
+                                b.getOrDefault("name", ""), recordIndex, llb * -1));
+
+                        // Update balance.
+                        b.put("balance", llb * -1);
+
+                        log.debug(b.toString());
+
+                        purchaseMapper.insertCarriedBalanceForward(b);
+
+                        // Update result count.
+                        result++;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw e;
+        }
+
+        // 2. purchase table 이번달에 insert
+        return result;
     }
 
     // -----------------------------------------------------------------------

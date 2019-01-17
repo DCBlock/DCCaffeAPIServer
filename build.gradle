@@ -14,9 +14,10 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: "war"
 
 group = 'com.digicap.dcblock'
-version = '0.0.1'
+version = '0.0.2'
 sourceCompatibility = 1.8
 
 repositories {
@@ -32,6 +33,10 @@ jar {
             it.isDirectory() ? it : zipTree(it)
         }
     }
+}
+
+war {
+    exclude("build/**")
 }
 
 dependencies {
@@ -63,6 +68,9 @@ dependencies {
     // https://mvnrepository.com/artifact/com.sun.xml.bind/jaxb-impl
     // compile group: 'com.sun.xml.bind', name: 'jaxb-impl', version: '2.3.1'
 
+    // java.lang.NoClassDefFoundError: javax/activation/MimeTypeParseException
+    compile('javax.activation:activation:1.1')
+
     // for WebClient
     compile 'org.springframework.boot:spring-boot-starter-webflux'
     compile 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
@@ -89,4 +97,7 @@ dependencies {
     // https://mvnrepository.com/artifact/org.zalando/logbook-spring-boot-starter
     compile group: 'org.zalando', name: 'logbook-spring-boot-starter', version: '1.11.2'
 
+    // for JSP
+    compile('javax.servlet:jstl')
+    compile("org.apache.tomcat.embed:tomcat-embed-jasper")
 }

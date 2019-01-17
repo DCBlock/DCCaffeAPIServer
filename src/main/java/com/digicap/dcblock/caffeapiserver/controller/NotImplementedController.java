@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class NotImplementedController {
 
-  @RequestMapping("/**")
-  void getError() {
-    throw new NotImplementedException();
-  }
+    @RequestMapping("/**")
+    void getError() {
+        throw new NotImplementedException();
+    }
 }

@@ -1,37 +1,56 @@
 package com.digicap.dcblock.caffeapiserver.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
-
 import java.sql.Timestamp;
+
+import com.digicap.dcblock.caffeapiserver.type.OptSize;
+import com.digicap.dcblock.caffeapiserver.type.OptType;
+import com.digicap.dcblock.caffeapiserver.type.PurchaseType;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Setter
 @Getter
-@ToString
 public class PurchaseVo {
 
-  private int code;
+    private int category;
 
-  private int price;
+    private int code;
 
-  private int dcPrice;
+    private int price;
+    
+    private int dc_price;
+    
+    private OptType opt_type;
+    
+    private OptSize opt_size;
 
-  private int optType;
+    private int count;
 
-  private int optSize;
+    private String menu_name_kr;
 
-  private int count;
+    private String name;
 
-  private String menuNameKr;
+    private long user_record_index;
 
-  private int purchaseType;
+    private int receipt_id;
 
-  private Timestamp purchaseDate;
+    private int receipt_status;
 
-  private String name;
+    private PurchaseType purchase_type;
 
-  private long userRecordIndex;
+    private String email;
 
-  private int receiptId;
+    private String company;
+
+    private Timestamp purchase_date;
+
+
+    private Timestamp update_date;
+
+    private Timestamp cancel_date;
+
+    private Timestamp canceled_date;
+
+    private long index;
 }

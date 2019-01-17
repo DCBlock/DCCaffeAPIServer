@@ -1,6 +1,7 @@
 package com.digicap.dcblock.caffeapiserver.dto;
 
 import java.sql.Timestamp;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -10,17 +11,17 @@ import lombok.ToString;
 @ToString
 public class ReceiptIdVo {
 
-  private String name;
+    private String name;
 
-  private String company;
+    private String company;
 
-  private String email;
+    private String email;
 
-  private long userRecordIndex;
+    private long userRecordIndex;
 
-  private long receiptId;
+    private long receiptId;
 
-  private String randomId;
+    private String randomId;
 
-  private Timestamp regdate;
+    private Timestamp regdate;
 }
