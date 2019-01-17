@@ -10,6 +10,11 @@ spring:
     hikari:
       maximum-pool-size: 10 
       connectionTimeout: 30000
+# for JSP
+  mvc:
+    view:
+      prefix: /WEB-INF/jsp/
+      suffix: .jsp
 
 #logging:
 #  level:
