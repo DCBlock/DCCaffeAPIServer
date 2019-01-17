@@ -20,3 +20,8 @@ DigiCAP Caffe API Server
 ## 개발 환경
 - Spring Boot 2.1.0 Release
 - Openjdk 1.8
+
+## Eclipse / STS 환경 설정
+- lombok 라이브러리를 사용하기 때문에 별도의 개발툴 환경 설정이 필요
+- Eclipse / STS: [바로가기](http://countryxide.tistory.com/16)
+- IDEA: [바로가기](http://blog.woniper.net/229)
