@@ -22,7 +22,7 @@
         )
     </insert>
 
-    <select id="selectByReceipt" resultType="com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto">
+    <select id="selectByReceipt" resultType="com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo">
         SELECT
             name,
             company,

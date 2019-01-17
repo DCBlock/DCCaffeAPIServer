@@ -6,7 +6,6 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 import com.digicap.dcblock.caffeapiserver.dto.DiscountVo;
-import com.digicap.dcblock.caffeapiserver.dto.MenuVo;
 
 /**
  * discount table을 사용하는 query들.

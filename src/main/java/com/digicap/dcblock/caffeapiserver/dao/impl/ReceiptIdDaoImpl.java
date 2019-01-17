@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.digicap.dcblock.caffeapiserver.dao.ReceiptIdDao;
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
+import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo;
 
 /**
  * receipt_ids Table DAO Implement Class.
@@ -32,7 +33,7 @@ public class ReceiptIdDaoImpl implements ReceiptIdDao {
     }
 
     @Override
-    public ReceiptIdDto selectByReceipt(int receiptId) {
+    public ReceiptIdVo selectByReceipt(int receiptId) {
         return sqlSession.selectOne("selectByReceipt", receiptId);
     }
 

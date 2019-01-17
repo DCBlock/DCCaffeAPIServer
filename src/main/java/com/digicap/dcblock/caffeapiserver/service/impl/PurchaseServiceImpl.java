@@ -28,6 +28,7 @@ import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseWhere;
 import com.digicap.dcblock.caffeapiserver.dto.PurchasedDto;
 import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdDto;
+import com.digicap.dcblock.caffeapiserver.dto.ReceiptIdVo;
 import com.digicap.dcblock.caffeapiserver.dto.UserDto;
 import com.digicap.dcblock.caffeapiserver.exception.ExpiredTimeException;
 import com.digicap.dcblock.caffeapiserver.exception.InvalidParameterException;
@@ -115,8 +116,8 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
     public PurchasedDto requestPurchases(int receiptId, PurchaseType type, List<LinkedHashMap<String, Object>> _purchases)
             throws MyBatisSystemException, NotFindException, InvalidParameterException, UnknownException {
         // parameter 확인
-        ReceiptIdDto receiptIdDto = receiptIdDao.selectByReceipt(receiptId);
-        if (receiptIdDto == null) {
+        ReceiptIdVo receiptIdVo = receiptIdDao.selectByReceipt(receiptId);
+        if (receiptIdVo == null) {
             throw new NotFindException("not find receiptId");
         }
 
@@ -130,7 +131,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
         }
 
         // hashmap to instance
-        LinkedList<PurchaseDto> purchases = toPurchaseDtos(_purchases, receiptIdDto.getEmail(), receiptIdDto.getCompany());
+        LinkedList<PurchaseDto> purchases = toPurchaseDtos(_purchases, receiptIdVo.getEmail(), receiptIdVo.getCompany());
 
         LinkedHashMap<Integer, LinkedList<MenuDto>> menusInCategory = menuService.getAllMenusUsingCode();
 
@@ -146,8 +147,8 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
             for (MenuDto menu : menusInCategory.get(category)) {
                 if (menu.getCode() == code) {
                     // 사용자 정보.
-                    purchases.get(i).setName(receiptIdDto.getName());
-                    purchases.get(i).setUser_record_index(receiptIdDto.getUserRecordIndex());
+                    purchases.get(i).setName(receiptIdVo.getName());
+                    purchases.get(i).setUser_record_index(receiptIdVo.getUserRecordIndex());
 
                     // 구매 정보.
                     purchases.get(i).setPrice(menu.getPrice());
@@ -155,7 +156,7 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
                     purchases.get(i).setReceipt_id(receiptId);
 
                     // DC 가격
-                    String company = receiptIdDto.getCompany();
+                    String company = receiptIdVo.getCompany();
                     purchases.get(i).setDc_price(menu.getDiscounts().getOrDefault(company, 0));
                 }
             }

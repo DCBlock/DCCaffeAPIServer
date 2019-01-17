@@ -21,20 +21,18 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(MenuController.class)
 public class MenuControllerTests {
 
-  @Autowired
-  private MockMvc mvc;
+    @Autowired
+    private MockMvc mvc;
 
-  @Autowired
-  private MenuService menuService;
+    @Autowired
+    private MenuService menuService;
 
-  @Test
-  public void testGetMenus() throws Exception {
-    LinkedHashMap<String, LinkedList<MenuDto>> menus = menuService.getAllMenus();
+    @Test
+    public void testGetMenus() throws Exception {
+        LinkedHashMap<String, LinkedList<MenuDto>> menus = menuService.getAllMenus();
 
-    given(menuService.getAllMenus()).willReturn(menus);
+        given(menuService.getAllMenus()).willReturn(menus);
 
-    mvc.perform(get("/api/caffe/menus"))
-        .andExpect(status()
-            .isOk()).andExpect(content().json(""));
-  }
+        mvc.perform(get("/api/caffe/menus")).andExpect(status().isOk()).andExpect(content().json(""));
+    }
 }
