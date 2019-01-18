@@ -23,10 +23,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.digicap.dcblock.caffeapiserver.CaffeApiServerApplicationConstants;
-import com.digicap.dcblock.caffeapiserver.dto.PurchasePartialDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseBalanceDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseCancelingDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseDto;
+import com.digicap.dcblock.caffeapiserver.dto.PurchasePartialDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseSearchPageDto;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseVo;
 import com.digicap.dcblock.caffeapiserver.dto.PurchaseWhere;
@@ -94,7 +94,9 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
         PurchaseType purchaseType = PurchaseType.findByType(type);
         if (purchaseType == PurchaseType.EMPTY) {
             throw new InvalidParameterException(String.format("not find purchase_type(%s)", type));
-        } 
+        } else if (purchaseType == PurchaseType.CARRIED) {
+            throw new InvalidParameterException(String.format("invalid purchase_type(%s)", type));
+        }
 
         // Casting
         List<LinkedHashMap<String, Object>> purchases = null;

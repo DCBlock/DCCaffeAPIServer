@@ -312,7 +312,11 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
 
         try {
             int totalCount = purchaseMapper.selectCount(w);
-            result.setTotalPages(totalCount);
+            int totalPage = totalCount / w.getPerPage();
+            if (totalCount % w.getPerPage() > 0) {
+                totalCount = ++totalPage;
+            }
+            result.setTotalPages(totalPage);
         } catch (Exception e) {
             throw e;
         }
