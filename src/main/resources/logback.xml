@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <property name="LOG_PATH" value="/root/dcblock/logs" />
+    <property name="LOG_PATH" value="/root/dcblock/caffe/logs" />
 
     <!-- Console log -->
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
