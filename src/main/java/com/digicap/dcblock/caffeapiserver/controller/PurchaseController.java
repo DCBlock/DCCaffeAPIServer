@@ -203,7 +203,7 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
                 .company(company)
                 .userRecordIndex(userRecordIndex)
                 .before(new Timestamp(before * 1_000L))
-                .after(new Timestamp(before * 1_000L))
+                .after(new Timestamp(after * 1_000L))
                 .perPage(perPage)
                 .page(page)
                 .build();
@@ -269,8 +269,8 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
                 .before(temporaryUriVo.getSearchDateBefore())
                 .after(temporaryUriVo.getSearchDateAfter())
                 .userRecordIndex(temporaryUriVo.getUserRecordIndex())
-                .purchaseType(PURCHASE_TYPE_ALL)
-                .receiptStatus(RECEIPT_STATUS_ALL)
+                .purchaseType(PURCHASE_TYPE_DEFAULT)
+                .receiptStatus(RECEIPT_STATUS_DEFAULT)
                 .build();
         
         // Execute Query.
