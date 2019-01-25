@@ -3,6 +3,7 @@ package com.digicap.dcblock.caffeapiserver.service.impl;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.digicap.dcblock.caffeapiserver.dto.UserDto;
 import com.digicap.dcblock.caffeapiserver.proxy.AdminServer;
@@ -67,7 +68,8 @@ public class TemporaryUriServiceImpl implements TemporaryUriService {
         vo.setName(userDto.getName());
         vo.setSearchDateAfter(after);
         vo.setSearchDateBefore(before);
-
+        vo.setRandomUri(UUID.randomUUID().toString());
+        
         // Insert
         if (temporaryUriDao.insert(vo) == 0) {
             throw new UnknownException("DB Error. insert Random URI.");
