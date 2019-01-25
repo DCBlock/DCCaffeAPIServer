@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <property name="LOG_PATH" value="/root/dcblock/caffe/logs" />
+    <property name="LOG_PATH" value="/var/log/dccaffe" />
 
     <!-- Console log -->
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
@@ -26,6 +26,9 @@
             </pattern>
         </encoder>
     </appender>
+
+
+    <logger name="com.digicap.dcblock.caffeapiserver.store.PurchaseMapper" level="DEBUG"></logger>
 
     <logger name="org.springframework" level="info" />
     <root level="info">
