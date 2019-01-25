@@ -1,9 +1,9 @@
-PID=`ps -ef | grep 'CaffeAPIServer-0.0.2' | grep -v 'grep' | awk '{ print $2 }'`
+PID=`ps -ef | grep 'DCCaffeAPI-0.0.2' | grep -v 'grep' | awk '{ print $2 }'`
 if [ -n "$PID" ]; then
 	echo $PID
 	kill $PID
 	sleep 1
-	PID=`ps -ef | grep 'CaffeAPIServer-0.0.2' | grep -v 'grep' | awk '{ print $2 }'`
+	PID=`ps -ef | grep 'DCCaffeAPI-0.0.2' | grep -v 'grep' | awk '{ print $2 }'`
 
 	if [ -n "$PID" ]; then
 	        echo "$PID is not kill yet."
