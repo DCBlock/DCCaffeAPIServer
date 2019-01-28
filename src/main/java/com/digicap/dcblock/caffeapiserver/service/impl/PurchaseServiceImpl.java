@@ -287,8 +287,14 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
 
         // Result
         PurchaseBalanceDto balanceDto = new PurchaseBalanceDto();
-        balanceDto.setTotal_price(balances.getOrDefault("balance", (long) 0));
-        balanceDto.setTotal_dc_price(balances.getOrDefault("dcbalance", (long) 0));
+        if (balances != null) {
+            balanceDto.setTotal_price(balances.getOrDefault("balance", (long) 0));
+            balanceDto.setTotal_dc_price(balances.getOrDefault("dcbalance", (long) 0));
+        } else {
+            balanceDto.setTotal_price(0);
+            balanceDto.setTotal_dc_price(0);
+        }
+
         balanceDto.setName(userDto.getName());
         
         return balanceDto;

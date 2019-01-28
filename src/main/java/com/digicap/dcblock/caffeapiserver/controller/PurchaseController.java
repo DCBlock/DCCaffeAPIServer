@@ -280,8 +280,13 @@ public class PurchaseController implements CaffeApiServerApplicationConstants {
             // Result
             LinkedHashMap<String, Object> result = new LinkedHashMap<>();
             result.put("name", temporaryUriVo.getName());
-            result.put("total", balances.getOrDefault("balance", (long) 0));
-            result.put("dc_total", balances.getOrDefault("dcbalance", (long) 0));
+            if (balances != null) {
+                result.put("total", balances.getOrDefault("balance", (long) 0));
+                result.put("dc_total", balances.getOrDefault("dcbalance", (long) 0));
+            } else {
+                result.put("total", 0);
+                result.put("dc_total", 0);
+            }
             result.put("purchases", cancels2);
             return result;
         } catch (Throwable t) {
