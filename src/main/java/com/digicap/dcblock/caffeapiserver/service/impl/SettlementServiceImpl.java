@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -80,7 +81,7 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
 
             // Set name
             if (r.size() > 0) {
-                String name = r.get(0).getName();
+                String name = Optional.ofNullable(r.get(0).getName()).orElse("");
                 result.setName(name);
             }
         } catch (NotFindException e) {
@@ -316,7 +317,7 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
             if (totalCount % w.getPerPage() > 0) {
                 totalCount = ++totalPage;
             }
-            result.setTotalPages(totalPage);
+            result.setTotalPages(totalCount);
         } catch (Exception e) {
             throw e;
         }
