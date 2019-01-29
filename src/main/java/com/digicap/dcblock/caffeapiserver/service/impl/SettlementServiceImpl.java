@@ -83,6 +83,8 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
             if (r.size() > 0) {
                 String name = Optional.ofNullable(r.get(0).getName()).orElse("");
                 result.setName(name);
+            } else {
+                result.setName("");
             }
         } catch (NotFindException e) {
             throw e;
@@ -96,6 +98,8 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
             int totalPage = totalCount / w.getPerPage();
             if (totalCount % w.getPerPage() > 0) {
                 totalCount = ++totalPage;
+            } else {
+               totalCount = totalPage; 
             }
             result.setTotalPages(totalCount);
         } catch (Exception e) {
@@ -316,6 +320,8 @@ public class SettlementServiceImpl implements CaffeApiServerApplicationConstants
             int totalPage = totalCount / w.getPerPage();
             if (totalCount % w.getPerPage() > 0) {
                 totalCount = ++totalPage;
+            } else {
+                totalCount = totalPage;
             }
             result.setTotalPages(totalCount);
         } catch (Exception e) {

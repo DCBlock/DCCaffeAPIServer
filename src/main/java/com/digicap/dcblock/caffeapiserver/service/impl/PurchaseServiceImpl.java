@@ -348,9 +348,11 @@ public class PurchaseServiceImpl implements PurchaseService, CaffeApiServerAppli
 
             try {
                 int totalCount = purchaseMapper.selectCount(w);
-                int t = totalCount / w.getPerPage();
+                int totalPage = totalCount / w.getPerPage();
                 if (totalCount % w.getPerPage() > 0) {
-                    totalCount = t++;
+                    totalCount = totalPage++;
+                } else {
+                    totalCount = totalPage;
                 }
                 result.setTotalPages(totalCount);
             } catch (Exception e) {
