@@ -26,7 +26,9 @@ Client -> L4(Proxy) -> Application과 같은 프록시 환경에서는 Applicati
 이 경우에 Remote_host의 IP를 확인해야 할 경우 Header의 X-Forward-For를 확인하면 된다.
 
 > SpringBoot에서 X-Forward-For 설정하기 [[참고 링크]](https://docs.spring.io/spring-boot/docs/current/reference/html/howto-security.html)
+
 > application.properties는 다음 예제와 같이 항목을 추가
+
 ```
 server.tomcat.remote-ip-header = x-forwarded-for
 server.tomcat.protocol-header = x-forwarded-proto
