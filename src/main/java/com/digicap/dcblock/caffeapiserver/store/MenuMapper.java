@@ -19,7 +19,7 @@ public interface MenuMapper {
     @Delete("DELETE FROM menus WHERE code = #{code} AND category = #{category}")
     Integer deleteCode(@Param("code") int code, @Param("category") int category);
 
-    @Select("SELECT EXISTS(SELECT 1 FROM menus WHERE category = #{category})")
+    @Select("SELECT EXISTS(SELECT 1 FROM category WHERE code = #{category})")
     boolean existCategory(@Param("category") int category);
 
     @Select("DELETE FROM menus WHERE category = #{category} RETURNING *")

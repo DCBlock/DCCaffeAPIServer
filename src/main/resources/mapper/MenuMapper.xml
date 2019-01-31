@@ -29,7 +29,7 @@
             #{price},
             #{opt_type.code},
             #{opt_size.code},
-            (SELECT MAX("order") + 1 FROM menus WHERE category = #{category}),
+            (SELECT COALESCE(MAX("order") + 1, 1) FROM menus WHERE category = #{category}),
             #{event_name}
         )
         RETURNING *
